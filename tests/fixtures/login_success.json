@@ -1,0 +1,17 @@
+{
+    "returncode": 0,
+    "message": "User logged in",
+    "modules": [
+        {
+            "id": "1234",
+            "module_name": "1234_AQInnnnnnn_UserName_XX_CC_Thermal",
+            "config": [
+                {
+                    "mb_addr": "1",
+                    "mb_name": "unknown"
+                }
+            ]
+        }
+    ],
+    "role":"400"
+}

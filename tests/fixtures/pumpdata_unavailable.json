@@ -1,0 +1,9 @@
+{
+    "timestamp": 1614702604,
+    "error": {
+        "errorMessage": "Actual data for some variables are not available.",
+        "errorId": 9
+    },
+    "messageId": 1,
+    "data": {}
+}

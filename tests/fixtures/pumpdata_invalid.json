@@ -1,0 +1,9 @@
+{
+    "timestamp": 1614701890,
+    "error": {
+        "errorMessage": "Device 2 does not exist",
+        "errorId": 5
+    },
+    "messageId": 1,
+    "data": {}
+}

@@ -1,7 +1,7 @@
 """MasterTherm Controller, for handling MasterTherm Data."""
 import logging
 
-from masterthermconnect.connecton import Connection
+from masterthermconnect.connection import Connection
 
 _LOGGER = logging.getLogger(__name__)
 

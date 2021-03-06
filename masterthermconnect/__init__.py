@@ -5,6 +5,8 @@ from masterthermconnect.controller import Controller
 from masterthermconnect.exceptions import (
     MasterThermAuthenticationError,
     MasterThermConnectionError,
+    MasterThermResponseFormatError,
+    MasterThermTokenInvalid,
 )
 
 __all__ = [
@@ -13,4 +15,6 @@ __all__ = [
     "Controller",
     "MasterThermAuthenticationError",
     "MasterThermConnectionError",
+    "MasterThermResponseFormatError",
+    "MasterThermTokenInvalid",
 ]

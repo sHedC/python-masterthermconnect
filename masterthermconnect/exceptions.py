@@ -14,3 +14,17 @@ class MasterThermConnectionError(Exception):
         super(MasterThermConnectionError,self).__init__(status)
         self.status = status
         self.message = message
+
+class MasterThermResponseFormatError(Exception):
+    """Raised when page returns an unexpected response."""
+    def __init__(self,status):
+        """Initialize."""
+        super(MasterThermResponseFormatError,self).__init__(status)
+        self.status = status
+
+class MasterThermTokenInvalid(Exception):
+    """Raised when page returns the Token is not valie."""
+    def __init__(self, status):
+        """Initialize."""
+        super(MasterThermTokenInvalid,self).__init__(status)
+        self.status = status

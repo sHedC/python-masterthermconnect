@@ -108,12 +108,19 @@ class Connection:
         # Check expiry, maybe just get info to check.
         return self.__isConnected
 
-    async def getModuleInfo(self, module_id, device_id):
+    async def getDeviceInfo(self, module_id, device_id):
         """Return the Pump Information as sent from server."""
         params = f"moduleid={module_id}&unitid={device_id}&application={APP_OS}"
         response = await self.__post(URL_PUMPINFO,params)
         return response
 
-    async def getDeviceData(self, moduleId, deviceId):
-        return {}
+    async def getDeviceData(self, module_id, device_id, last_update_time = None):
+        """Return the Device Data from the server."""
+        params = f"moduleId={module_id}&deviceId={device_id}&application={APP_OS}&"
+        if last_update_time is None:
+            params = params + "messageId=1&lastUpdateTime=0&errorResponse=true&fullRange=true"
+        else:
+            params = params + f"messageId=2&lastUpdateTime={last_update_time}&errorResponse=true&fullRange=true"
+        response = await self.__post(URL_PUMPDATA,params)
+        return response
         

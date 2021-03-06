@@ -72,9 +72,27 @@ class ConnectionTestCase(AioHTTPTestCase):
             response = web.Response(text=responseText,content_type="application/json")
             return response
 
+        async def _getData(request):
+            """Get the Pump Info."""
+            data = await request.post()
+            module_id = data["moduleId"]
+            device_id = data["deviceId"]
+            last_update_time = data["lastUpdateTime"]
+
+            if not self.loggedIn:
+                responseText = load_fixture("pumpdata_unavailable.json")
+            else:
+                responseText = load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
+                if responseText is None:
+                    responseText = load_fixture("pumpdata_invalid.json")
+
+            response = web.Response(text=responseText,content_type="application/json")
+            return response
+
         app = web.Application()
         app.router.add_post(URL_LOGIN,_connectResponse)
         app.router.add_post(URL_PUMPINFO,_getInfo)
+        app.router.add_post(URL_PUMPDATA,_getData)
         return app
 
     @unittest_run_loop
@@ -122,7 +140,7 @@ class ConnectionTestCase(AioHTTPTestCase):
         api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
         result = await api.connect() 
 
-        info = await api.getModuleInfo("1234","1")
+        info = await api.getDeviceInfo("1234","1")
 
         assert info != {}
         assert info["moduleid"] == "1234"
@@ -136,24 +154,66 @@ class ConnectionTestCase(AioHTTPTestCase):
 
         self.loggedIn = False
         with pytest.raises(MasterThermTokenInvalid):
-            info = await api.getModuleInfo("1234","1")
+            info = await api.getDeviceInfo("1234","1")
 
     @unittest_run_loop
     async def test_getinfo_invalid(self):
         """Test the Get Pump Info, Invalid Device."""
         api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
         result = await api.connect() 
-        info = await api.getModuleInfo("1234","2")
+        info = await api.getDeviceInfo("1234","2")
 
         assert info["returncode"] != 0
 
     @unittest_run_loop
     async def test_getdata(self):
         """Test the Get Pump Data from New."""
-        pass
+        api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
+        result = await api.connect() 
+
+        data = await api.getDeviceData("1234","1")
+
+        assert data != {}
+        assert data["error"]["errorId"] == 0
+        assert data["messageId"] == 1
+        assert data["data"] != {}
 
     @unittest_run_loop
     async def test_getdata_update(self):
         """Test the Get Pump Data Updated."""
-        pass
+        api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
+        result = await api.connect() 
 
+        data = await api.getDeviceData("1234","1")
+        assert data != {}
+
+        last_update_time = data["timestamp"]
+        a_500 = data["data"]["varfile_mt1_config1"]["001"]["A_500"]
+
+        data = await api.getDeviceData("1234", "1", last_update_time=last_update_time)
+        assert data != {}
+        assert data["error"]["errorId"] == 0
+        assert data["timestamp"] != last_update_time
+        assert data["data"]["varfile_mt1_config1"]["001"]["A_500"] != a_500
+
+    @unittest_run_loop
+    async def test_getdata_invalid(self):
+        """Test the Get Pump Data invalid device."""
+        api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
+        result = await api.connect() 
+
+        data = await api.getDeviceData("1234","2")
+        assert data != {}
+        assert data["error"]["errorId"] != 0
+
+    @unittest_run_loop
+    async def test_getdata_unavailable(self):
+        """Test the Get Pump Data unavailable device."""
+        api = Connection(self.client,VALID_LOGIN["uname"],VALID_LOGIN["upwd"])
+        result = await api.connect() 
+
+        self.loggedIn = False
+
+        data = await api.getDeviceData("1234","1")
+        assert data != {}
+        assert data["error"]["errorId"] == 9

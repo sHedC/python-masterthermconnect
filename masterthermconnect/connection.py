@@ -59,7 +59,8 @@ class Connection:
             raise Exception() from ex
 
         if response.status != 200:
-            raise MasterThermConnectionError(str(response.status))
+            errorMsg = await response.text()
+            raise MasterThermConnectionError(str(response.status),errorMsg)
 
         # Convert to JSON if possible and return the result
         try:
@@ -68,10 +69,10 @@ class Connection:
             responseText = await response.text()
             if responseText == "User not logged in":
                 _LOGGER.error("MasterTherm API Invalid Token: %s", responseText)
-                raise MasterThermTokenInvalid("Token Expired")
+                raise MasterThermTokenInvalid("1", responseText)
             else:
                 _LOGGER.error("MasterTherm API some other error: %s", responseText)
-                raise MasterThermResponseFormatError(responseText)
+                raise MasterThermResponseFormatError("2",responseText)
 
         return responseJSON
 

@@ -7,6 +7,8 @@ from aiohttp import web, ClientSession
 from aiohttp.test_utils import AioHTTPTestCase, unittest_run_loop
 from unittest.mock import patch
 
+from masterthermconnect import MasterThermResponseFormatError
+
 VALID_LOGIN = {
     "uname": "user name",
     "upwd": "hashpass",
@@ -24,9 +26,29 @@ def load_fixture(filename):
     except Exception:
         return None
 
-class MasterThermTestCase(AioHTTPTestCase):
-    """The Base Test Class for the bulk of the testing, sets up some override methods."""
+class ConnectionMock:
+    """Mock the Connection Class to return what we want."""
 
-    def setUp(self):
-        super().setUp()
-        
+    def __init__(self):
+        """Initialize the Connection Mock."""
+
+    def connect(self,role = "400"):
+        """Mock Connect, Return Connect Success/ Failures."""
+        result = json.loads(load_fixture("login_success.json"))
+        result["role"] = role
+
+        return result
+
+    def getDeviceInfo(self,module_id,device_id):
+        info = json.loads(load_fixture(f"pumpinfo_{module_id}_{device_id}.json"))
+        if info is None:
+            info = json.loads(load_fixture("pumpinfo_invalid.json"))
+
+        return info
+
+    def getDeviceData(self,module_id,device_id,last_update_time="0"):
+        data = json.loads(load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json"))
+        if data is None:
+            data = json.loads(load_fixture("pumpdata_unavailable.json"))
+
+        return data

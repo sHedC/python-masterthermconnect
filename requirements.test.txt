@@ -3,3 +3,4 @@ pytest-aiohttp
 pytest-cov==2.9.0
 pytest-homeassistant-custom-component
 scapy
+pre-commit

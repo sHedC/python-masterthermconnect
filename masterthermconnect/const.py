@@ -51,7 +51,7 @@ DEVICE_INFO_MAP = {
     "output": "output",
     "reservation": "reservation",
     "place": "city",
-    "lattitude": "password9",
+    "latitude": "password9",
     "longitude": "password10",
     "notes": "notes",
     "pada": "pada",

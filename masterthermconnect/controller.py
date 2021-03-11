@@ -11,13 +11,11 @@ from .const import (
     PAD_MAP,
     SUPPORTED_ROLES,
 )
-from .exceptions import (
-    MasterThermUnsupportedRole,
-)
+from .exceptions import MasterThermUnsupportedRole
 
 _LOGGER = logging.getLogger(__name__)
 
-class Controller(object):
+class Controller:
     """Mastertherm Connect Object."""
 
     def __init__(self, websession, username, password):

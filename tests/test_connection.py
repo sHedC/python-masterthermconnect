@@ -137,7 +137,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getinfo(self):
         """Test the Get Pump Info."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         info = await api.getDeviceInfo("1234", "1")
 
@@ -149,7 +149,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getinfo_notconnected(self):
         """Test the Get Pump Info, on logged in."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         self.loggedIn = False
         with pytest.raises(MasterThermTokenInvalid):
@@ -159,7 +159,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getinfo_invalid(self):
         """Test the Get Pump Info, Invalid Device."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
         info = await api.getDeviceInfo("1234", "2")
 
         assert info["returncode"] != 0
@@ -168,7 +168,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getdata(self):
         """Test the Get Pump Data from New."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         data = await api.getDeviceData("1234", "1")
 
@@ -181,7 +181,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getdata_update(self):
         """Test the Get Pump Data Updated."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         data = await api.getDeviceData("1234", "1")
         assert data != {}
@@ -199,7 +199,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getdata_invalid(self):
         """Test the Get Pump Data invalid device."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         data = await api.getDeviceData("1234", "2")
         assert data != {}
@@ -209,7 +209,7 @@ class ConnectionTestCase(AioHTTPTestCase):
     async def test_getdata_unavailable(self):
         """Test the Get Pump Data unavailable device."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-        assert await api.connect() is True
+        assert await api.connect() is not {}
 
         self.loggedIn = False
 

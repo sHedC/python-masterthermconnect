@@ -1,8 +1,7 @@
 """MasterTherm Connection to the Web API."""
-import logging
-
 from datetime import datetime
 from hashlib import sha1
+import logging
 from urllib.parse import urljoin
 
 from masterthermconnect.const import (
@@ -10,13 +9,14 @@ from masterthermconnect.const import (
     APP_OS,
     APP_VERSION,
     COOKIE_TOKEN,
-    HEADER_TOKEN_EXPIRES,
     DATE_FORMAT,
+    HEADER_TOKEN_EXPIRES,
     URL_BASE,
     URL_LOGIN,
     URL_PUMPDATA,
     URL_PUMPINFO,
 )
+
 from .exceptions import (
     MasterThermAuthenticationError,
     MasterThermConnectionError,
@@ -124,4 +124,3 @@ class Connection:
             params = params + f"messageId=2&lastUpdateTime={last_update_time}&errorResponse=true&fullRange=true"
         response = await self.__post(URL_PUMPDATA,params)
         return response
-        

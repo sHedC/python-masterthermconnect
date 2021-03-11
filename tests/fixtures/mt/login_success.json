@@ -1,0 +1,49 @@
+{
+    "returncode": 0,
+    "message": "User logged in",
+    "modules": [
+        {
+            "id": "0001",
+            "module_name": "1: 0001_BAI30_MasterTherm_Hradsko_CZ_MasterTherm",
+            "config": [
+                {
+                    "mb_addr": 1,
+                    "mb_name": "1: 0001_BA30I_Hradsko_CZ"
+                }
+            ]
+        },
+        {
+            "id": "0002",
+            "module_name": "2: 0002_aq4500312_Ebroer-Ryvol_HradekNadNisou_CZ_MT-TC",
+            "config": [
+                {
+                    "mb_addr": "1",
+                    "mb_name": "1: Modbus device 1"
+                }
+            ]
+        },
+        {
+            "id": "0524",
+            "module_name": "524: 0524_BAI4501314_Bristol_Eclipse_UK_Thermal",
+            "config": [
+                {
+                    "mb_addr": "1",
+                    "mb_name": "1: Modbus device 1"
+                },
+                {
+                    "mb_addr": "2",
+                    "mb_name": "2: Modbus device 2"
+                },
+                {
+                    "mb_addr": "3",
+                    "mb_name": "3: Modbus device 3"
+                },
+                {
+                    "mb_addr": "4",
+                    "mb_name": "4: Modbus device 4"
+                }
+            ]
+        }
+    ],
+    "role": "400"
+}

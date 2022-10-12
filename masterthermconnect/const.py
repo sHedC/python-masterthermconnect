@@ -14,7 +14,9 @@ URL_PUMPINFO = "/plugins/get_pumpinfo/get_pumpinfo.php"
 URL_PUMPDATA = "/mt/PassiveVizualizationServlet"
 
 # Used to setup the pad name, for some reason they don't like the letter Q
-CHAR_MAP = ["-","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","R","S","T","U","V","W","X","Y","Z"]
+CHAR_MAP = ["-","A","B","C","D","E","F","G",
+    "H","I","J","K","L","M","N","O","P","R",
+    "S","T","U","V","W","X","Y","Z"]
 
 DEVICE_SWITCH_MAP = {
     0: "D_348",
@@ -30,7 +32,7 @@ DEVICE_SWITCH_MAP = {
 
 PAD_MAP = {
     0: "heating",
-    1: "cooling",  
+    1: "cooling",
     2: "padf",
     3: "pade",
     4: "padd",

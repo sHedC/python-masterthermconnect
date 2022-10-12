@@ -3,4 +3,3 @@
 
 async def test_loadall():
     """Test a load of all the data."""
-    pass

@@ -13,9 +13,8 @@ def load_fixture(filename):
         path = os.path.join(os.path.dirname(__file__), "fixtures", filename)
         with open(path, encoding="utf-8") as fptr:
             return fptr.read()
-    except Exception:
+    except OSError:
         return None
-
 
 class ConnectionMock:
     """Mock the Connection Class to return what we want."""
@@ -30,7 +29,7 @@ class ConnectionMock:
 
         return result
 
-    def getDeviceInfo(self, module_id, device_id):
+    def get_device_info(self, module_id, device_id):
         """Return the Device Information from fixtures."""
         info = json.loads(load_fixture(f"pumpinfo_{module_id}_{device_id}.json"))
         if info is None:
@@ -38,7 +37,7 @@ class ConnectionMock:
 
         return info
 
-    def getDeviceData(self, module_id, device_id, last_update_time="0"):
+    def get_device_data(self, module_id, device_id, last_update_time="0"):
         """Return Device Data from fixtures."""
         data = json.loads(
             load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")

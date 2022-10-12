@@ -21,10 +21,10 @@ class Controller:
     def __init__(self, websession, username, password):
         """Initialize the Connection Object."""
         self.__api = Connection(websession, username, password)
-        self.__deviceMap = None
-        self.__invertedMap = None
+        self.__device_map = None
+        self.__inverted_map = None
         self.__role = ""
-        self.__dataLoaded = False
+        self.__data_loaded = False
 
         # The device structure is held as a dictionary with the following format:
         # {
@@ -38,165 +38,181 @@ class Controller:
         # }
         self.__devices = {}
 
-    def __invertDeviceMap(self, map, keyList = []):
+    def __invert_device_map(self, device_map, key_list = None):
         """Invert the given map and return, this is a nested method."""
-        invertedMap = {}
-        for key, item in map.items():
-            newKeyList = keyList.copy()
-            newKeyList.append(key)
+
+        if key_list is None:
+            key_list = []
+
+        inverted_map = {}
+        for key, item in device_map.items():
+            new_key_list = key_list.copy()
+            new_key_list.append(key)
             if not isinstance(item,dict):
-                itemValue = item[1]
-                if isinstance(itemValue,list):
-                    for listValue in itemValue:
-                        invertedMap[listValue] = newKeyList
+                item_value = item[1]
+                if isinstance(item_value,list):
+                    for list_value in item_value:
+                        inverted_map[list_value] = new_key_list
                 else:
-                    itemType = item[0]
-                    if not (itemValue == "" or itemType == "fixed"): 
-                        invertedMap[itemValue] = newKeyList
+                    item_type = item[0]
+                    if not (item_value == "" or item_type == "fixed"):
+                        inverted_map[item_value] = new_key_list
             else:
-                invertedMap.update(self.__invertDeviceMap(item, newKeyList))
+                inverted_map.update(self.__invert_device_map(item, new_key_list))
 
-        return invertedMap
+        return inverted_map
 
-    def __populateData(self, map, registers):
+    def __populate_data(self, device_map, registers):
         """Populate the Data from the fullData and DeviceMap."""
         data = {}
-        for key, item in map.items():
+        for key, item in device_map.items():
             if not isinstance(item, dict):
-                itemType = item[0]
-                itemValue = item[1]
-                if itemType == "fixed":
-                    data[key] = itemValue
-                elif itemType == "bool":
-                    if itemValue == "": data[key] = False
-                    else: data[key] = (registers[itemValue] == "1")
-                elif itemType == "float":
-                    if itemValue == "": data[key] = 0.0
-                    else: data[key] = float(registers[itemValue])
-                elif itemType == "int":
-                    if itemValue == "": data[key] = 0
-                    else: data[key] = int(registers[itemValue])
-                elif itemType == "string":
-                    if itemValue == "": data[key] = "" 
+                item_type = item[0]
+                item_value = item[1]
+                if item_type == "fixed":
+                    data[key] = item_value
+                elif item_type == "bool":
+                    if item_value == "":
+                        data[key] = False
                     else:
-                        itemStr = ""
-                        for listValue in itemValue:
-                            itemStr = itemStr + CHAR_MAP[int(registers[listValue])]
-                        data[key] = itemStr
+                        data[key] = (registers[item_value] == "1")
+                elif item_type == "float":
+                    if item_value == "":
+                        data[key] = 0.0
+                    else:
+                        data[key] = float(registers[item_value])
+                elif item_type == "int":
+                    if item_value == "":
+                        data[key] = 0
+                    else:
+                        data[key] = int(registers[item_value])
+                elif item_type == "string":
+                    if item_value == "":
+                        data[key] = ""
+                    else:
+                        item_str = ""
+                        for list_value in item_value:
+                            item_str = item_str + CHAR_MAP[int(registers[list_value])]
+                        data[key] = item_str
             else:
-                data[key] = self.__populateData(map[key], registers)
+                data[key] = self.__populate_data(device_map[key], registers)
 
         return data
 
-    def __getPadName(self, pad, id):
+    def __get_pad_name(self, pad, device_key):
         """Build the Pad Name from the full data."""
-        if pad not in DEVICE_DATA_PADMAP: return "0"
+        if pad not in DEVICE_DATA_PADMAP:
+            return "0"
 
-        padName = ""
-        padEmpty = ""
-        fullData = self.__devices[id]["fullData"]
-        for key in DEVICE_DATA_PADMAP[pad]["name"][1]:
-            padName = padName + CHAR_MAP[int(fullData[key])]
-            padEmpty = padEmpty + "-"
+        pad_name = ""
+        pad_empty = ""
+        full_data = self.__devices[device_key]["fullData"]
+        for key in DEVICE_DATA_PADMAP[device_key]["name"][1]:
+            pad_name = pad_name + CHAR_MAP[int(full_data[key])]
+            pad_empty = pad_empty + "-"
 
-        if padName == padEmpty: padName = "0"
-        return padName
+        if pad_name == pad_empty:
+            pad_name = "0"
+        return pad_name
 
-    def __enabledPADs(self, id):
+    def __enabled_pads(self, device_key):
         """Enable the Pads for the devices, decoded as best as possible."""
-        fullData = self.__devices[id]["fullData"]
-        padInfo = {}
+        full_data = self.__devices[device_key]["fullData"]
+        pad_info = {}
 
         # Pad 0 and 1 I believe are the Main Heating and Cooling circuites
         # I have heating enabled and cooling disabled but both show disabled.
         # TODO: Check what happens if I enable/ Disable what registers get updated.
         for i in range(2):
-            padInfo[PAD_MAP[i]] = (fullData[DEVICE_SWITCH_MAP[i]] == "1")
+            pad_info[PAD_MAP[i]] = (full_data[DEVICE_SWITCH_MAP[i]] == "1")
 
         # Following Code is to manage Switch Pad a to f which
         # these are various typs of circuites Water Heating/ Thermal etc.
         # TODO: see if we can identify where the types are stored.
 
         # Used in the process of Enabling/ Disabling Pads.
-        checkCode = int(fullData["I_104"])
-        if checkCode < 11: 
-            checkCode = 10 
+        check_code = int(full_data["I_104"])
+        if check_code < 11:
+            check_code = 10
         else:
-             if checkCode <= 200: checkCode = 11
+            if check_code <= 200:
+                check_code = 11
 
         # Setup and Enable Pad a to f
         for i in range(2,8):
-            padname = self.__getPadName(PAD_MAP[i], id)
-            if padname != "0" and checkCode >= 11:
-                padInfo[PAD_MAP[i]] = (fullData[DEVICE_SWITCH_MAP[i]] == "1")
+            pad_name = self.__get_pad_name(PAD_MAP[i], device_key)
+            if pad_name != "0" and check_code >= 11:
+                pad_info[PAD_MAP[i]] = (full_data[DEVICE_SWITCH_MAP[i]] == "1")
             else:
-                padInfo[PAD_MAP[i]] = False
+                pad_info[PAD_MAP[i]] = False
 
         # Pad Switch 8, no idea where a name comes from so its always disabled.
         # maby its SOLAR?
-        padname = self.__getPadName(PAD_MAP[8], id)
-        padInfo[PAD_MAP[8]] = False
-        if padname != "0":
-            if checkCode >= 11:
+        pad_name = self.__get_pad_name(PAD_MAP[8], device_key)
+        pad_info[PAD_MAP[8]] = False
+        if pad_name != "0":
+            if check_code >= 11:
                 # If any switch a to f is enabled then enable.
                 for i in range(7,1,-1):
-                    if padInfo[PAD_MAP[i]]: 
-                        padInfo[PAD_MAP[8]] = True
+                    if pad_info[PAD_MAP[i]]:
+                        pad_info[PAD_MAP[8]] = True
                         break
             else:
-                padInfo[PAD_MAP[8]] = (
-                    fullData[DEVICE_SWITCH_MAP[8]] == "1" and 
-                    float(fullData["A_190"]) > 0.1
+                pad_info[PAD_MAP[8]] = (
+                    full_data[DEVICE_SWITCH_MAP[8]] == "1" and
+                    float(full_data["A_190"]) > 0.1
                 )
 
-        return padInfo
+        return pad_info
 
-    async def __fullLoad(self):
+    async def __full_load(self):
         """Perform a full load and create structure."""
-        self.__dataLoaded = False
+        self.__data_loaded = False
 
-        for id, device in self.__devices.items():
+        for device_key, device in self.__devices.items():
             module_id = device["info"]["module_id"]
             device_id = device["info"]["device_id"]
 
             # Create the Device Info
-            deviceInfo = await self.__api.getDeviceInfo(module_id, device_id)
+            device_info = await self.__api.get_device_info(module_id, device_id)
             for key, item in DEVICE_INFO_MAP.items():
-                if item in deviceInfo: device["info"][key] = deviceInfo[item]
+                if item in device_info:
+                    device["info"][key] = device_info[item]
 
             # Get the Full Device Data
-            deviceData = await self.__api.getDeviceData(module_id, device_id)
-            device["lastUpdateTime"] = deviceData["timestamp"]
-            device["updatedData"] = deviceData["data"]["varfile_mt1_config1"]["001"].copy()
+            device_data = await self.__api.get_device_data(module_id, device_id)
+            device["lastUpdateTime"] = device_data["timestamp"]
+            device["updatedData"] = device_data["data"]["varfile_mt1_config1"]["001"].copy()
             device["fullData"] = device["updatedData"].copy()
 
             # Construct Normalized Data, using device map.
-            self.__deviceMap = DEVICE_DATA_MAP
-            enabledPads = self.__enabledPADs(id)
-            for pad, padEnabled in enabledPads.items():
-                if not padEnabled: self.__deviceMap["pads"].pop(pad, None)
+            self.__device_map = DEVICE_DATA_MAP
+            enabled_pads = self.__enabled_pads(device_key)
+            for pad, pad_enabled in enabled_pads.items():
+                if not pad_enabled:
+                    self.__device_map["pads"].pop(pad, None)
 
-            self.__invertedMap = self.__invertDeviceMap(self.__deviceMap)
-            device["data"] = self.__populateData(self.__deviceMap, device["fullData"])
+            self.__inverted_map = self.__invert_device_map(self.__device_map)
+            device["data"] = self.__populate_data(self.__device_map, device["fullData"])
 
-        self.__dataLoaded = True
+        self.__data_loaded = True
         return True
 
-    async def connect(self, updateData = True):
+    async def connect(self, update_data = True):
         """Connect to the API, check the supported roles and update if required."""
         result = await self.__api.connect()
         self.__role = result["role"]
 
-        if not result["role"] in SUPPORTED_ROLES: 
+        if self.__role not in SUPPORTED_ROLES:
             raise MasterThermUnsupportedRole("2", "Unsupported Role " + result["role"])
 
         # Initialize the Dictionary.
         self.__devices = {}
         for module in result["modules"]:
             for device in module["config"]:
-                id = module["id"] + "-" + device["mb_addr"]
+                device_key = module["id"] + "-" + device["mb_addr"]
 
-                self.__devices[id] = {
+                self.__devices[device_key] = {
                     "lastUpdateTime": "0",
                     "info": {
                         "module_id": module["id"],
@@ -209,69 +225,80 @@ class Controller:
                     "data": {},
                 }
 
-        if updateData: return await self.__fullLoad()
-        else: return True
-
-    async def refresh(self,fullLoad = False):
-        """Refresh or Reload all entries for all devices."""
-        if not await self.__api.isConnected(): return False
-
-        if fullLoad: return self.__fullLoad()
-
-        if not self.__dataLoaded: return False
-        for id in self.__devices:
-            device = self.__devices[id]
-            module_id = device["info"]["module_id"]
-            device_id = device["info"]["device_id"]
-            
-            # Refresh Device Info (checks login too)
-            deviceInfo = await self.__api.getDeviceInfo(module_id, device_id)
-            if deviceInfo["returncode"] == "0":
-                for key, item in DEVICE_INFO_MAP.items():
-                    if item in deviceInfo: device["info"][key] = deviceInfo[item]
-
-            deviceData = await self.__api.getDeviceData(module_id, device_id, last_update_time=device["lastUpdateTime"])
-
-            device["lastUpdateTime"] = deviceData["timestamp"]
-            device["updatedData"] = deviceData["data"]["varfile_mt1_config1"]["001"].copy()
-            device["fullData"].update(device["updatedData"])
-                
-            # Refresh Normalized Data
-            updateData = False
-            for registerKey in device["updatedData"]:
-                if registerKey in self.__invertedMap: 
-                    updateData = True
-                    break
-                
-            if updateData: device["data"] = self.__populateData(self.__deviceMap, device["fullData"])
+        if update_data:
+            return await self.__full_load()
 
         return True
 
-    def getDevices(self):
+    async def refresh(self,full_load = False):
+        """Refresh or Reload all entries for all devices."""
+        if not await self.__api.is_connected():
+            return False
+
+        if full_load:
+            return self.__full_load()
+
+        if not self.__data_loaded:
+            return False
+
+        for device in self.__devices.items():
+            module_id = device["info"]["module_id"]
+            device_id = device["info"]["device_id"]
+
+            # Refresh Device Info (checks login too)
+            device_info = await self.__api.get_device_info(module_id, device_id)
+            if device_info["returncode"] == "0":
+                for key, item in DEVICE_INFO_MAP.items():
+                    if item in device_info:
+                        device["info"][key] = device_info[item]
+
+            device_data = await self.__api.get_device_data(
+                module_id, device_id, last_update_time=device["lastUpdateTime"])
+
+            device["lastUpdateTime"] = device_data["timestamp"]
+            device["updatedData"] = device_data["data"]["varfile_mt1_config1"]["001"].copy()
+            device["fullData"].update(device["updatedData"])
+
+            # Refresh Normalized Data
+            update_data = False
+            for register_key in device["updatedData"]:
+                if register_key in self.__inverted_map:
+                    update_data = True
+                    break
+
+            if update_data:
+                device["data"] = self.__populate_data(self.__device_map, device["fullData"])
+
+        return True
+
+    def get_devices(self):
         """Return a List of the Devices with plus information."""
-        deviceReturn = {}
+        device_return = {}
         for device_id, device in self.__devices.items():
-            deviceReturn[device_id] = device["info"]
+            device_return[device_id] = device["info"]
 
-        return deviceReturn
+        return device_return
 
-    def getDeviceInfo(self, module_id, device_id):
+    def get_device_info(self, module_id, device_id):
         """Get the Information for a specific device."""
         info = {}
         key = module_id + "-" + device_id
-        if key in self.__devices: info = self.__devices[key]["info"]
+        if key in self.__devices:
+            info = self.__devices[key]["info"]
         return info
 
-    def getDeviceRegisters(self, module_id, device_id, lastUpdated = False):
+    def get_device_registers(self, module_id, device_id, last_updated = False):
         """Get the Device Register Data, if lastUpdated is True then get the latest update data."""
         data = {}
         key = module_id + "-" + device_id
         if key in self.__devices:
-            if lastUpdated: data = self.__devices[key]["updatedData"]
-            else: data = self.__devices[key]["fullData"]
+            if last_updated:
+                data = self.__devices[key]["updatedData"]
+            else:
+                data = self.__devices[key]["fullData"]
         return data
 
-    def getDeviceData(self, module_id, device_id):
+    def get_device_data(self, module_id, device_id):
         """Get the Device Data, if lastUpdated is True then get the latest update data."""
         data = {}
         key = module_id + "-" + device_id

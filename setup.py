@@ -1,4 +1,4 @@
-import io
+"""Setup for the Python Project."""
 import os
 import re
 import sys
@@ -17,11 +17,11 @@ def read(*parts):
     """Read file."""
     filename = os.path.join(os.path.abspath(os.path.dirname(__file__)), *parts)
     sys.stdout.write(filename)
-    with open(filename, encoding="utf-8", mode="rt") as fp:
-        return fp.read()
+    with open(filename, encoding="utf-8", mode="rt") as fptr:
+        return fptr.read()
 
 
-with open("README.md") as readme_file:
+with open("README.md", encoding="utf-8") as readme_file:
     readme = readme_file.read()
 
 setup(

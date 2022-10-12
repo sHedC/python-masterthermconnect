@@ -107,7 +107,7 @@ class Controller:
         pad_name = ""
         pad_empty = ""
         full_data = self.__devices[device_key]["fullData"]
-        for key in DEVICE_DATA_PADMAP[device_key]["name"][1]:
+        for key in DEVICE_DATA_PADMAP[pad]["name"][1]:
             pad_name = pad_name + CHAR_MAP[int(full_data[key])]
             pad_empty = pad_empty + "-"
 
@@ -241,7 +241,7 @@ class Controller:
         if not self.__data_loaded:
             return False
 
-        for device in self.__devices.items():
+        for device in self.__devices.values():
             module_id = device["info"]["module_id"]
             device_id = device["info"]["device_id"]
 

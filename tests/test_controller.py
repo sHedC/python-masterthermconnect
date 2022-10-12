@@ -13,13 +13,13 @@ from masterthermconnect import (
 
 from .conftest import VALID_LOGIN, ConnectionMock
 
-
+@pytest.mark.asyncio
 async def test_setup():
     """Test the Controller Sets up correctly."""
     api = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
     assert api is not None
 
-
+@pytest.mark.asyncio
 async def test_connect():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -33,7 +33,7 @@ async def test_connect():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-
+@pytest.mark.asyncio
 async def test_connect_unsupported():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -48,7 +48,7 @@ async def test_connect_unsupported():
 
     assert len(mock_apiconnect.mock_calls) == 1
 
-
+@pytest.mark.asyncio
 async def test_connect_failure():
     """Test the Controller Invalid Login Connection."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -64,7 +64,7 @@ async def test_connect_failure():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-
+@pytest.mark.asyncio
 async def test_connect_error():
     """Test the Controller on Connection Failure."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -78,7 +78,7 @@ async def test_connect_error():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-
+@pytest.mark.asyncio
 async def test_get_info_data():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -87,7 +87,7 @@ async def test_get_info_data():
     with patch(
         "masterthermconnect.connection.Connection.connect",
         return_value=mockconnect.connect(),
-    ) as mock_apiconnect, patch(
+    ) as mock_api_connect, patch(
         "masterthermconnect.connection.Connection.get_device_info",
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
@@ -96,7 +96,7 @@ async def test_get_info_data():
     ) as mock_get_device_data:
         assert await controller.connect() is True
 
-    assert len(mock_apiconnect.mock_calls) > 0
+    assert len(mock_api_connect.mock_calls) > 0
     assert len(mock_get_device_info.mock_calls) > 0
     assert len(mock_get_device_data.mock_calls) > 0
 
@@ -115,7 +115,7 @@ async def test_get_info_data():
     assert data["pads"]["pada"]["on"] is True
     assert "padc" not in data["pads"]
 
-
+@pytest.mark.asyncio
 async def test_getdata_update():
     """Test getting the data and getting an update.
     Test the Controller Connects and setup devices."""
@@ -126,8 +126,8 @@ async def test_getdata_update():
         "masterthermconnect.connection.Connection.connect",
         return_value=mockconnect.connect(),
     ) as mock_apiconnect, patch(
-        "masterthermconnect.connection.Connection.isConnected", return_value=True
-    ) as mock_isconnected, patch(
+        "masterthermconnect.connection.Connection.is_connected", return_value=True
+    ) as mock_is_connected, patch(
         "masterthermconnect.connection.Connection.get_device_info",
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
@@ -141,7 +141,7 @@ async def test_getdata_update():
         assert await controller.refresh() is True
 
     assert len(mock_apiconnect.mock_calls) == 1
-    assert len(mock_isconnected.mock_calls) == 1
+    assert len(mock_is_connected.mock_calls) == 1
     assert len(mock_get_device_info.mock_calls) == 2
     assert len(mock_get_device_data.mock_calls) == 2
 

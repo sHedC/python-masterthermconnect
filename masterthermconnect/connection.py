@@ -3,7 +3,6 @@ from datetime import datetime
 from hashlib import sha1
 import logging
 from urllib.parse import urljoin
-from aiohttp.client_exceptions import ClientError
 from json.decoder import JSONDecodeError
 
 from masterthermconnect.const import (

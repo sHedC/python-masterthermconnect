@@ -27,4 +27,4 @@ dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
 Homepage = "https://github.com/sHedC/python-masterthermconnect"
 
 [project.scripts]
-realpython = "masterthermconnect.__main__:main"
+mastertherconnect = "masterthermconnect.__main__:main"

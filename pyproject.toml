@@ -16,7 +16,7 @@ classifiers = [
 ]
 keywords=["mastertherm heatpump", "api", "client"]
 dependencies = [
-    "aiohttp>=3.8.1",
+    "aiohttp >= 3.8.1",
 ]
 requires-python = ">=3.9.0"
 
@@ -28,3 +28,18 @@ Homepage = "https://github.com/sHedC/python-masterthermconnect"
 
 [project.scripts]
 masterthermconnect = "masterthermconnect.__main__:main"
+
+[tool.bumpver]
+current_version = "0.0.1"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"'
+]
+"masterthermconnect/__version__.py" = ["{version}"]

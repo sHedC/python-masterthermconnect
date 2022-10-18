@@ -4,5 +4,10 @@
 
 ## Abount
 This module provides the connection and conversion tools to the API for the MasterTherm Heatpump Products.
+The project was mainly built for a Plugin to Home Assistant
 
 ## Installation
+python -m pip install masterthermconnect
+
+## Usage
+To be Completed

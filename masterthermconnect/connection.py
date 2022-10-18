@@ -11,7 +11,6 @@ from masterthermconnect.const import (
     APP_VERSION,
     COOKIE_TOKEN,
     DATE_FORMAT,
-    HEADER_TOKEN_EXPIRES,
     URL_BASE,
     URL_LOGIN,
     URL_PUMPDATA,
@@ -80,8 +79,16 @@ class Connection:
         return response_json
 
     async def connect(self):
-        """Perform the connection tot he API Server,
-        setup the Tokens and return configured modules."""
+        """Perform the connection to the Mastertherm API Server:
+
+        Returns:
+             json_repsonse (dict): Devices and Information in JSON Format
+
+        Raises:
+            MasterThermConnectionError - Failed to Connect
+            MasterThermAuthenticationError - Failed to Authenticate"""
+
+        # TODO Check Reconnection on Expire
         self.__is_connected = False
 
         params = f"login=login&uname={self.__unname}&upwd={self.__upwd}&{self.__clientinfo}"
@@ -103,8 +110,9 @@ class Connection:
                 response_json["returncode"],response_json["message"])
 
         # Get or Refresh the Token and Expiry
-        self.__token = response.cookies[COOKIE_TOKEN].value
-        self.__expires = datetime.strptime(response.headers[HEADER_TOKEN_EXPIRES], DATE_FORMAT)
+        cookie = response.cookies.get(COOKIE_TOKEN)
+        self.__token = cookie.value
+        self.__expires = datetime.strptime(cookie["expires"], DATE_FORMAT)
 
         self.__is_connected = True
         return response_json

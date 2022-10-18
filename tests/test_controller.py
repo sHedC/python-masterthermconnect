@@ -13,13 +13,11 @@ from masterthermconnect import (
 
 from .conftest import VALID_LOGIN, ConnectionMock
 
-@pytest.mark.asyncio
 async def test_setup():
     """Test the Controller Sets up correctly."""
     api = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
     assert api is not None
 
-@pytest.mark.asyncio
 async def test_connect():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -33,7 +31,6 @@ async def test_connect():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-@pytest.mark.asyncio
 async def test_connect_unsupported():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -48,7 +45,6 @@ async def test_connect_unsupported():
 
     assert len(mock_apiconnect.mock_calls) == 1
 
-@pytest.mark.asyncio
 async def test_connect_failure():
     """Test the Controller Invalid Login Connection."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -64,7 +60,6 @@ async def test_connect_failure():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-@pytest.mark.asyncio
 async def test_connect_error():
     """Test the Controller on Connection Failure."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -78,7 +73,6 @@ async def test_connect_error():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-@pytest.mark.asyncio
 async def test_get_info_data():
     """Test the Controller Connects and setup devices."""
     controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
@@ -115,7 +109,6 @@ async def test_get_info_data():
     assert data["pads"]["pada"]["on"] is True
     assert "padc" not in data["pads"]
 
-@pytest.mark.asyncio
 async def test_getdata_update():
     """Test getting the data and getting an update.
     Test the Controller Connects and setup devices."""

@@ -199,7 +199,18 @@ class Controller:
         return True
 
     async def connect(self, update_data = True):
-        """Connect to the API, check the supported roles and update if required."""
+        """Connect to the API, check the supported roles and update if required.
+
+        Parameters:
+            update_data (bool): False to only connect, default True
+
+        Returns:
+            connected (bool): True if connected Raises Error if not
+
+        Raises:
+            MasterThermConnectionError - Failed to Connect
+            MasterThermAuthenticationError - Failed to Authenticate
+            MasterThermUnsportedRole - Role is not supported by API"""
         result = await self.__api.connect()
         self.__role = result["role"]
 
@@ -273,6 +284,7 @@ class Controller:
 
     def get_devices(self):
         """Return a List of the Devices with plus information."""
+        # TODO: Add Randomize Key Data
         device_return = {}
         for device_id, device in self.__devices.items():
             device_return[device_id] = device["info"]
@@ -281,6 +293,7 @@ class Controller:
 
     def get_device_info(self, module_id, device_id):
         """Get the Information for a specific device."""
+        # TODO: Add Randomize Key Data
         info = {}
         key = module_id + "-" + device_id
         if key in self.__devices:

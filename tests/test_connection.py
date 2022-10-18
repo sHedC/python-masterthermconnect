@@ -16,7 +16,6 @@ from masterthermconnect import (
 from masterthermconnect.const import (
     COOKIE_TOKEN,
     DATE_FORMAT,
-    HEADER_TOKEN_EXPIRES,
     URL_LOGIN,
     URL_PUMPDATA,
     URL_PUMPINFO,
@@ -44,15 +43,14 @@ class ConnectionTestCase(AioHTTPTestCase):
                 response_text = load_fixture("login_invalid.json")
 
             token_expires = datetime.now() + timedelta(seconds=60)
-            expire_header = {
-                HEADER_TOKEN_EXPIRES: token_expires.strftime(DATE_FORMAT) + "GMT"
-            }
             response = web.Response(
                 text=response_text,
-                headers=expire_header,
                 content_type="application/json",
             )
-            response.set_cookie(COOKIE_TOKEN, VALID_LOGIN["token"])
+            response.set_cookie(
+                COOKIE_TOKEN, VALID_LOGIN["token"],
+                expires=token_expires.strftime(DATE_FORMAT) + "GMT"
+            )
 
             self.logged_in = True
             return response

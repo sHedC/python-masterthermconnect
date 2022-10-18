@@ -1,40 +1,24 @@
 """Contains all the MasterTherm Exception classes."""
-class MasterThermAuthenticationError(Exception):
+
+class MasterThermError(Exception):
+    """Base Exception for all MasterTherm Exceptions"""
+    def __init__(self,status, message):
+        """Initialize."""
+        super().__init__(status)
+        self.status = status
+        self.message = message
+
+class MasterThermAuthenticationError(MasterThermError):
     """Raised when login returns wrong result."""
-    def __init__(self,status, message):
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-        self.message = message
 
-class MasterThermConnectionError(Exception):
+class MasterThermConnectionError(MasterThermError):
     """Raised when communication ended in error."""
-    def __init__(self,status, message):
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-        self.message = message
 
-class MasterThermResponseFormatError(Exception):
+class MasterThermResponseFormatError(MasterThermError):
     """Raised when page returns an unexpected response."""
-    def __init__(self,status, message):
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-        self.message = message
 
-class MasterThermTokenInvalid(Exception):
+class MasterThermTokenInvalid(MasterThermError):
     """Raised when page returns the Token is not valie."""
-    def __init__(self, status, message):
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-        self.message = message
 
-class MasterThermUnsupportedRole(Exception):
+class MasterThermUnsupportedRole(MasterThermError):
     """Raised when connecting to an Unsupported Role."""
-    def __init__(self, status, message):
-        """Initialize."""
-        super().__init__(status)
-        self.status = status
-        self.message = message

@@ -2,18 +2,23 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Python: Debug Tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": [
+              "debug-test"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {"PYTEST_ADDOPTS": "--no-cov"}
+        },
+        {
             "name": "Python: Attach using Process Id",
             "type": "python",
             "request": "attach",
             "processId": "${command:pickProcess}",
             "justMyCode": true
-        },
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
         }
     ]
 }

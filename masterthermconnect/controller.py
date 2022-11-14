@@ -266,25 +266,26 @@ class Controller:
             device_data = await self.__api.get_device_data(
                 module_id, device_id, last_update_time=device["lastUpdateTime"])
 
-            device["lastUpdateTime"] = device_data["timestamp"]
-            device["updatedData"] = device_data["data"]["varfile_mt1_config1"]["001"].copy()
-            device["fullData"].update(device["updatedData"])
+            # Check that we have data, sometimes nothing is returned.
+            if device_data["data"]:
+                device["lastUpdateTime"] = device_data["timestamp"]
+                device["updatedData"] = device_data["data"]["varfile_mt1_config1"]["001"].copy()
+                device["fullData"].update(device["updatedData"])
 
-            # Refresh Normalized Data
-            update_data = False
-            for register_key in device["updatedData"]:
-                if register_key in self.__inverted_map:
-                    update_data = True
-                    break
+                # Refresh Normalized Data
+                update_data = False
+                for register_key in device["updatedData"]:
+                    if register_key in self.__inverted_map:
+                        update_data = True
+                        break
 
-            if update_data:
-                device["data"] = self.__populate_data(self.__device_map, device["fullData"])
+                if update_data:
+                    device["data"] = self.__populate_data(self.__device_map, device["fullData"])
 
         return True
 
     def get_devices(self):
         """Return a List of the Devices with plus information."""
-        # TODO: Add Randomize Key Data
         device_return = {}
         for device_id, device in self.__devices.items():
             device_return[device_id] = device["info"]
@@ -293,7 +294,6 @@ class Controller:
 
     def get_device_info(self, module_id, device_id):
         """Get the Information for a specific device."""
-        # TODO: Add Randomize Key Data
         info = {}
         key = module_id + "-" + device_id
         if key in self.__devices:

@@ -18,7 +18,7 @@ keywords=["mastertherm heatpump", "api", "client"]
 dependencies = [
     "aiohttp >= 3.8.1",
 ]
-requires-python = ">=3.9.0"
+requires-python = ">=3.9,<3.11"
 
 [project.optional-dependencies]
 dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]

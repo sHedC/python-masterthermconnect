@@ -7,27 +7,27 @@ from aiohttp import ClientSession
 
 from masterthermconnect.__version__ import __version__
 from masterthermconnect.controller import Controller
-from masterthermconnect.exceptions import MasterThermError
+from masterthermconnect.exceptions import MasterthermError
 
 def get_arguments() -> argparse.Namespace:
     """Read the Arguments passed in."""
     parser = argparse.ArgumentParser(
         prog="masterthermconnect",
-        description="Python MasterTherm Connect API Module.",
+        description="Python Mastertherm Connect API Module.",
         formatter_class=argparse.MetavarTypeHelpFormatter
     )
     parser.add_argument(
         "--version", action="version",
-        version="MasterTherm Connect API Version: "+__version__,
-        help="display the MasterTherm Connect API version"
+        version="Mastertherm Connect API Version: "+__version__,
+        help="display the Mastertherm Connect API version"
     )
     parser.add_argument(
         "--user", type=str,
-        help="login user for MasterTherm"
+        help="login user for Mastertherm"
     )
     parser.add_argument(
         "--password", type=str, default=None,
-        help="login password for MasterTherm"
+        help="login password for Mastertherm"
     )
     parser.add_argument(
         "--list-devices", action="store_true",
@@ -52,7 +52,7 @@ async def list_devices(user, password) -> int:
 
     try:
         await controller.connect()
-    except MasterThermError as mte:
+    except MasterthermError as mte:
         print("Connection Failed " + mte.message)
         return mte.status
 
@@ -68,7 +68,7 @@ async def list_device_info(user, password) -> int:
 
     try:
         await controller.connect()
-    except MasterThermError as mte:
+    except MasterthermError as mte:
         print("Connection Failed " + mte.message)
         return mte.status
 
@@ -87,7 +87,7 @@ async def list_device_data(user, password) -> int:
 
     try:
         await controller.connect()
-    except MasterThermError as mte:
+    except MasterthermError as mte:
         print("Connection Failed " + mte.message)
         return mte.status
 

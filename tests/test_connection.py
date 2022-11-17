@@ -9,9 +9,9 @@ import pytest
 
 from masterthermconnect import (
     Connection,
-    MasterThermAuthenticationError,
-    MasterThermConnectionError,
-    MasterThermTokenInvalid,
+    MasterthermAuthenticationError,
+    MasterthermConnectionError,
+    MasterthermTokenInvalid,
 )
 from masterthermconnect.const import (
     COOKIE_TOKEN,
@@ -116,14 +116,14 @@ class ConnectionTestCase(AioHTTPTestCase):
         """Test the Connection Authentication Error."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"] + "bad")
 
-        with pytest.raises(MasterThermAuthenticationError):
+        with pytest.raises(MasterthermAuthenticationError):
             await api.connect()
 
     async def test_connecterror(self):
         """Test the Connection Invalid Error."""
         api = Connection(self.client, VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
         with patch("masterthermconnect.connection.URL_LOGIN", "/"), pytest.raises(
-            MasterThermConnectionError
+            MasterthermConnectionError
         ):
             await api.connect()
 
@@ -144,7 +144,7 @@ class ConnectionTestCase(AioHTTPTestCase):
         assert await api.connect() is not {}
 
         self.logged_in = False
-        with pytest.raises(MasterThermTokenInvalid):
+        with pytest.raises(MasterthermTokenInvalid):
             await api.get_device_info("1234", "1")
 
     async def test_getinfo_invalid(self):

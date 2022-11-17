@@ -6,9 +6,9 @@ import pytest
 
 from masterthermconnect import (
     Controller,
-    MasterThermAuthenticationError,
-    MasterThermConnectionError,
-    MasterThermUnsupportedRole,
+    MasterthermAuthenticationError,
+    MasterthermConnectionError,
+    MasterthermUnsupportedRole,
 )
 
 from .conftest import VALID_LOGIN, ConnectionMock
@@ -40,7 +40,7 @@ async def test_connect_unsupported():
         "masterthermconnect.connection.Connection.connect",
         return_value=mockconnect.connect(role="999"),
     ) as mock_apiconnect:
-        with pytest.raises(MasterThermUnsupportedRole):
+        with pytest.raises(MasterthermUnsupportedRole):
             assert await controller.connect() is True
 
     assert len(mock_apiconnect.mock_calls) == 1
@@ -51,11 +51,11 @@ async def test_connect_failure():
 
     with patch(
         "masterthermconnect.connection.Connection.connect",
-        side_effect=MasterThermAuthenticationError(
+        side_effect=MasterthermAuthenticationError(
             "1", "Invalid user name or password"
         ),
     ) as mock_apiconnect:
-        with pytest.raises(MasterThermAuthenticationError):
+        with pytest.raises(MasterthermAuthenticationError):
             await controller.connect()
 
     assert len(mock_apiconnect.mock_calls) > 0
@@ -66,9 +66,9 @@ async def test_connect_error():
 
     with patch(
         "masterthermconnect.connection.Connection.connect",
-        side_effect=MasterThermConnectionError("500", "Some Other Error"),
+        side_effect=MasterthermConnectionError("500", "Some Other Error"),
     ) as mock_apiconnect:
-        with pytest.raises(MasterThermConnectionError):
+        with pytest.raises(MasterthermConnectionError):
             await controller.connect()
 
     assert len(mock_apiconnect.mock_calls) > 0

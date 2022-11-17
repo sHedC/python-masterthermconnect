@@ -7,10 +7,17 @@ COOKIE_TOKEN = "PHPSESSID"
 DATE_FORMAT = "%a, %d-%b-%Y %H:%M:%S %Z"
 SUPPORTED_ROLES = ["400"]
 
-URL_BASE = "https://mastertherm.vip-it.cz"
-URL_LOGIN = "/plugins/mastertherm_login/client_login.php"
+# Old Mastertherm Devices
+URL_BASE = "https://Mastertherm.vip-it.cz"
+URL_LOGIN = "/plugins/Mastertherm_login/client_login.php"
 URL_PUMPINFO = "/plugins/get_pumpinfo/get_pumpinfo.php"
 URL_PUMPDATA = "/mt/PassiveVizualizationServlet"
+
+# New Mastertherm Devices (Mastertherm Touch)
+URL_BASE1 = "https://Mastertherm.online"
+URL_LOGIN1 = "/auth/realms/neobox/protocol/openid-connect/token"
+URL_PUMPINFO1 = "/api/v1/hp_info"
+URL_PUMPDATA1 = "/api/v1/hp_data"
 
 # Used to setup the pad name, for some reason they don't like the letter Q
 CHAR_MAP = ["-","A","B","C","D","E","F","G",

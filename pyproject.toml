@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "masterthermconnect"
 version = "0.1.0"
-description = "Python 3 API wrapper for MasterTherm API"
+description = "Python 3 API wrapper for Mastertherm API"
 readme = "README.md"
 authors = [{ name = "Richard Holmes", email = "richard@shedc.uk" }]
 license = { file = "LICENSE" }
@@ -14,7 +14,7 @@ classifiers = [
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
 ]
-keywords=["mastertherm heatpump", "api", "client"]
+keywords=["Mastertherm heatpump", "api", "client"]
 dependencies = [
     "aiohttp >= 3.8.1",
 ]

@@ -1,4 +1,4 @@
-"""MasterTherm Connection to the Web API."""
+"""Mastertherm Connection to the Web API."""
 from datetime import datetime
 from hashlib import sha1
 import logging
@@ -18,16 +18,16 @@ from masterthermconnect.const import (
 )
 
 from .exceptions import (
-    MasterThermAuthenticationError,
-    MasterThermConnectionError,
-    MasterThermResponseFormatError,
-    MasterThermTokenInvalid,
+    MasterthermAuthenticationError,
+    MasterthermConnectionError,
+    MasterthermResponseFormatError,
+    MasterthermTokenInvalid,
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 class Connection:
-    """Connection Handler for the MasterTherm API."""
+    """Connection Handler for the Mastertherm API."""
 
     def __init__(self, websession, username, password):
         """Initiate the Connection API."""
@@ -57,12 +57,12 @@ class Connection:
                 cookies=cookies
             )
         except Exception as ex:
-            _LOGGER.error("MasterTherm API some other error: %s", ex)
+            _LOGGER.error("Mastertherm API some other error: %s", ex)
             raise Exception() from ex
 
         if response.status != 200:
             error_msg = await response.text()
-            raise MasterThermConnectionError(str(response.status),error_msg)
+            raise MasterthermConnectionError(str(response.status),error_msg)
 
         # Convert to JSON if possible and return the result
         try:
@@ -70,11 +70,11 @@ class Connection:
         except JSONDecodeError as exc:
             response_text = await response.text()
             if response_text == "User not logged in":
-                _LOGGER.error("MasterTherm API Invalid Token: %s", response_text)
-                raise MasterThermTokenInvalid("1", response_text) from exc
+                _LOGGER.error("Mastertherm API Invalid Token: %s", response_text)
+                raise MasterthermTokenInvalid("1", response_text) from exc
             else:
-                _LOGGER.error("MasterTherm API some other error: %s", response_text)
-                raise MasterThermResponseFormatError("2",response_text) from exc
+                _LOGGER.error("Mastertherm API some other error: %s", response_text)
+                raise MasterthermResponseFormatError("2",response_text) from exc
 
         return response_json
 
@@ -85,12 +85,11 @@ class Connection:
              json_repsonse (dict): Devices and Information in JSON Format
 
         Raises:
-            MasterThermConnectionError - Failed to Connect
-            MasterThermAuthenticationError - Failed to Authenticate"""
-
-        # TODO Check Reconnection on Expire
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate"""
         self.__is_connected = False
 
+        #params = "grant_type=password&username=demo&password=mt-demo&client_id=mobile-android"
         params = f"login=login&uname={self.__unname}&upwd={self.__upwd}&{self.__clientinfo}"
         response = await self.__session.post(
             urljoin(URL_BASE,URL_LOGIN),
@@ -101,12 +100,12 @@ class Connection:
         # Response should always be 200 even for login failures.
         if response.status != 200:
             error_msg = await response.text()
-            raise MasterThermConnectionError(str(response.status), error_msg)
+            raise MasterthermConnectionError(str(response.status), error_msg)
 
         # Expect that the response is JSON, check the result.
         response_json = await response.json()
         if response_json["returncode"] != 0:
-            raise MasterThermAuthenticationError(
+            raise MasterthermAuthenticationError(
                 response_json["returncode"],response_json["message"])
 
         # Get or Refresh the Token and Expiry

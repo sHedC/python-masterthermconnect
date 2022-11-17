@@ -1,4 +1,4 @@
-"""MasterTherm Controller, for handling MasterTherm Data."""
+"""Mastertherm Controller, for handling Mastertherm Data."""
 import logging
 
 from .connection import Connection
@@ -11,7 +11,7 @@ from .const import (
     PAD_MAP,
     SUPPORTED_ROLES,
 )
-from .exceptions import MasterThermUnsupportedRole
+from .exceptions import MasterthermUnsupportedRole
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -208,14 +208,14 @@ class Controller:
             connected (bool): True if connected Raises Error if not
 
         Raises:
-            MasterThermConnectionError - Failed to Connect
-            MasterThermAuthenticationError - Failed to Authenticate
-            MasterThermUnsportedRole - Role is not supported by API"""
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermUnsportedRole - Role is not supported by API"""
         result = await self.__api.connect()
         self.__role = result["role"]
 
         if self.__role not in SUPPORTED_ROLES:
-            raise MasterThermUnsupportedRole("2", "Unsupported Role " + result["role"])
+            raise MasterthermUnsupportedRole("2", "Unsupported Role " + result["role"])
 
         # Initialize the Dictionary.
         self.__devices = {}

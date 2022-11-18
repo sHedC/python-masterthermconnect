@@ -16,6 +16,7 @@ def load_fixture(filename):
     except OSError:
         return None
 
+
 class ConnectionMock:
     """Mock the Connection Class to return what we want."""
 
@@ -42,6 +43,19 @@ class ConnectionMock:
         data = json.loads(
             load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
         )
+        if data is None:
+            data = json.loads(load_fixture("pumpdata_unavailable.json"))
+
+        return data
+
+    def get_device_data_fixed(self, module_id, device_id, last_update_time="0"):
+        """Return Device Data from fixtures, fixed for Controller Test"""
+        data = json.loads(
+            load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
+        )
+        data["data"]["varFileData"] = data["data"]["varfile_mt1_config1"]
+        del data["data"]["varfile_mt1_config1"]
+
         if data is None:
             data = json.loads(load_fixture("pumpdata_unavailable.json"))
 

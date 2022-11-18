@@ -5,7 +5,7 @@ from aiohttp import ClientSession
 import pytest
 
 from masterthermconnect import (
-    Controller,
+    MasterthermController,
     MasterthermAuthenticationError,
     MasterthermConnectionError,
     MasterthermUnsupportedRole,
@@ -13,44 +13,39 @@ from masterthermconnect import (
 
 from .conftest import VALID_LOGIN, ConnectionMock
 
+
 async def test_setup():
     """Test the Controller Sets up correctly."""
-    api = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-    assert api is not None
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    assert controller is not None
+
 
 async def test_connect():
     """Test the Controller Connects and setup devices."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
     mockconnect = ConnectionMock()
 
     with patch(
-        "masterthermconnect.connection.Connection.connect",
+        "masterthermconnect.api.MasterthermAPI.connect",
         return_value=mockconnect.connect(),
     ) as mock_apiconnect:
         assert await controller.connect(update_data=False) is True
 
     assert len(mock_apiconnect.mock_calls) > 0
 
-async def test_connect_unsupported():
-    """Test the Controller Connects and setup devices."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
-    mockconnect = ConnectionMock()
-
-    with patch(
-        "masterthermconnect.connection.Connection.connect",
-        return_value=mockconnect.connect(role="999"),
-    ) as mock_apiconnect:
-        with pytest.raises(MasterthermUnsupportedRole):
-            assert await controller.connect() is True
-
-    assert len(mock_apiconnect.mock_calls) == 1
 
 async def test_connect_failure():
     """Test the Controller Invalid Login Connection."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
 
     with patch(
-        "masterthermconnect.connection.Connection.connect",
+        "masterthermconnect.api.MasterthermAPI.connect",
         side_effect=MasterthermAuthenticationError(
             "1", "Invalid user name or password"
         ),
@@ -60,12 +55,15 @@ async def test_connect_failure():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
+
 async def test_connect_error():
     """Test the Controller on Connection Failure."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
 
     with patch(
-        "masterthermconnect.connection.Connection.connect",
+        "masterthermconnect.api.MasterthermAPI.connect",
         side_effect=MasterthermConnectionError("500", "Some Other Error"),
     ) as mock_apiconnect:
         with pytest.raises(MasterthermConnectionError):
@@ -73,20 +71,23 @@ async def test_connect_error():
 
     assert len(mock_apiconnect.mock_calls) > 0
 
+
 async def test_get_info_data():
     """Test the Controller Connects and setup devices."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
     mockconnect = ConnectionMock()
 
     with patch(
-        "masterthermconnect.connection.Connection.connect",
+        "masterthermconnect.api.MasterthermAPI.connect",
         return_value=mockconnect.connect(),
     ) as mock_api_connect, patch(
-        "masterthermconnect.connection.Connection.get_device_info",
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
-        "masterthermconnect.connection.Connection.get_device_data",
-        side_effect=mockconnect.get_device_data,
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data_fixed,
     ) as mock_get_device_data:
         assert await controller.connect() is True
 
@@ -109,23 +110,24 @@ async def test_get_info_data():
     assert data["pads"]["pada"]["on"] is True
     assert "padc" not in data["pads"]
 
+
 async def test_getdata_update():
     """Test getting the data and getting an update.
     Test the Controller Connects and setup devices."""
-    controller = Controller(ClientSession(), VALID_LOGIN["uname"], VALID_LOGIN["upwd"])
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
     mockconnect = ConnectionMock()
 
     with patch(
-        "masterthermconnect.connection.Connection.connect",
+        "masterthermconnect.api.MasterthermAPI.connect",
         return_value=mockconnect.connect(),
     ) as mock_apiconnect, patch(
-        "masterthermconnect.connection.Connection.is_connected", return_value=True
-    ) as mock_is_connected, patch(
-        "masterthermconnect.connection.Connection.get_device_info",
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
-        "masterthermconnect.connection.Connection.get_device_data",
-        side_effect=mockconnect.get_device_data,
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data_fixed,
     ) as mock_get_device_data:
         assert await controller.connect() is True
 
@@ -134,7 +136,6 @@ async def test_getdata_update():
         assert await controller.refresh() is True
 
     assert len(mock_apiconnect.mock_calls) == 1
-    assert len(mock_is_connected.mock_calls) == 1
     assert len(mock_get_device_info.mock_calls) == 2
     assert len(mock_get_device_data.mock_calls) == 2
 

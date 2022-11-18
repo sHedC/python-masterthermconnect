@@ -1,7 +1,6 @@
 """Python API wrapper for Mastertherm Connect."""
 from masterthermconnect.__version__ import __version__
-from masterthermconnect.connection import Connection
-from masterthermconnect.controller import Controller
+from masterthermconnect.controller import MasterthermController
 from masterthermconnect.exceptions import (
     MasterthermAuthenticationError,
     MasterthermConnectionError,
@@ -12,8 +11,7 @@ from masterthermconnect.exceptions import (
 
 __all__ = [
     "__version__",
-    "Connection",
-    "Controller",
+    "MasterthermController",
     "MasterthermAuthenticationError",
     "MasterthermConnectionError",
     "MasterthermResponseFormatError",

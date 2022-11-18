@@ -1,0 +1,9 @@
+{
+    "access_token": "bearertoken",
+    "expires_in": 7200,
+    "refresh_expires_in": 0,
+    "token_type": "Bearer",
+    "not-before-policy": 1615133148,
+    "session_state": "4f040a13-8756-46b8-91b5-4cac15cf7cd7",
+    "scope": "nbUID nbGID nbGroup email microprofile-jwt nbRole"
+}

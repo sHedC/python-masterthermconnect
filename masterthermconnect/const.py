@@ -1,28 +1,55 @@
 """Constants used by the module."""
-APP_CLIENTINFO = "os=android&osversion=7.0&ver=8&info=Google%2CAndroid"
-APP_OS = "android"
-APP_VERSION = "1"
-
-COOKIE_TOKEN = "PHPSESSID"
 DATE_FORMAT = "%a, %d-%b-%Y %H:%M:%S %Z"
 SUPPORTED_ROLES = ["400"]
 
-# Old Mastertherm Devices
-URL_BASE = "https://Mastertherm.vip-it.cz"
-URL_LOGIN = "/plugins/Mastertherm_login/client_login.php"
+# Old Mastertherm Devices Pre 2022
+# This mostly uses POST methods
+APP_CLIENTINFO = "os=android&osversion=7.0&ver=8&info=Google%2CAndroid"
+URL_BASE = "https://mastertherm.vip-it.cz"
+URL_LOGIN = "/plugins/mastertherm_login/client_login.php"
 URL_PUMPINFO = "/plugins/get_pumpinfo/get_pumpinfo.php"
 URL_PUMPDATA = "/mt/PassiveVizualizationServlet"
+URL_POSTUPDATE = "/mt/ActiveVizualizationServlet"
 
-# New Mastertherm Devices (Mastertherm Touch)
-URL_BASE1 = "https://Mastertherm.online"
-URL_LOGIN1 = "/auth/realms/neobox/protocol/openid-connect/token"
-URL_PUMPINFO1 = "/api/v1/hp_info"
-URL_PUMPDATA1 = "/api/v1/hp_data"
+# New Mastertherm Devices (Mastertherm Touch) Post 2022
+# This uses GET to retrieve data and POST to submit, e.g. Login is Post, Update is Post
+APP_CLIENTINFO_NEW = "client_id=mobile-android"
+URL_BASE_NEW = "https://mastertherm.online"
+URL_LOGIN_NEW = "/auth/realms/neobox/protocol/openid-connect/token"
+URL_PUMPINFO_NEW = "/api/v1/hp_info"
+URL_PUMPDATA_NEW = "/api/v1/hp_data"
+URL_MODULES_NEW = "/api/v1/modules"
+URL_POSTUPDATE_NEW = "api/v1/hp_data"
 
 # Used to setup the pad name, for some reason they don't like the letter Q
-CHAR_MAP = ["-","A","B","C","D","E","F","G",
-    "H","I","J","K","L","M","N","O","P","R",
-    "S","T","U","V","W","X","Y","Z"]
+CHAR_MAP = [
+    "-",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "H",
+    "I",
+    "J",
+    "K",
+    "L",
+    "M",
+    "N",
+    "O",
+    "P",
+    "R",
+    "S",
+    "T",
+    "U",
+    "V",
+    "W",
+    "X",
+    "Y",
+    "Z",
+]
 
 DEVICE_SWITCH_MAP = {
     0: "D_348",
@@ -73,52 +100,52 @@ DEVICE_INFO_MAP = {
 
 DEVICE_DATA_PADMAP = {
     "pada": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_211", "I_212", "I_213", "I_214", "I_215", "I_216"]],
-        "on": ["bool","D_212"],
-        "pump_running": ["bool",""],
-        "water_temp": ["float","A_126"],
-        "water_requested": ["decimal",""],
-        "ambient_temp": ["float",""],
-        "ambient_requested": ["float",""],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_211", "I_212", "I_213", "I_214", "I_215", "I_216"]],
+        "on": ["bool", "D_212"],
+        "pump_running": ["bool", ""],
+        "water_temp": ["float", "A_126"],
+        "water_requested": ["decimal", ""],
+        "ambient_temp": ["float", ""],
+        "ambient_requested": ["float", ""],
         "control_curve": {
-            "setpoint_a_outside": ["float","A_101"],
-            "setpoint_a_requested": ["float","A_106"],
-            "setpoint_b_outside": ["float","A_102"],
-            "setpoint_b_requested": ["float","A_107"],
+            "setpoint_a_outside": ["float", "A_101"],
+            "setpoint_a_requested": ["float", "A_106"],
+            "setpoint_b_outside": ["float", "A_102"],
+            "setpoint_b_requested": ["float", "A_107"],
         },
     },
     "padb": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_221", "I_222", "I_223", "I_224", "I_225", "I_226"]],
-        "on": ["bool","D_216"],
-        "pump_running": ["bool",""],
-        "water_temp": ["float","A_91"],
-        "water_requested": ["decimal",""],
-        "ambient_temp": ["float",""],
-        "ambient_requested": ["float",""],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_221", "I_222", "I_223", "I_224", "I_225", "I_226"]],
+        "on": ["bool", "D_216"],
+        "pump_running": ["bool", ""],
+        "water_temp": ["float", "A_91"],
+        "water_requested": ["decimal", ""],
+        "ambient_temp": ["float", ""],
+        "ambient_requested": ["float", ""],
         "control_curve": {
-            "setpoint_a_outside": ["float","A_108"],
-            "setpoint_a_requested": ["float","A_84"],
-            "setpoint_b_outside": ["float","A_109"],
-            "setpoint_b_requested": ["float","A_85"],
+            "setpoint_a_outside": ["float", "A_108"],
+            "setpoint_a_requested": ["float", "A_84"],
+            "setpoint_b_outside": ["float", "A_109"],
+            "setpoint_b_requested": ["float", "A_85"],
         },
     },
     "padc": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_231", "I_232", "I_233", "I_234", "I_235", "I_236"]],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_231", "I_232", "I_233", "I_234", "I_235", "I_236"]],
     },
     "padd": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_241", "I_242", "I_243", "I_244", "I_245", "I_246"]],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_241", "I_242", "I_243", "I_244", "I_245", "I_246"]],
     },
     "pade": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_251", "I_252", "I_253", "I_254", "I_255", "I_256"]],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_251", "I_252", "I_253", "I_254", "I_255", "I_256"]],
     },
     "padf": {
-        "enabled": ["fixed",False],
-        "name": ["string",["I_261", "I_262", "I_263", "I_264", "I_265", "I_266"]],
+        "enabled": ["fixed", False],
+        "name": ["string", ["I_261", "I_262", "I_263", "I_264", "I_265", "I_266"]],
     },
 }
 
@@ -130,22 +157,22 @@ DEVICE_DATA_PADMAP = {
 # b_requested: A_50
 # --------------------------------------------------------
 DEVICE_DATA_MAP = {
-    "on": ["bool","D_3"],
-    "heating": ["bool",""],
-    "compressor_running": ["bool",""],
-    "circulation_pump_running": ["bool",""],
-    "defrost_mode": ["bool",""],
-    "outside_temp": ["float","A_3"],
-    "requested_temp": ["float","A_1"],
-    "actual_temp": ["float","A_90"],
-    "compressor_run_time": ["int","I_11"],
-    "compressor_start_counter": ["int","I_12"],
-    "pump_runtime": ["int","I_13"],
+    "on": ["bool", "D_3"],
+    "heating": ["bool", ""],
+    "compressor_running": ["bool", ""],
+    "circulation_pump_running": ["bool", ""],
+    "defrost_mode": ["bool", ""],
+    "outside_temp": ["float", "A_3"],
+    "requested_temp": ["float", "A_1"],
+    "actual_temp": ["float", "A_90"],
+    "compressor_run_time": ["int", "I_11"],
+    "compressor_start_counter": ["int", "I_12"],
+    "pump_runtime": ["int", "I_13"],
     "heating_curve": {
-        "setpoint_a_outside": ["float","A_35"],
-        "setpoint_a_requested": ["float","A_37"],
-        "setpoint_b_outside": ["float","A_36"],
-        "setpoint_b_requested": ["float","A_38"],
+        "setpoint_a_outside": ["float", "A_35"],
+        "setpoint_a_requested": ["float", "A_37"],
+        "setpoint_b_outside": ["float", "A_36"],
+        "setpoint_b_requested": ["float", "A_38"],
     },
     "pads": DEVICE_DATA_PADMAP,
 }

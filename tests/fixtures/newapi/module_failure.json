@@ -1,0 +1,11 @@
+{
+    "status": {
+        "id": 401,
+        "messageTitle": "Error",
+        "message": "Unauthorized",
+        "reason": "",
+        "requestId": "5d344974eb5a6b616c0de0b2c1a48948",
+        "domain": "APIGW-GROUP",
+        "severity": "error"
+    }
+}

@@ -1,0 +1,18 @@
+{
+    "returncode": 0,
+    "message": "User logged in",
+    "role": "400",
+    "modules": [
+        {
+            "id": "10021",
+            "module_mac": "000a5c81d816",
+            "module_name": "10021_BAI000SIM_Simulator_Jablonec nad Jizerou_CZ_MT-TC",
+            "config": [
+                {
+                    "mb_name": "Heat Pump",
+                    "mb_addr": 1
+                }
+            ]
+        }
+    ]
+}

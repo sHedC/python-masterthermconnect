@@ -7,6 +7,7 @@ from masterthermconnect.exceptions import (
     MasterthermResponseFormatError,
     MasterthermTokenInvalid,
     MasterthermUnsupportedRole,
+    MasterthermUnsupportedVersion,
 )
 
 __all__ = [
@@ -17,4 +18,5 @@ __all__ = [
     "MasterthermResponseFormatError",
     "MasterthermTokenInvalid",
     "MasterthermUnsupportedRole",
+    "MasterthermUnsupportedVersion",
 ]

@@ -1,6 +1,7 @@
 """Constants used by the module."""
 DATE_FORMAT = "%a, %d-%b-%Y %H:%M:%S %Z"
 SUPPORTED_ROLES = ["400"]
+SUPPORTED_API_VERSIONS = ["v1", "v2"]
 
 # Old Mastertherm Devices Pre 2022
 # This mostly uses POST methods
@@ -19,7 +20,7 @@ URL_LOGIN_NEW = "/auth/realms/neobox/protocol/openid-connect/token"
 URL_PUMPINFO_NEW = "/api/v1/hp_info"
 URL_PUMPDATA_NEW = "/api/v1/hp_data"
 URL_MODULES_NEW = "/api/v1/modules"
-URL_POSTUPDATE_NEW = "api/v1/hp_data"
+URL_POSTUPDATE_NEW = "/api/v1/hp_data"
 
 # Used to setup the pad name, for some reason they don't like the letter Q
 CHAR_MAP = [

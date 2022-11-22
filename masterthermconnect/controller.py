@@ -24,11 +24,26 @@ class MasterthermController:
         username: str,
         password: str,
         session: ClientSession,
-        original_api: bool = True,
+        api_version: str = "v1",
     ) -> None:
-        """Initialize the Connection Object."""
+        """Initialize the MasterthermController and connection to the web API.
+
+        Parameters:
+            username (str): The mastertherm login username
+            password (str): The mastertherm login password
+            session (ClientSession): An aiohttp Client Session
+            api_version (str): The version of the API, mainly the host
+                "v1"  : Original version, data response in varfile_mt1_config1
+                "v1b" : Original version, data response in varfile_mt1_config2
+                "v2"  : New version since 2022 response in varFileData
+
+        Return:
+            The MasterthermController object
+
+        Raises:
+            MasterthermUnsupportedVersion: API Version is not supported."""
         self.__api = MasterthermAPI(
-            username, password, session, original_api=original_api
+            username, password, session, api_version=api_version
         )
         self.__device_map = None
         self.__inverted_map = None
@@ -47,9 +62,8 @@ class MasterthermController:
         # }
         self.__devices = {}
 
-    def __invert_device_map(self, device_map, key_list=None):
+    def __invert_device_map(self, device_map, key_list=None) -> dict:
         """Invert the given map and return, this is a nested method."""
-
         if key_list is None:
             key_list = []
 
@@ -71,7 +85,7 @@ class MasterthermController:
 
         return inverted_map
 
-    def __populate_data(self, device_map, registers):
+    def __populate_data(self, device_map, registers) -> dict:
         """Populate the Data from the fullData and DeviceMap."""
         data = {}
         for key, item in device_map.items():
@@ -108,7 +122,7 @@ class MasterthermController:
 
         return data
 
-    def __get_pad_name(self, pad, device_key):
+    def __get_pad_name(self, pad, device_key) -> str:
         """Build the Pad Name from the full data."""
         if pad not in DEVICE_DATA_PADMAP:
             return "0"
@@ -124,7 +138,7 @@ class MasterthermController:
             pad_name = "0"
         return pad_name
 
-    def __enabled_pads(self, device_key):
+    def __enabled_pads(self, device_key) -> dict:
         """Enable the Pads for the devices, decoded as best as possible."""
         full_data = self.__devices[device_key]["fullData"]
         pad_info = {}
@@ -174,7 +188,7 @@ class MasterthermController:
 
         return pad_info
 
-    async def __full_load(self):
+    async def __full_load(self) -> bool:
         """Perform a full load and create structure."""
         self.__data_loaded = False
 
@@ -191,7 +205,7 @@ class MasterthermController:
             # Get the Full Device Data
             device_data = await self.__api.get_device_data(module_id, unit_id)
             device["lastUpdateTime"] = device_data["timestamp"]
-            device["updatedData"] = device_data["data"]["varFileData"]["001"].copy()
+            device["updatedData"] = device_data["data"]["varData"]["001"].copy()
             device["fullData"] = device["updatedData"].copy()
 
             # Construct Normalized Data, using device map.
@@ -207,7 +221,7 @@ class MasterthermController:
         self.__data_loaded = True
         return True
 
-    async def connect(self, update_data=True):
+    async def connect(self, update_data=True) -> bool:
         """Connect to the API, check the supported roles and update if required.
 
         Parameters:
@@ -248,8 +262,19 @@ class MasterthermController:
 
         return self.__api_connected
 
-    async def refresh(self, full_load=False):
-        """Refresh or Reload all entries for all devices."""
+    async def refresh(self, full_load=False) -> bool:
+        """Refresh or Reload all entries for all devices.
+
+        Parameters:
+            full_load (bool): Optional, load is incremental unless specified.
+
+        Returns:
+            success (bool): true if loaded
+
+        Raises
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermUnsupportedRole - Role is not in supported roles"""
         if not self.__data_loaded:
             return False
 
@@ -277,7 +302,7 @@ class MasterthermController:
             # Check that we have data, sometimes nothing is returned.
             if device_data["data"]:
                 device["lastUpdateTime"] = device_data["timestamp"]
-                device["updatedData"] = device_data["data"]["varFileData"]["001"].copy()
+                device["updatedData"] = device_data["data"]["varData"]["001"].copy()
                 device["fullData"].update(device["updatedData"])
 
                 # Refresh Normalized Data
@@ -294,24 +319,43 @@ class MasterthermController:
 
         return True
 
-    def get_devices(self):
-        """Return a List of the Devices with plus information."""
+    def get_devices(self) -> dict:
+        """Return a List of the Devices with plus information.
+
+        Returns:
+            devices (dict): All the devices associated with the login"""
         device_return = {}
         for device_id, device in self.__devices.items():
             device_return[device_id] = device["info"]
 
         return device_return
 
-    def get_device_info(self, module_id, unit_id):
-        """Get the Information for a specific device."""
+    def get_device_info(self, module_id, unit_id) -> dict:
+        """Get the Information for a specific device.
+
+        Parameters:
+            module_id (str): The id of the module
+            unit_id (str): the id fo the unit
+
+        Returns:
+            info (dict): Device information."""
         info = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
             info = self.__devices[key]["info"]
+
         return info
 
-    def get_device_registers(self, module_id, unit_id, last_updated=False):
-        """Get the Device Register Data, if lastUpdated is True then get the latest update data."""
+    def get_device_registers(self, module_id, unit_id, last_updated=False) -> dict:
+        """Get the Device Register Data, if lastUpdated is True then get the latest update data.
+
+        Parameters:
+            module_id (str): The id of the module
+            unit_id (str): the id fo the unit
+            last_updated (bool): Optional, true to return all data
+
+        Returns:
+            data (dict): Device Raw Data or Updated Data."""
         data = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
@@ -319,12 +363,20 @@ class MasterthermController:
                 data = self.__devices[key]["updatedData"]
             else:
                 data = self.__devices[key]["fullData"]
+
         return data
 
-    def get_device_data(self, module_id, unit_id):
-        """Get the Device Data, if lastUpdated is True then get the latest update data."""
+    def get_device_data(self, module_id, unit_id) -> dict:
+        """Get the Device Data, if lastUpdated is True then get the latest update data.
+        Parameters:
+            module_id (str): The id of the module
+            unit_id (str): the id fo the unit
+
+        Returns:
+            data (dict): Device Normalised Data."""
         data = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
             data = self.__devices[key]["data"]
+
         return data

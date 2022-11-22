@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import getpass
+import time
 
 from aiohttp import ClientSession
 
@@ -27,7 +28,14 @@ def get_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--password", type=str, default=None, help="login password for Mastertherm"
     )
-    parser.add_argument("--new-api", action="store_true", help="use new api post 2022")
+    parser.add_argument(
+        "--api-version",
+        type=str,
+        default="v1",
+        help="""API Version to use:
+             mastertherm.vip-it.cz: v1 (early) or v1b (laster),
+             mastertherm.online: or v2 (post 2022)""",
+    )
     parser.add_argument(
         "--list-devices",
         action="store_true",
@@ -48,12 +56,10 @@ def get_arguments() -> argparse.Namespace:
     return arguments
 
 
-async def list_devices(user, password, original_api) -> int:
+async def list_devices(user, password, api_version) -> int:
     """List Devices after Connection"""
     session = ClientSession()
-    controller = MasterthermController(
-        user, password, session, original_api=original_api
-    )
+    controller = MasterthermController(user, password, session, api_version=api_version)
 
     try:
         await controller.connect()
@@ -67,12 +73,10 @@ async def list_devices(user, password, original_api) -> int:
     return 0
 
 
-async def list_device_info(user, password, original_api) -> int:
+async def list_device_info(user, password, api_version) -> int:
     """List the Information related to the devices."""
     session = ClientSession()
-    controller = MasterthermController(
-        user, password, session, original_api=original_api
-    )
+    controller = MasterthermController(user, password, session, api_version=api_version)
 
     try:
         await controller.connect()
@@ -91,12 +95,10 @@ async def list_device_info(user, password, original_api) -> int:
     return 0
 
 
-async def list_device_data(user, password, original_api) -> int:
+async def list_device_data(user, password, api_version) -> int:
     """List the Data related to the devices."""
     session = ClientSession()
-    controller = MasterthermController(
-        user, password, session, original_api=original_api
-    )
+    controller = MasterthermController(user, password, session, api_version=api_version)
 
     try:
         await controller.connect()
@@ -110,6 +112,17 @@ async def list_device_data(user, password, original_api) -> int:
         print(
             controller.get_device_data(device_item["module_id"], device_item["unit_id"])
         )
+
+    # Old API has 10 hours before token expires 36,000 seconds
+    i = 36000
+    while i > 0:
+        print(f"Waiting Remaining i={str(i)} seconds")
+        devices = await controller.refresh()
+        time.sleep(600)
+        i -= 600
+
+    time.sleep(600)
+    devices = await controller.refresh()
 
     await session.close()
     return 0
@@ -131,16 +144,16 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    original_api = not args.new_api
+    api_version = args.api_version
 
     if args.list_devices:
-        asyncio.run(list_devices(login_user, login_pass, original_api))
+        asyncio.run(list_devices(login_user, login_pass, api_version))
 
     if args.list_device_info:
-        asyncio.run(list_device_info(login_user, login_pass, original_api))
+        asyncio.run(list_device_info(login_user, login_pass, api_version))
 
     if args.list_device_data:
-        asyncio.run(list_device_data(login_user, login_pass, original_api))
+        asyncio.run(list_device_data(login_user, login_pass, api_version))
 
     return 0
 

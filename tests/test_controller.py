@@ -8,7 +8,6 @@ from masterthermconnect import (
     MasterthermController,
     MasterthermAuthenticationError,
     MasterthermConnectionError,
-    MasterthermUnsupportedRole,
 )
 
 from .conftest import VALID_LOGIN, ConnectionMock
@@ -87,7 +86,7 @@ async def test_get_info_data():
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
         "masterthermconnect.api.MasterthermAPI.get_device_data",
-        side_effect=mockconnect.get_device_data_fixed,
+        side_effect=mockconnect.get_device_data,
     ) as mock_get_device_data:
         assert await controller.connect() is True
 
@@ -127,7 +126,7 @@ async def test_getdata_update():
         side_effect=mockconnect.get_device_info,
     ) as mock_get_device_info, patch(
         "masterthermconnect.api.MasterthermAPI.get_device_data",
-        side_effect=mockconnect.get_device_data_fixed,
+        side_effect=mockconnect.get_device_data,
     ) as mock_get_device_data:
         assert await controller.connect() is True
 

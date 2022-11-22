@@ -1,0 +1,11 @@
+{
+    "status": {
+        "id": 500,
+        "messageTitle": "Error",
+        "message": "Internal Server Error",
+        "reason": "",
+        "requestId": "db6e8854d77bfe9c10f319a371df12a2",
+        "domain": "APIGW-GROUP",
+        "severity": "error"
+    }
+}

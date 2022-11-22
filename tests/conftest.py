@@ -33,30 +33,15 @@ class ConnectionMock:
     def get_device_info(self, module_id, device_id):
         """Return the Device Information from fixtures."""
         info = json.loads(load_fixture(f"pumpinfo_{module_id}_{device_id}.json"))
-        if info is None:
-            info = json.loads(load_fixture("pumpinfo_invalid.json"))
 
         return info
 
     def get_device_data(self, module_id, device_id, last_update_time="0"):
-        """Return Device Data from fixtures."""
-        data = json.loads(
-            load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
-        )
-        if data is None:
-            data = json.loads(load_fixture("pumpdata_unavailable.json"))
-
-        return data
-
-    def get_device_data_fixed(self, module_id, device_id, last_update_time="0"):
         """Return Device Data from fixtures, fixed for Controller Test"""
         data = json.loads(
             load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
         )
-        data["data"]["varFileData"] = data["data"]["varfile_mt1_config1"]
+        data["data"]["varData"] = data["data"]["varfile_mt1_config1"]
         del data["data"]["varfile_mt1_config1"]
-
-        if data is None:
-            data = json.loads(load_fixture("pumpdata_unavailable.json"))
 
         return data

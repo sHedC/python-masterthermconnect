@@ -186,6 +186,7 @@ class MasterthermAPI:
             response = await self.__session.post(
                 url,
                 data=self.__login_params,
+                cookies={"PHPSESSID": "", "$version": "1"},
                 headers={"content-type": "application/x-www-form-urlencoded"},
             )
         except ClientConnectionError as ex:

@@ -117,9 +117,9 @@ async def list_device_data(user, password, api_version) -> int:
     i = 36000
     while i > 0:
         print(f"Waiting Remaining i={str(i)} seconds")
-        devices = await controller.refresh()
         time.sleep(600)
         i -= 600
+        await controller.connect()
 
     time.sleep(600)
     devices = await controller.refresh()

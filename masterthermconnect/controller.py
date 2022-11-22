@@ -1,6 +1,8 @@
 """Mastertherm Controller, for handling Mastertherm Data."""
 import logging
 
+from datetime import datetime, timedelta
+
 from aiohttp import ClientSession
 
 from .api import MasterthermAPI
@@ -45,15 +47,16 @@ class MasterthermController:
         self.__api = MasterthermAPI(
             username, password, session, api_version=api_version
         )
-        self.__device_map = None
-        self.__inverted_map = None
-        self.__data_loaded = False
+        self.__device_map = DEVICE_DATA_MAP
+        self.__inverted_map = self.__invert_device_map(self.__device_map)
         self.__api_connected = False
 
         # The device structure is held as a dictionary with the following format:
         # {
         #   "module_id_unit_id": {
-        #       "lastUpdateTime": "1234567890",
+        #       "lastDataUpdate": <datetime>,
+        #       "lastInfoUpdate": <datetime>,
+        #       "lastUpdateTime": "1192282722"
         #       "info": { Various Information },
         #       "data": { Normalized Data Information }
         #       "updatedData": { All Updated Data since last update },
@@ -188,39 +191,6 @@ class MasterthermController:
 
         return pad_info
 
-    async def __full_load(self) -> bool:
-        """Perform a full load and create structure."""
-        self.__data_loaded = False
-
-        for device_id, device in self.__devices.items():
-            module_id = device["info"]["module_id"]
-            unit_id = device["info"]["unit_id"]
-
-            # Create the Device Info
-            device_info = await self.__api.get_device_info(module_id, unit_id)
-            for key, item in DEVICE_INFO_MAP.items():
-                if item in device_info:
-                    device["info"][key] = device_info[item]
-
-            # Get the Full Device Data
-            device_data = await self.__api.get_device_data(module_id, unit_id)
-            device["lastUpdateTime"] = device_data["timestamp"]
-            device["updatedData"] = device_data["data"]["varData"]["001"].copy()
-            device["fullData"] = device["updatedData"].copy()
-
-            # Construct Normalized Data, using device map.
-            self.__device_map = DEVICE_DATA_MAP
-            enabled_pads = self.__enabled_pads(device_id)
-            for pad, pad_enabled in enabled_pads.items():
-                if not pad_enabled:
-                    self.__device_map["pads"].pop(pad, None)
-
-            self.__inverted_map = self.__invert_device_map(self.__device_map)
-            device["data"] = self.__populate_data(self.__device_map, device["fullData"])
-
-        self.__data_loaded = True
-        return True
-
     async def connect(self, update_data=True) -> bool:
         """Connect to the API, check the supported roles and update if required.
 
@@ -258,15 +228,13 @@ class MasterthermController:
         self.__api_connected = True
 
         if update_data:
-            return await self.__full_load()
+            return await self.refresh_info() and await self.refresh_data()
 
         return self.__api_connected
 
-    async def refresh(self, full_load=False) -> bool:
-        """Refresh or Reload all entries for all devices.
-
-        Parameters:
-            full_load (bool): Optional, load is incremental unless specified.
+    async def refresh_info(self, override: bool = False) -> bool:
+        """Refresh the information for all the devices, separated to reduce calls.
+        There is a delay of 6 hours between updates to protect too many calls.
 
         Returns:
             success (bool): true if loaded
@@ -275,47 +243,83 @@ class MasterthermController:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermUnsupportedRole - Role is not in supported roles"""
-        if not self.__data_loaded:
-            return False
-
-        if full_load:
-            return self.__full_load()
-
-        if not self.__data_loaded:
-            return False
-
         for device in self.__devices.values():
             module_id = device["info"]["module_id"]
             unit_id = device["info"]["unit_id"]
+            if "lastInfoUpdate" in device:
+                last_info_update = device["lastInfoUpdate"]
+            else:
+                last_info_update = None
 
-            # Refresh Device Info (checks login too)
-            device_info = await self.__api.get_device_info(module_id, unit_id)
-            if device_info["returncode"] == "0":
-                for key, item in DEVICE_INFO_MAP.items():
-                    if item in device_info:
-                        device["info"][key] = device_info[item]
+            # Refresh Device Info, this will only allow update every 6 hours to protect
+            # too many requests to the new Servers as they are a little sensitive to this.
+            if (
+                override
+                or last_info_update is None
+                or datetime.now() >= last_info_update + timedelta(hours=6)
+            ):
+                device_info = await self.__api.get_device_info(module_id, unit_id)
+                device["lastInfoUpdate"] = datetime.now()
+                if device_info["returncode"] == "0":
+                    for key, item in DEVICE_INFO_MAP.items():
+                        if item in device_info:
+                            device["info"][key] = device_info[item]
 
-            device_data = await self.__api.get_device_data(
-                module_id, unit_id, last_update_time=device["lastUpdateTime"]
-            )
+        return True
 
-            # Check that we have data, sometimes nothing is returned.
-            if device_data["data"]:
-                device["lastUpdateTime"] = device_data["timestamp"]
-                device["updatedData"] = device_data["data"]["varData"]["001"].copy()
-                device["fullData"].update(device["updatedData"])
+    async def refresh_data(self, override: bool = False) -> bool:
+        """Refresh the data for all the devices, separated to reduce calls.
+        There is a delay of 1 minutes allowed between data refresh calls.
 
-                # Refresh Normalized Data
-                update_data = False
-                for register_key in device["updatedData"]:
-                    if register_key in self.__inverted_map:
-                        update_data = True
-                        break
+        Returns:
+            success (bool): true if loaded
 
-                if update_data:
-                    device["data"] = self.__populate_data(
-                        self.__device_map, device["fullData"]
-                    )
+        Raises
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermUnsupportedRole - Role is not in supported roles"""
+        for device_id, device in self.__devices.items():
+            module_id = device["info"]["module_id"]
+            unit_id = device["info"]["unit_id"]
+
+            last_data_update = None
+            if "lastDataUpdate" in device:
+                last_data_update = device["lastDataUpdate"]
+
+            # Refresh Device Data, this will only allow update every 1minutes to protect
+            # too many requests to the new Servers as they are a little sensitive to this.
+            if (
+                override
+                or last_data_update is None
+                or datetime.now() >= last_data_update + timedelta(minutes=1)
+            ):
+                device_data = await self.__api.get_device_data(
+                    module_id, unit_id, last_update_time=device["lastUpdateTime"]
+                )
+                device["lastDataUpdate"] = datetime.now()
+
+                # Check that we have data, sometimes nothing is returned.
+                if device_data["data"]:
+                    device["lastUpdateTime"] = device_data["timestamp"]
+                    device["updatedData"] = device_data["data"]["varData"]["001"].copy()
+                    device["fullData"].update(device["updatedData"])
+
+                    # Refresh/ Construct Normalized Data, using device map
+                    update_data = False
+                    for register_key in device["updatedData"]:
+                        if register_key in self.__inverted_map:
+                            update_data = True
+                            break
+
+                    if update_data:
+                        enabled_pads = self.__enabled_pads(device_id)
+                        for pad, pad_enabled in enabled_pads.items():
+                            if not pad_enabled:
+                                self.__device_map["pads"].pop(pad, None)
+
+                        device["data"] = self.__populate_data(
+                            self.__device_map, device["fullData"]
+                        )
 
         return True
 

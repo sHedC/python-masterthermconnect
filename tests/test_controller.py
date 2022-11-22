@@ -132,10 +132,10 @@ async def test_getdata_update():
 
         data = controller.get_device_data("1234", "1")
         assert data["requested_temp"] == 46.2
-        assert await controller.refresh() is True
+        assert await controller.refresh_data(override=True) is True
 
     assert len(mock_apiconnect.mock_calls) == 1
-    assert len(mock_get_device_info.mock_calls) == 2
+    assert len(mock_get_device_info.mock_calls) == 1
     assert len(mock_get_device_data.mock_calls) == 2
 
     assert controller.get_devices()

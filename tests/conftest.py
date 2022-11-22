@@ -36,8 +36,11 @@ class ConnectionMock:
 
         return info
 
-    def get_device_data(self, module_id, device_id, last_update_time="0"):
+    def get_device_data(self, module_id, device_id, last_update_time=None):
         """Return Device Data from fixtures, fixed for Controller Test"""
+        if last_update_time is None:
+            last_update_time = "0"
+
         data = json.loads(
             load_fixture(f"pumpdata_{module_id}_{device_id}_{last_update_time}.json")
         )

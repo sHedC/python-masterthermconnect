@@ -191,11 +191,11 @@ class MasterthermController:
 
         return pad_info
 
-    async def connect(self, update_data=True) -> bool:
+    async def connect(self, reload_modules: bool = False) -> bool:
         """Connect to the API, check the supported roles and update if required.
 
         Parameters:
-            update_data (bool): False to only connect, default True
+            reload_modules (bool): Optional, default False, True to reload modules.
 
         Returns:
             connected (bool): True if connected Raises Error if not
@@ -207,34 +207,34 @@ class MasterthermController:
         result = await self.__api.connect()
 
         # Initialize the Dictionary.
-        self.__devices = {}
-        for module in result["modules"]:
-            for unit in module["config"]:
-                device_id = module["id"] + "_" + str(unit["mb_addr"])
+        if not self.__devices or reload_modules:
+            self.__devices = {}
+            for module in result["modules"]:
+                for unit in module["config"]:
+                    device_id = module["id"] + "_" + str(unit["mb_addr"])
 
-                self.__devices[device_id] = {
-                    "lastUpdateTime": "0",
-                    "info": {
-                        "module_id": module["id"],
-                        "module_name": module["module_name"],
-                        "unit_id": str(unit["mb_addr"]),
-                        "unit_name": unit["mb_name"],
-                    },
-                    "updatedData": {},
-                    "fullData": {},
-                    "data": {},
-                }
+                    self.__devices[device_id] = {
+                        "lastUpdateTime": "0",
+                        "info": {
+                            "module_id": module["id"],
+                            "module_name": module["module_name"],
+                            "unit_id": str(unit["mb_addr"]),
+                            "unit_name": unit["mb_name"],
+                        },
+                        "updatedData": {},
+                        "fullData": {},
+                        "data": {},
+                    }
 
         self.__api_connected = True
-
-        if update_data:
-            return await self.refresh_info() and await self.refresh_data()
-
         return self.__api_connected
 
     async def refresh_info(self, override: bool = False) -> bool:
         """Refresh the information for all the devices, separated to reduce calls.
         There is a delay of 6 hours between updates to protect too many calls.
+
+        Parameters:
+            override: Optional, default False used for testing.
 
         Returns:
             success (bool): true if loaded
@@ -267,9 +267,15 @@ class MasterthermController:
 
         return True
 
-    async def refresh_data(self, override: bool = False) -> bool:
+    async def refresh_data(
+        self, full_load: bool = False, override: bool = False
+    ) -> bool:
         """Refresh the data for all the devices, separated to reduce calls.
         There is a delay of 1 minutes allowed between data refresh calls.
+
+        Parameters:
+            full_load: Optional Force a full load of the data, defaultis false
+            override: Optional, default False used for testing.
 
         Returns:
             success (bool): true if loaded
@@ -283,7 +289,7 @@ class MasterthermController:
             unit_id = device["info"]["unit_id"]
 
             last_data_update = None
-            if "lastDataUpdate" in device:
+            if "lastDataUpdate" in device and not full_load:
                 last_data_update = device["lastDataUpdate"]
 
             # Refresh Device Data, this will only allow update every 1minutes to protect

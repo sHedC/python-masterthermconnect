@@ -253,9 +253,6 @@ class MasterthermAPI:
                 "2", "Unsupported Role " + response_json["role"]
             )
 
-        # TODO: To Remove
-        _LOGGER.error("Token Expires: %s", {self.__expires})
-
         return response_json
 
     async def get_device_info(self, module_id: str, unit_id: str) -> dict:

@@ -32,7 +32,7 @@ async def test_connect():
         "masterthermconnect.api.MasterthermAPI.connect",
         return_value=mockconnect.connect(),
     ) as mock_apiconnect:
-        assert await controller.connect(update_data=False) is True
+        assert await controller.connect() is True
 
     assert len(mock_apiconnect.mock_calls) > 0
 
@@ -89,6 +89,8 @@ async def test_get_info_data():
         side_effect=mockconnect.get_device_data,
     ) as mock_get_device_data:
         assert await controller.connect() is True
+        assert await controller.refresh_info() is True
+        assert await controller.refresh_data() is True
 
     assert len(mock_api_connect.mock_calls) > 0
     assert len(mock_get_device_info.mock_calls) > 0
@@ -129,6 +131,8 @@ async def test_getdata_update():
         side_effect=mockconnect.get_device_data,
     ) as mock_get_device_data:
         assert await controller.connect() is True
+        assert await controller.refresh_info() is True
+        assert await controller.refresh_data() is True
 
         data = controller.get_device_data("1234", "1")
         assert data["requested_temp"] == 46.2

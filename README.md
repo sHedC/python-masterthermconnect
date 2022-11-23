@@ -25,19 +25,18 @@ This is used as a libary but it can also be run directly for debug purposes:
 
 musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
 
-<code>
 Python Mastertherm Connect API Module, used for debug purposes.<br>
 options:<br>
-  -h, --help           show this help message and exit<br>
-  --version            display the Mastertherm Connect API version<br>
-  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-  --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.<br>
-  --user USER          login user for Mastertherm<br>
-  --password PASSWORD  login password for Mastertherm<br>
-  --list-devices       list the devices connected to the account<br>
-  --list-device-data   list the data for each device connected to the account<br>
-  --list-device-reg    list the raw registers for each device<br>
-</code>
+&nbsp;&nbsp;-h, --help           show this help message and exit<br>
+&nbsp;&nbsp;--version            display the Mastertherm Connect API version<br>
+&nbsp;&nbsp;--api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
+&nbsp;&nbsp;--hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.<br>
+&nbsp;&nbsp;--user USER          login user for Mastertherm<br>
+&nbsp;&nbsp;--password PASSWORD  login password for Mastertherm<br>
+&nbsp;&nbsp;--list-devices       list the devices connected to the account<br>
+&nbsp;&nbsp;--list-device-data   list the data for each device connected to the account<br>
+&nbsp;&nbsp;--list-device-reg    list the raw registers for each device<br>
+
 ***
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main

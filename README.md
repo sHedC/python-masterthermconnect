@@ -37,9 +37,7 @@ options:
   --list-device-data   list the data for each device connected to the account
   --list-device-reg    list the raw registers for each device
 
-
 ***
-
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge

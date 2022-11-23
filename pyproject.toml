@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools","wheel"]
+requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,14 +10,12 @@ readme = "README.md"
 authors = [{ name = "Richard Holmes", email = "richard@shedc.uk" }]
 license = { file = "LICENSE" }
 classifiers = [
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
-keywords=["Mastertherm heatpump", "api", "client"]
-dependencies = [
-    "aiohttp >= 3.8.1",
-]
+keywords = ["Mastertherm heatpump", "api", "client"]
+dependencies = ["aiohttp >= 3.8.1"]
 requires-python = ">=3.9,<3.11"
 
 [project.optional-dependencies]
@@ -28,18 +26,3 @@ Homepage = "https://github.com/sHedC/python-masterthermconnect"
 
 [project.scripts]
 masterthermconnect = "masterthermconnect.__main__:main"
-
-[tool.bumpver]
-current_version = "0.1.0"
-version_pattern = "MAJOR.MINOR.PATCH"
-commit_message = "bump version {old_version} -> {new_version}"
-commit = true
-tag = true
-push = false
-
-[tool.bumpver.file_patterns]
-"pyproject.toml" = [
-    'current_version = "{version}"',
-    'version = "{version}"'
-]
-"masterthermconnect/__version__.py" = ["{version}"]

@@ -27,7 +27,7 @@ musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitiv
 
 Python Mastertherm Connect API Module, used for debug purposes.<br>
 options:<br>
-<tab>-h, --help           show this help message and exit<br>
+.-h, --help           show this help message and exit<br>
   --version            display the Mastertherm Connect API version<br>
   --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
   --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.<br>

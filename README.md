@@ -23,8 +23,7 @@ python -m pip install masterthermconnect
 ## Usage
 This is used as a libary but it can also be run directly for debug purposes:
 
-musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices]
-                          [--list-device-data] [--list-device-reg]
+musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
 
 Python Mastertherm Connect API Module, used for debug purposes.
 options:

@@ -25,17 +25,17 @@ This is used as a libary but it can also be run directly for debug purposes:
 
 musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
 
-Python Mastertherm Connect API Module, used for debug purposes.
-options:
+Python Mastertherm Connect API Module, used for debug purposes.<br>
+options:<br>
   -h, --help           show this help message and exit<br>
-  --version            display the Mastertherm Connect API version
-  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)
-  --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.
-  --user USER          login user for Mastertherm
-  --password PASSWORD  login password for Mastertherm
-  --list-devices       list the devices connected to the account
-  --list-device-data   list the data for each device connected to the account
-  --list-device-reg    list the raw registers for each device
+  --version            display the Mastertherm Connect API version<br>
+  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
+  --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.<br>
+  --user USER          login user for Mastertherm<br>
+  --password PASSWORD  login password for Mastertherm<br>
+  --list-devices       list the devices connected to the account<br>
+  --list-device-data   list the data for each device connected to the account<br>
+  --list-device-reg    list the raw registers for each device<br>
 
 ***
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge

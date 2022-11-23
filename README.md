@@ -30,7 +30,7 @@ options:<br>
 &nbsp;&nbsp;-h, --help           show this help message and exit<br>
 &nbsp;&nbsp;--version            display the Mastertherm Connect API version<br>
 &nbsp;&nbsp;--api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-&nbsp;&nbsp;--hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.<br>
+&nbsp;&nbsp;--hide-sensitive     Hide the sensitive information, for debug information for sharing.<br>
 &nbsp;&nbsp;--user USER          login user for Mastertherm<br>
 &nbsp;&nbsp;--password PASSWORD  login password for Mastertherm<br>
 &nbsp;&nbsp;--list-devices       list the devices connected to the account<br>

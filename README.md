@@ -11,8 +11,6 @@ Latest -
 [![GitHub Release][latest-release-shield]][releases]
 [![workflow-latest]][workflows]
 
-_Mastertherm Connector to integrate with Mastertherm Heat Pumps, for use with Home Assistant Mastertherm Integration._
-
 ## About
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.
 The project was mainly built for a Plugin to Home Assistant.

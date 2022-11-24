@@ -1,6 +1,6 @@
 # MaseterTherm Connect Module
-[![GitHub Stable Release][stable-releases-shield]][releases]
-[![GitHub Latest Release][lastest-releases-shield]][releases]
+[![GitHub Stable Release][stable-release-shield]][releases]
+[![GitHub Latest Release][latest-release-shield]][releases]
 [![GitHub Activity][commits-shield]][commits]
 [![License][license-shield]](LICENSE)
 
@@ -44,8 +44,8 @@ options:<br>
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge
-[stable-releases-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?style=for-the-badge
-[latest-releases-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=for-the-badge
+[stable-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?style=for-the-badge
+[latest-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=for-the-badge
 [releases]: https://github.com/shedc/python-masterthermconnect/releases
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
 [mastertherm]: https://github.com/sHedC/python-masterthermconnect

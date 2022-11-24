@@ -44,8 +44,8 @@ options:<br>
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge
-[stable-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?style=for-the-badge&lable=Stable+Release
-[latest-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=for-the-badge&Latest+Release
+[stable-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?style=for-the-badge&label=Stable+Release
+[latest-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=for-the-badge&label=Latest+Release
 [releases]: https://github.com/shedc/python-masterthermconnect/releases
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
 [mastertherm]: https://github.com/sHedC/python-masterthermconnect

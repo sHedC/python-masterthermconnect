@@ -23,7 +23,7 @@ python -m pip install masterthermconnect
 ## Usage
 This is used as a libary but it can also be run directly for debug purposes:
 
-musage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
+usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
 
 Python Mastertherm Connect API Module, used for debug purposes.<br>
 options:<br>
@@ -37,11 +37,13 @@ options:<br>
 &nbsp;&nbsp;--list-device-data   list the data for each device connected to the account<br>
 &nbsp;&nbsp;--list-device-reg    list the raw registers for each device<br>
 
+
+
 ***
 [commits-shield]: https://img.shields.io/github/commit-activity/y/sHedC/python-masterthermconnect?style=for-the-badge
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge
-[releases-shield]: https://img.shields.io/github/release/shedc/blueprint.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=for-the-badge
 [releases]: https://github.com/shedc/python-masterthermconnect/releases
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
 [mastertherm]: https://github.com/sHedC/python-masterthermconnect

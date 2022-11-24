@@ -1,12 +1,18 @@
 # MaseterTherm Connect Module
+[![License][license-shield]](LICENSE)
 [![GitHub Release][stable-release-shield]][releases]
 [![GitHub Release][latest-release-shield]][releases]
-[![GitHub Activity][commits-shield]][commits]
-[![License][license-shield]](LICENSE)
 
 ![Project Maintenance][maintenance-shield]
+[![GitHub Activity][commits-shield]][commits]
 
-_Mastertherm Connector to integrate with [mastertherm][mastertherm]. [![workflow-status]][workflows]_
+_Mastertherm Connector to integrate with [mastertherm][mastertherm]._
+
+Stable -
+[![workflow-status]][workflows-main]
+
+Latest -
+[![workflow-status]][workflows]
 
 ## Abount
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.
@@ -50,4 +56,5 @@ options:<br>
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
 [mastertherm]: https://github.com/sHedC/python-masterthermconnect
 [workflow-status]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/python-app.yml/badge.svg
-[workflows]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/python-app.yml
+[workflows-main]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/python-app.yml/badge.svg?branch=main
+[workflows]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/python-app.yml/badge.svg

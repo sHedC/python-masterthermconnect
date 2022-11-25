@@ -101,7 +101,7 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    refresh = args.list_device_data or args.list_device_registers
+    refresh = args.list_device_data or args.list_device_reg
     controller = asyncio.run(connect(login_user, login_pass, args.api_ver, refresh))
 
     if args.list_devices:

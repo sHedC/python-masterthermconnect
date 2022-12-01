@@ -262,14 +262,15 @@ class MasterthermController:
     def set_refresh_rate(
         self, info_refresh_hours: int = 6, data_refresh_seconds: int = 60
     ) -> None:
-        """Set the Refresh Rates allowed, caution should be taken as too frequent requests could
-        cause lock-out on the new servers. Additionally the system seems not to update less than 30s.
+        """Set the Refresh Rates allowed, caution should be taken as too frequent requests
+        could  cause lock-out on the new servers. Additionally the system seems not to update
+        less than 30s.
 
         Updating these does not change how much you can call the refresh just how frequently it will
         reach out to the servers to update.
 
         Parameters:
-            info_refresh_hours - The refresh rate in hours default is 6, there is no reason to increase
+            info_refresh_hours - The refresh rate in hours default is 6, should be left
             data_refresh_seconds - Default is 60 seconds but could be reducded with care."""
         self.__info_update_hours = info_refresh_hours
         self.__data_update_seconds = data_refresh_seconds

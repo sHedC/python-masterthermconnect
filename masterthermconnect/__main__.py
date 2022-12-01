@@ -99,8 +99,7 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    refresh = args.list_device_data or args.list_device_reg
-    controller = asyncio.run(connect(login_user, login_pass, args.api_ver, refresh))
+    controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
 
     if args.list_devices:
         devices = controller.get_devices()

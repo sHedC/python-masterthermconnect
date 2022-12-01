@@ -119,7 +119,7 @@ class MasterthermController:
 
         # Empty Names return "0"
         if hc_name == hc_empty:
-            hc_name = "0"
+            hc_name = ""
 
         return hc_name
 
@@ -141,7 +141,7 @@ class MasterthermController:
         hc_optional_enabled = False
         for i in range(1, 7):
             hc_name = self.__devices[device_key]["info"][HC_MAP[i]["pad"]]
-            hc_info[HC_MAP[i]["id"]] = "0" != hc_name and (
+            hc_info[HC_MAP[i]["id"]] = "" != hc_name and (
                 version < 11 or "1" == full_data[HC_MAP[i]["register"]]
             )
             hc_optional_enabled = hc_optional_enabled or hc_info[HC_MAP[i]["id"]]
@@ -153,7 +153,7 @@ class MasterthermController:
         # Check HC 0 to see if it is enabled.
         hc_name = self.__devices[device_key]["info"][HC_MAP[0]["pad"]]
         hc_info[HC_MAP[0]["id"]] = False
-        if hc_name != "0":
+        if hc_name != "":
             if version < 11:
                 hc_info[HC_MAP[0]["id"]] = (
                     full_data[HC_MAP[0]["register"]] == "1"
@@ -312,23 +312,24 @@ class MasterthermController:
                 self.__device_map, device["api_full_data"]
             )
 
-            # Prepare the Normalized Data and Names
-            hc_enabled_result = self.__hc_enabled(device_id)
-            hc_circuits = self.__devices[device_id]["data"]["heating_circuits"]
-            for hc_id, hc_enabled in hc_enabled_result.items():
-                hc_circuits[hc_id]["enabled"] = hc_enabled
-
             # Check the Pad Names, if blank get them from the data
             # Populate all data correctly.
             for hc_id in range(0, 7):
                 hc_key = HC_MAP[hc_id]["id"]
                 hc_pad = HC_MAP[hc_id]["pad"]
+
                 if device["api_info"][hc_pad] in ("", "0"):
                     device["info"][hc_pad] = self.__get_hc_name(hc_id, device_id)
-                else:
-                    device["data"]["heating_circuits"][hc_key]["name"] = device["info"][
-                        hc_pad
-                    ]
+
+                device["data"]["heating_circuits"][hc_key]["name"] = device["info"][
+                    hc_pad
+                ]
+
+            # Set if circuits are enabled or not
+            hc_enabled_result = self.__hc_enabled(device_id)
+            hc_circuits = self.__devices[device_id]["data"]["heating_circuits"]
+            for hc_id, hc_enabled in hc_enabled_result.items():
+                hc_circuits[hc_id]["enabled"] = hc_enabled
 
         return True
 

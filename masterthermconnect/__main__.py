@@ -71,10 +71,8 @@ async def connect(
 
     try:
         await controller.connect()
-        await controller.refresh_info()
-
         if refresh:
-            await controller.refresh_data()
+            await controller.refresh()
 
         return controller
     except MasterthermError as mte:
@@ -125,7 +123,7 @@ def main() -> int:
                 device_item["latitude"] = "1.1"
                 device_item["longitude"] = "-0.1"
 
-            print(device_id + ": " + str(device_item))
+            print(device_id + ": " + str(device_item).replace("'", '"'))
 
     if args.list_device_data:
         devices = controller.get_devices()
@@ -143,7 +141,7 @@ def main() -> int:
             if args.hide_sensitive:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
-            print(device_id + ": " + str(device_data))
+            print(device_id + ": " + str(device_data).replace("'", '"'))
 
     if args.list_device_reg:
         devices = controller.get_devices()
@@ -161,7 +159,7 @@ def main() -> int:
             if args.hide_sensitive:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
-            print(device_id + ": " + str(device_reg))
+            print(device_id + ": " + str(device_reg).replace("'", '"'))
 
     return 0
 

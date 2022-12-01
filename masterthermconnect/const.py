@@ -93,7 +93,7 @@ DEVICE_INFO_MAP = {
 DEVICE_DATA_HCMAP = {
     "hc0": {
         "enabled": ["fixed", False],
-        "name": ["default", "Home"],  # hc0 does not have a name
+        "name": ["string", []],  # hc0 does not have a name
         "on": ["bool", "A_210"],
         "ambient_temp": ["float", "A_211"],
         "ambient_requested": ["float", "A_210"],

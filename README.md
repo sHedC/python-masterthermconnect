@@ -19,12 +19,17 @@ There are two entry points for the Mastertherm Heat Pumps:
     - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
     - mastertherm.online - This is the server for 2022 onward
 
-NOTE: mastertherm.online is sensitive to too many
+NOTES:
+    - materhterm.online is sensitive to too many requests, for this reason by default it defaults to updates every 10 minutes, the App updates every 2 minutes. To help the Info updates every 30 min and data can be set in the options.
+    - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
 ## Installation
-python -m pip install masterthermconnect
+Latest Release Version: python -m pip install masterthermconnect
+Specific Version or Pre-Release: python -m pip install masterthermconnect==1.1.0rc2
 
 ## Usage
+
+### Command Line
 This is used as a libary but it can also be run directly for debug purposes:
 
 usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
@@ -41,6 +46,8 @@ options:<br>
 &nbsp;&nbsp;--list-device-data   list the data for each device connected to the account<br>
 &nbsp;&nbsp;--list-device-reg    list the raw registers for each device<br>
 
+### API Version
+TBC
 
 
 ***

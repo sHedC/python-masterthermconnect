@@ -90,12 +90,8 @@ class MasterthermAPI:
         if self.__expires is None:
             return True
 
-        if self.__api_version == "v1":
-            if self.__expires <= datetime.fromtimestamp(time.mktime(time.gmtime())):
-                return True
-        else:
-            if self.__expires <= datetime.now():
-                return True
+        if self.__expires <= datetime.now():
+            return True
 
         return False
 
@@ -213,11 +209,10 @@ class MasterthermAPI:
                     response_json["returncode"], response_json["message"]
                 )
 
-            # Get or Refresh the Token and Expiry
+            # Get or Refresh the Token and Expiry, for hte old system
+            # seems we need an expiry of 1 hour sometimes.
             self.__token = response.cookies["PHPSESSID"].value
-            self.__expires = datetime.strptime(
-                response.cookies["PHPSESSID"]["expires"], DATE_FORMAT
-            )
+            self.__expires = datetime.now() + timedelta(hours=1)
         else:
             # New process uses JSON responses with Openconnect ID.
             # Requires an additional call to get the modules.

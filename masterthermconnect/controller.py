@@ -48,7 +48,7 @@ class MasterthermController:
         )
         self.__device_map = DEVICE_DATA_MAP
         self.__api_connected = False
-        self.__info_update_hours = 6
+        self.__info_update_minutes = 30
         self.__data_update_seconds = 60
 
         # The device structure is held as a dictionary with the following format:
@@ -188,7 +188,7 @@ class MasterthermController:
             if (
                 last_info_update is None
                 or datetime.now()
-                >= last_info_update + timedelta(hours=self.__info_update_hours)
+                >= last_info_update + timedelta(minutes=self.__info_update_minutes)
             ):
                 device_info = await self.__api.get_device_info(module_id, unit_id)
                 if device_info["returncode"] == "0":
@@ -260,7 +260,7 @@ class MasterthermController:
         return self.__api_connected
 
     def set_refresh_rate(
-        self, info_refresh_hours: int = 6, data_refresh_seconds: int = 60
+        self, info_refresh_minutes: int = 30, data_refresh_seconds: int = 60
     ) -> None:
         """Set the Refresh Rates allowed, caution should be taken as too frequent requests
         could  cause lock-out on the new servers. Additionally the system seems not to update
@@ -270,14 +270,14 @@ class MasterthermController:
         reach out to the servers to update.
 
         Parameters:
-            info_refresh_hours - The refresh rate in hours default is 6, should be left
+            info_refresh_minutes - The refresh rate in minutes default is 30, should be left
             data_refresh_seconds - Default is 60 seconds but could be reducded with care."""
-        self.__info_update_hours = info_refresh_hours
+        self.__info_update_minutes = info_refresh_minutes
         self.__data_update_seconds = data_refresh_seconds
 
     async def refresh(self, full_load: bool = False) -> bool:
         """Refresh data and information for all the devices, info refresh is restricted
-        6 hours to protect against too many calls.
+        to protect against too many calls.
 
         Calling this functions should not happen more than every minute, may cause lockout.
 

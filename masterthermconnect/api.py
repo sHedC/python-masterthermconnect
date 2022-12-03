@@ -4,6 +4,7 @@ import time
 
 from datetime import datetime, timedelta
 from hashlib import sha1
+from json.decoder import JSONDecodeError
 from urllib.parse import urljoin
 
 from aiohttp import ClientSession, ClientConnectionError, ContentTypeError
@@ -126,6 +127,9 @@ class MasterthermAPI:
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
+        except JSONDecodeError as ex:
+            _LOGGER.error("JSON Decode Error: %s", ex)
+            raise MasterthermConnectionError("3", "JSON Decode Error") from ex
 
         # Version 2 responds with an error and json.
         # We should only get something other than 200 if the servers are down.

@@ -58,12 +58,12 @@ CHAR_MAP = [
 # Pool and Solar are spencial circuit
 HC_MAP = {
     0: {"id": "hc0", "pad": "padz", "register": "D_182", "default": "Home"},
-    1: {"id": "hc1", "pad": "pada", "register": "D_278", "default": "0"},
-    2: {"id": "hc2", "pad": "padb", "register": "D_436", "default": "0"},
-    3: {"id": "hc3", "pad": "padc", "register": "D_298", "default": "0"},
-    4: {"id": "hc4", "pad": "padd", "register": "D_307", "default": "0"},
-    5: {"id": "hc5", "pad": "pade", "register": "D_316", "default": "0"},
-    6: {"id": "hc6", "pad": "padf", "register": "D_326", "default": "0"},
+    1: {"id": "hc1", "pad": "pada", "register": "D_278", "default": ""},
+    2: {"id": "hc2", "pad": "padb", "register": "D_436", "default": ""},
+    3: {"id": "hc3", "pad": "padc", "register": "D_298", "default": ""},
+    4: {"id": "hc4", "pad": "padd", "register": "D_307", "default": ""},
+    5: {"id": "hc5", "pad": "pade", "register": "D_316", "default": ""},
+    6: {"id": "hc6", "pad": "padf", "register": "D_326", "default": ""},
 }
 
 DEVICE_INFO_MAP = {

@@ -322,6 +322,9 @@ class MasterthermController:
                 if device["api_info"][hc_pad] in ("", "0"):
                     device["info"][hc_pad] = self.__get_hc_name(hc_id, device_id)
 
+                if device["info"][hc_pad] in ("", "0"):
+                    device["info"][hc_pad] = HC_MAP[hc_id]["default"]
+
                 device["data"]["heating_circuits"][hc_key]["name"] = device["info"][
                     hc_pad
                 ]

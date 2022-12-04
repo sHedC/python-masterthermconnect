@@ -90,6 +90,13 @@ class MasterthermAPI:
         if self.__expires is None:
             return True
 
+        if self.__api_version == "v1":
+            if self.__expires <= datetime.fromtimestamp(time.mktime(time.gmtime())):
+                return True
+        else:
+            if self.__expires <= datetime.now():
+                return True
+
         if self.__expires <= datetime.now():
             return True
 
@@ -209,10 +216,11 @@ class MasterthermAPI:
                     response_json["returncode"], response_json["message"]
                 )
 
-            # Get or Refresh the Token and Expiry, for hte old system
-            # seems we need an expiry of 1 hour sometimes.
+            # Get or Refresh the Token and Expiry
             self.__token = response.cookies["PHPSESSID"].value
-            self.__expires = datetime.now() + timedelta(hours=1)
+            self.__expires = datetime.strptime(
+                response.cookies["PHPSESSID"]["expires"], DATE_FORMAT
+            )
         else:
             # New process uses JSON responses with Openconnect ID.
             # Requires an additional call to get the modules.
@@ -269,10 +277,18 @@ class MasterthermAPI:
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary"""
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
-        response_json = await self.__get(
-            url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
-            params=params,
-        )
+
+        try:
+            response_json = await self.__get(
+                url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
+                params=params,
+            )
+        except MasterthermTokenInvalid:
+            self.__expires = None
+            response_json = await self.__get(
+                url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
+                params=params,
+            )
 
         return response_json
 
@@ -305,10 +321,17 @@ class MasterthermAPI:
                 + f"messageId=2&lastUpdateTime={last_update_time}&errorResponse=true&fullRange=true"
             )
 
-        response_json = await self.__get(
-            url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
-            params=params,
-        )
+        try:
+            response_json = await self.__get(
+                url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
+                params=params,
+            )
+        except MasterthermTokenInvalid:
+            self.__expires = None
+            response_json = await self.__get(
+                url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
+                params=params,
+            )
 
         if response_json["data"] != {}:
             data_key = ""

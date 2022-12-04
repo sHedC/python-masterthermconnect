@@ -166,16 +166,15 @@ class APITestCase(AioHTTPTestCase):
         assert info["moduleid"] == "1234"
         assert info["type"] == "AQI"
 
-    async def test_getinfo_notconnected(self):
-        """Test the get device info when not connected."""
+    async def test_getinfo_tokeninvalid(self):
+        """Test the get device info token is not valid."""
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
         assert await api.connect() is not {}
 
         self.error_type = "login"
-        with pytest.raises(MasterthermTokenInvalid):
-            await api.get_device_info("1234", "1")
+        await api.get_device_info("1234", "1")
 
     async def test_getinfo_invalid(self):
         """Test the device info for invalid device."""
@@ -406,16 +405,15 @@ class APINewTestCase(AioHTTPTestCase):
         assert info["moduleid"] == 10021
         assert info["type"] == "BAI"
 
-    async def test_getinfo_notconnected(self):
-        """Test the get device info when not connected."""
+    async def test_getinfo_tokeninvalid(self):
+        """Test the get device info when token is invalid."""
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v2"
         )
         assert await api.connect() is not {}
 
         self.error_type = "login"
-        with pytest.raises(MasterthermTokenInvalid):
-            await api.get_device_info("10021", "1")
+        await api.get_device_info("10021", "1")
 
     async def test_getinfo_invalid(self):
         """Test the device info for invalid device."""

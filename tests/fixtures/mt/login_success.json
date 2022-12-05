@@ -4,7 +4,7 @@
     "modules": [
         {
             "id": "0001",
-            "module_name": "1: 0001_BAI30_MasterTherm_Hradsko_CZ_MasterTherm",
+            "module_name": "1: 0001_BAI30_Mastertherm_Hradsko_CZ_Mastertherm",
             "config": [
                 {
                     "mb_addr": 1,

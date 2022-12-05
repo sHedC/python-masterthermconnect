@@ -1,3 +1,3 @@
-"""Python API wrapper for MasterTherm Connect."""
+"""Python API wrapper for Mastertherm Connect."""
 
-__version__ = "0.1.0"
+__version__ = "1.1.0rc3"

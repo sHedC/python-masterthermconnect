@@ -142,7 +142,6 @@ class MasterthermAPI:
 
                 # Deal with the v2 error if we have a response
                 if response_json["status"]["id"] == 401:
-                    _LOGGER.error("Mastertherm API Invalid Token: %s", response_json)
                     raise MasterthermTokenInvalid("1", response_json)
                 else:
                     _LOGGER.error("Mastertherm API some other error: %s", response_json)
@@ -164,7 +163,7 @@ class MasterthermAPI:
         except ContentTypeError as exc:
             response_text = await response.text()
             if response_text == "User not logged in":
-                _LOGGER.error("Mastertherm API Invalid Token: %s", response_text)
+
                 raise MasterthermTokenInvalid("1", response_text) from exc
             else:
                 _LOGGER.error("Mastertherm API some other error: %s", response_text)

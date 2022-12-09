@@ -308,6 +308,9 @@ class MasterthermController:
                 if item in device_info:
                     device["info"][key] = device_info[item]
 
+            # Add some additional details to the info such as URL
+            device["info"]["api_url"] = self.__api.get_url()
+
             # Populate Device Data
             device["data"] = self.__populate_data(
                 self.__device_map, device["api_full_data"]

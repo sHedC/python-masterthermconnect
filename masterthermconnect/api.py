@@ -171,6 +171,16 @@ class MasterthermAPI:
 
         return response_json
 
+    def get_url(self) -> str:
+        """Return the API URL Used.
+
+        Returns:
+            URL(str): The API URL for the version."""
+        if self.__api_version == "v1":
+            return URL_BASE
+        else:
+            return URL_BASE_NEW
+
     async def connect(self) -> dict:
         """Perform the connection to the Mastertherm API Server:
 

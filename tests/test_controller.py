@@ -9,6 +9,7 @@ from masterthermconnect import (
     MasterthermAuthenticationError,
     MasterthermConnectionError,
 )
+from masterthermconnect.const import URL_BASE
 
 from .conftest import VALID_LOGIN, ConnectionMock
 
@@ -142,6 +143,8 @@ async def test_new_api_get_info_data():
     data = controller.get_device_data("10021", "1")
 
     assert info["country"] == "CZ"
+    assert info["api_url"] == URL_BASE
+
     assert data_raw["A_500"] == "30.5"
     assert data["hp_power_state"] is True
     assert data["outside_temp"] == 6.4

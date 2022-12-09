@@ -108,7 +108,7 @@ async def test_get_info_data():
     assert data["actual_temp"] == 46.2
     assert data["heating_circuits"]["hc1"]["name"] == "HW-AN-"
     assert data["heating_circuits"]["hc1"]["on"] is True
-    assert data["heating_circuits"]["hc3"]["enabled"] is False
+    assert not "hc3" in data["heating_circuits"]
 
 
 async def test_new_api_get_info_data():
@@ -147,8 +147,7 @@ async def test_new_api_get_info_data():
     assert data["outside_temp"] == 6.4
     assert data["actual_temp"] == 30.5
 
-    assert data["heating_circuits"]["hc0"]["name"] == "Basement"
-    assert data["heating_circuits"]["hc0"]["on"] is False
+    assert not "hc0" in data["heating_circuits"]
 
     assert data["heating_circuits"]["hc1"]["name"] == "Living room"
     assert data["heating_circuits"]["hc1"]["on"] is True

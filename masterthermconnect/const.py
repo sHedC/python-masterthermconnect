@@ -274,14 +274,14 @@ DEVICE_DATA_MAP = {
     "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #3: auto
     "cooling_mode": ["bool", "D_4"],
     "domestic_hot_water": {
-        "function": ["bool", "D_66"],
+        "heating": ["bool", "D_66"],
         "enabled": ["bool", "D_275"],
         "current_temp": ["float", "A_126"],
         "required_temp": ["float", "A_129"],
-        "min": ["float", "A_296"],
-        "max": ["float", "A_297"],
+        "min_temp": ["float", "A_296"],
+        "max_temp": ["float", "A_297"],
     },
-    "pool_function": ["bool", "D_43"],
+    "pool_heating": ["bool", "D_43"],
     "compressor_running": ["bool", "D_5"],
     "compressor2_running": ["bool", "D_32"],
     "circulation_pump_running": ["bool", "D_10"],

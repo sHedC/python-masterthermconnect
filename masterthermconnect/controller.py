@@ -329,11 +329,19 @@ class MasterthermController:
                     hc_pad
                 ]
 
-            # Set if circuits are enabled or not
+            # Set if circuits are enabled or not, remove circuts that
+            # are not enabled.
             hc_enabled_result = self.__hc_enabled(device_id)
-            hc_circuits = self.__devices[device_id]["data"]["heating_circuits"]
+            hc_circuits: dict = self.__devices[device_id]["data"]["heating_circuits"]
             for hc_id, hc_enabled in hc_enabled_result.items():
-                hc_circuits[hc_id]["enabled"] = hc_enabled
+                if not hc_enabled:
+                    hc_circuits.pop(hc_id)
+                else:
+                    hc_circuits[hc_id]["enabled"] = hc_enabled
+
+            # Remove the Domestic Hot Water if the feature is disabled.
+            if not self.__devices[device_id]["data"]["domestic_hot_water"]["enabled"]:
+                self.__devices[device_id]["data"].pop("domestic_hot_water")
 
         return True
 

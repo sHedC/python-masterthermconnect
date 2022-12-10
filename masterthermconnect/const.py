@@ -325,6 +325,7 @@ DEVICE_DATA_HCMAP = {
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
     "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #3: auto
+    "season": ["fixed", ""],
     "operating_mode": ["fixed", "heating"],
     "cooling_mode": ["bool", "D_4"],
     "domestic_hot_water": {
@@ -355,8 +356,8 @@ DEVICE_DATA_MAP = {
         "aux2_runtime": ["int", "I_101"],
     },
     "season_info": {
-        "hp_season": ["bool", "D_24"],
-        "hp_seasonset": ["int", "I_50"],
+        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer
+        "hp_seasonset": ["int", "I_50"],  # True is Manually Set Season, False Auto
         "hp_season_winter": ["float", "A_82"],
         "hp_season_summer": ["float", "A_83"],
     },

@@ -311,10 +311,16 @@ class MasterthermController:
             device["data"] = self.__populate_data(
                 self.__device_map, device["api_full_data"]
             )
+            data = device["data"]
+
+            # Update Season Setting
+            season_info = data["season_info"]
+            data["season"] = ("auto:" if season_info["hp_seasonset"] else "") + (
+                "winter" if season_info["hp_season"] else "summer"
+            )
 
             # Update Operating Mode
             operating_mode = "heating"
-            data = device["data"]
             if data["domestic_hot_water"]["heating"]:
                 operating_mode = "dhw"
             elif data["heating_circuits"]["pool"]["heating"]:

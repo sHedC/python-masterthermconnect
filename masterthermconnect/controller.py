@@ -312,6 +312,28 @@ class MasterthermController:
                 self.__device_map, device["api_full_data"]
             )
 
+            # Update Operating Mode
+            operating_mode = "heating"
+            data = device["data"]
+            if data["domestic_hot_water"]["heating"]:
+                operating_mode = "dhw"
+            elif data["heating_circuits"]["pool"]["heating"]:
+                operating_mode = "pool"
+            else:
+                error_info = data["error_info"]
+                if (
+                    error_info["some_error"]
+                    or error_info["three_errors"]
+                    or not data["aux_heater_1"]
+                ):
+                    if data["cooling_mode"]:
+                        if data["dewp_control"]:
+                            operating_mode = "dpc"
+                        else:
+                            operating_mode = "cooling"
+
+            device["data"]["operating_mode"] = operating_mode
+
             # Check the Pad Names, if blank get them from the data
             # Populate all data correctly.
             for hc_id in range(0, 7):

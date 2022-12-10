@@ -300,14 +300,14 @@ DEVICE_DATA_HCMAP = {
     },
     "solar": {
         "enabled": ["bool", "D_433"],
-        "name": ["default", "Solar"],
+        "name": ["fixed", "Solar"],
         "s1_temp": ["float", "A_258"],
         "s2_temp": ["float", "A_259"],
         "s3_temp": ["float", "A_260"],
     },
     "pool": {
         "enabled": ["bool", "D_348"],
-        "name": ["default", "Pool"],
+        "name": ["fixed", "Pool"],
         "on": ["bool", "D_238"],
         "heating": ["bool", "D_43"],
         "s1_temp": ["float", "A_262"],
@@ -325,6 +325,7 @@ DEVICE_DATA_HCMAP = {
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
     "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #3: auto
+    "operating_mode": ["fixed", "heating"],
     "cooling_mode": ["bool", "D_4"],
     "domestic_hot_water": {
         "heating": ["bool", "D_66"],

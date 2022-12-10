@@ -294,3 +294,61 @@ async def test_getdata_update():
     assert "I_418" not in data_update
     assert "I_418" in data_raw
     assert data["actual_temp"] == 40.7
+
+
+async def test_season_winter():
+    """Test the Controller Season."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock()
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    data = controller.get_device_data("1234", "1")
+
+    assert data["season"] == "winter"
+
+
+async def test_season_auto_winter():
+    """Test the Controller Season Auto Winter."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    data = controller.get_device_data("0001", "1")
+
+    assert data["season"] == "auto:winter"

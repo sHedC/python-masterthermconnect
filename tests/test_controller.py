@@ -110,6 +110,42 @@ async def test_get_info_data():
     assert data["heating_circuits"]["hc1"]["name"] == "HW-AN-"
     assert data["heating_circuits"]["hc1"]["on"] is True
     assert not "hc3" in data["heating_circuits"]
+    assert not "pool" in data["heating_circuits"]
+    assert not "solar" in data["heating_circuits"]
+
+
+async def test_pool_solar():
+    """Test the Controller Gets Pool and Solar."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    assert controller.get_devices()
+
+    info = controller.get_device_info("0001", "1")
+    data = controller.get_device_data("0001", "1")
+
+    assert info["country"] == "DE"
+    assert data["heating_circuits"]["pool"]
+    assert data["heating_circuits"]["solar"]
 
 
 async def test_new_api_get_info_data():

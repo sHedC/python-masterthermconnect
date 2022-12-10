@@ -20,21 +20,22 @@ def load_fixture(filename):
 class ConnectionMock:
     """Mock the Connection Class to return what we want."""
 
-    def __init__(self, api_version="v1"):
+    def __init__(self, api_version: str = "v1", use_mt: bool = False):
         """Initialize the Connection Mock."""
         self.__api_version = api_version
 
         if api_version == "v1":
-            self.__subfolder = ""
-            self.__var_data = "varfile_mt1_config1"
+            if use_mt:
+                self.__subfolder = "mt/"
+            else:
+                self.__subfolder = ""
         else:
             self.__subfolder = "newapi/"
-            self.__var_data = "varFileData"
 
     def connect(self, role="400"):
         """Mock Connect, Return Connect Success/ Failures."""
         if self.__api_version == "v1":
-            result = json.loads(load_fixture("login_success.json"))
+            result = json.loads(load_fixture(f"{self.__subfolder}login_success.json"))
         else:
             result = json.loads(load_fixture(f"{self.__subfolder}modules.json"))
 
@@ -60,7 +61,14 @@ class ConnectionMock:
                 f"{self.__subfolder}pumpdata_{module_id}_{device_id}_{last_update_time}.json"
             )
         )
-        data["data"]["varData"] = data["data"][self.__var_data]
-        del data["data"][self.__var_data]
+        if "varfile_mt1_config1" in data["data"]:
+            var_data = "varfile_mt1_config1"
+        elif "varfile_mt1_config2" in data["data"]:
+            var_data = "varfile_mt1_config2"
+        else:
+            var_data = "varFileData"
+
+        data["data"]["varData"] = data["data"][var_data]
+        del data["data"][var_data]
 
         return data

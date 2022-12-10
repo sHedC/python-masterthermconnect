@@ -89,7 +89,9 @@ DEVICE_INFO_MAP = {
     "padz": "padz",
 }
 
-
+# Heating and Cooling circuits, hc0 is the default
+# hc0 gets disabled if optional hc1 to hc6 are installed
+# Pool and Solar have been added to the heating cooling circuits
 DEVICE_DATA_HCMAP = {
     "hc0": {
         "enabled": ["fixed", False],
@@ -97,6 +99,12 @@ DEVICE_DATA_HCMAP = {
         "on": ["bool", "A_210"],
         "ambient_temp": ["float", "A_211"],
         "ambient_requested": ["float", "A_210"],
+        "pad": {
+            "active": ["bool", "D_242"],
+            "enabled": ["bool", "D_182"],
+            "temp": ["float", "A_190"],
+            "temp_requested": ["float", "A_191"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_35"],
             "setpoint_a_requested": ["float", "A_37"],
@@ -122,6 +130,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_96"],
         "ambient_temp": ["float", "A_216"],
         "ambient_requested": ["float", "A_215"],
+        "auto": ["int", "I_269"],
+        "pad": {
+            "active": ["bool", "D_245"],
+            "temp_requested": ["float", "A_219"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_101"],
             "setpoint_a_requested": ["float", "A_106"],
@@ -147,6 +160,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_97"],
         "ambient_temp": ["float", "A_222"],
         "ambient_requested": ["float", "A_221"],
+        "auto": ["int", "I_270"],
+        "pad": {
+            "active": ["bool", "D_248"],
+            "temp_requested": ["float", "A_225"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_108"],
             "setpoint_a_requested": ["float", "A_84"],
@@ -172,6 +190,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_98"],
         "ambient_temp": ["float", "A_228"],
         "ambient_requested": ["float", "A_227"],
+        "auto": ["int", "I_271"],
+        "pad": {
+            "active": ["bool", "D_251"],
+            "temp_requested": ["float", "A_231"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_108"],
             "setpoint_a_requested": ["float", "A_84"],
@@ -197,6 +220,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_99"],
         "ambient_temp": ["float", "A_234"],
         "ambient_requested": ["float", "A_233"],
+        "auto": ["int", "I_272"],
+        "pad": {
+            "active": ["bool", "D_254"],
+            "temp_requested": ["float", "A_238"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_122"],
             "setpoint_a_requested": ["float", "A_120"],
@@ -222,6 +250,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_242"],
         "ambient_temp": ["float", "A_241"],
         "ambient_requested": ["float", "A_240"],
+        "auto": ["int", "I_273"],
+        "pad": {
+            "active": ["bool", "D_257"],
+            "temp_requested": ["float", "A_247"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_387"],
             "setpoint_a_requested": ["float", "A_388"],
@@ -247,6 +280,11 @@ DEVICE_DATA_HCMAP = {
         "water_requested": ["float", "A_251"],
         "ambient_temp": ["float", "A_250"],
         "ambient_requested": ["float", "A_249"],
+        "auto": ["int", "I_274"],
+        "pad": {
+            "active": ["bool", "D_259"],
+            "temp_requested": ["float", "A_277"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_401"],
             "setpoint_a_requested": ["float", "A_402"],
@@ -259,6 +297,21 @@ DEVICE_DATA_HCMAP = {
             "setpoint_b_outside": ["float", "A_407"],
             "setpoint_b_requested": ["float", "A_408"],
         },
+    },
+    "solar": {
+        "enabled": ["bool", "D_433"],
+        "name": ["default", "Solar"],
+        "s1_temp": ["float", "A_258"],
+        "s2_temp": ["float", "A_259"],
+        "s3_temp": ["float", "A_260"],
+    },
+    "pool": {
+        "enabled": ["bool", "D_348"],
+        "name": ["default", "Pool"],
+        "on": ["bool", "D_238"],
+        "heating": ["bool", "D_43"],
+        "s1_temp": ["float", "A_262"],
+        "temp_requested": ["float", "A_15"],
     },
 }
 
@@ -281,7 +334,6 @@ DEVICE_DATA_MAP = {
         "min_temp": ["float", "A_296"],
         "max_temp": ["float", "A_297"],
     },
-    "pool_heating": ["bool", "D_43"],
     "compressor_running": ["bool", "D_5"],
     "compressor2_running": ["bool", "D_32"],
     "circulation_pump_running": ["bool", "D_10"],

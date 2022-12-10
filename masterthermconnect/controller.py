@@ -146,10 +146,6 @@ class MasterthermController:
             )
             hc_optional_enabled = hc_optional_enabled or hc_info[HC_MAP[i]["id"]]
 
-        # TODO: Enabled/ Disable Solar and Pool
-        #    return "1" == this.namedVars.solarenabled_v
-        #    return "1" == this.namedVars.poolenabled_v
-
         # Check HC 0 to see if it is enabled.
         hc_name = self.__devices[device_key]["info"][HC_MAP[0]["pad"]]
         hc_info[HC_MAP[0]["id"]] = False
@@ -216,7 +212,7 @@ class MasterthermController:
                 if device_data["data"]:
                     device["last_update_time"] = device_data["timestamp"]
                     device["api_update_data"] = device_data["data"]["varData"][
-                        "001"
+                        str(unit_id).zfill(3)
                     ].copy()
                     device["api_full_data"].update(device["api_update_data"])
 
@@ -341,6 +337,12 @@ class MasterthermController:
                     hc_circuits.pop(hc_id)
                 else:
                     hc_circuits[hc_id]["enabled"] = hc_enabled
+
+            # Check if the Pool and Solar are enabled
+            if not hc_circuits["solar"]["enabled"]:
+                hc_circuits.pop("solar")
+            if not hc_circuits["pool"]["enabled"]:
+                hc_circuits.pop("pool")
 
             # Remove the Domestic Hot Water if the feature is disabled.
             if not self.__devices[device_id]["data"]["domestic_hot_water"]["enabled"]:

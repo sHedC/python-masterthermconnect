@@ -11,7 +11,6 @@ import pytest
 from masterthermconnect import (
     MasterthermAuthenticationError,
     MasterthermConnectionError,
-    MasterthermTokenInvalid,
     MasterthermResponseFormatError,
 )
 from masterthermconnect.api import MasterthermAPI

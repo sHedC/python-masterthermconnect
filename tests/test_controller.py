@@ -148,6 +148,64 @@ async def test_pool_solar():
     assert data["heating_circuits"]["solar"]
 
 
+async def test_operating_mode_heating():
+    """Test the Controller Operating Mode."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock()
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    data = controller.get_device_data("1234", "1")
+
+    assert data["operating_mode"] == "heating"
+
+
+async def test_operating_mode_dhw():
+    """Test the Controller Operating Mode DHW."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    data = controller.get_device_data("0002", "1")
+
+    assert data["operating_mode"] == "dhw"
+
+
 async def test_new_api_get_info_data():
     """Test the Controller Connects and setup devices for the New API."""
     controller = MasterthermController(

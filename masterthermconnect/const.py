@@ -324,9 +324,9 @@ DEVICE_DATA_HCMAP = {
 # --------------------------------------------------------
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
-    "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #3: auto
-    "season": ["fixed", ""],
-    "operating_mode": ["fixed", "heating"],
+    "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto
+    "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
+    "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
     "domestic_hot_water": {
         "heating": ["bool", "D_66"],

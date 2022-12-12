@@ -315,7 +315,7 @@ class MasterthermController:
 
             # Update Season Setting
             season_info = data["season_info"]
-            data["season"] = ("auto:" if season_info["hp_seasonset"] else "") + (
+            data["season"] = ("" if season_info["hp_seasonset"] else "auto:") + (
                 "winter" if season_info["hp_season"] else "summer"
             )
 

@@ -105,18 +105,6 @@ DEVICE_DATA_HCMAP = {
             "temp": ["float", "A_190"],
             "temp_requested": ["float", "A_191"],
         },
-        "control_curve_heating": {
-            "setpoint_a_outside": ["float", "A_35"],
-            "setpoint_a_requested": ["float", "A_37"],
-            "setpoint_b_outside": ["float", "A_36"],
-            "setpoint_b_requested": ["float", "A_38"],
-        },
-        "control_curve_cooling": {
-            "setpoint_a_outside": ["float", "A_47"],
-            "setpoint_a_requested": ["float", "A_49"],
-            "setpoint_b_outside": ["float", "A_48"],
-            "setpoint_b_requested": ["float", "A_50"],
-        },
     },
     "hc1": {
         "enabled": ["fixed", False],
@@ -126,12 +114,13 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_212"],
         "cooling": ["bool", "D_213"],
+        "pump_running": ["bool", "D_68"],
         "water_temp": ["float", "A_90"],
         "water_requested": ["float", "A_96"],
         "ambient_temp": ["float", "A_216"],
         "ambient_requested": ["float", "A_215"],
         "auto": ["int", "I_269"],
-        "pad": {
+        "pad": {  # The PAD Information Below seems to do nothing, same for other pads
             "active": ["bool", "D_245"],
             "temp_requested": ["float", "A_219"],
         },
@@ -156,6 +145,7 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_216"],
         "cooling": ["bool", "D_217"],
+        "pump_running": ["bool", "D_69"],
         "water_temp": ["float", "A_91"],
         "water_requested": ["float", "A_97"],
         "ambient_temp": ["float", "A_222"],
@@ -186,6 +176,7 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_220"],
         "cooling": ["bool", "D_221"],
+        "pump_running": ["bool", "D_70"],
         "water_temp": ["float", "A_92"],
         "water_requested": ["float", "A_98"],
         "ambient_temp": ["float", "A_228"],
@@ -216,6 +207,7 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_50"],
         "cooling": ["bool", "D_224"],
+        "pump_running": ["bool", "D_71"],
         "water_temp": ["float", "A_93"],
         "water_requested": ["float", "A_99"],
         "ambient_temp": ["float", "A_234"],
@@ -224,18 +216,6 @@ DEVICE_DATA_HCMAP = {
         "pad": {
             "active": ["bool", "D_254"],
             "temp_requested": ["float", "A_238"],
-        },
-        "control_curve_heating": {
-            "setpoint_a_outside": ["float", "A_122"],
-            "setpoint_a_requested": ["float", "A_120"],
-            "setpoint_b_outside": ["float", "A_88"],
-            "setpoint_b_requested": ["float", "A_121"],
-        },
-        "control_curve_cooling": {
-            "setpoint_a_outside": ["float", "A_362"],
-            "setpoint_a_requested": ["float", "A_363"],
-            "setpoint_b_outside": ["float", "A_364"],
-            "setpoint_b_requested": ["float", "A_365"],
         },
     },
     "hc5": {
@@ -246,6 +226,7 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_51"],
         "cooling": ["bool", "D_227"],
+        "pump_running": ["bool", "D_72"],
         "water_temp": ["float", "A_243"],
         "water_requested": ["float", "A_242"],
         "ambient_temp": ["float", "A_241"],
@@ -276,6 +257,7 @@ DEVICE_DATA_HCMAP = {
         ],
         "on": ["bool", "D_52"],
         "cooling": ["bool", "D_231"],
+        "pump_running": ["bool", "D_73"],
         "water_temp": ["float", "A_252"],
         "water_requested": ["float", "A_251"],
         "ambient_temp": ["float", "A_250"],
@@ -321,6 +303,9 @@ DEVICE_DATA_HCMAP = {
 # b_outside: A_48
 # a_requested: A_49
 # b_requested: A_50
+#
+# Moved HC0 Heating/ Cooling Curves to main as always
+# used moving to main section so they don't get disabled
 # --------------------------------------------------------
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
@@ -328,6 +313,18 @@ DEVICE_DATA_MAP = {
     "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
     "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
+    "control_curve_heating": {
+        "setpoint_a_outside": ["float", "A_122"],
+        "setpoint_a_requested": ["float", "A_120"],
+        "setpoint_b_outside": ["float", "A_88"],
+        "setpoint_b_requested": ["float", "A_121"],
+    },
+    "control_curve_cooling": {
+        "setpoint_a_outside": ["float", "A_362"],
+        "setpoint_a_requested": ["float", "A_363"],
+        "setpoint_b_outside": ["float", "A_364"],
+        "setpoint_b_requested": ["float", "A_365"],
+    },
     "domestic_hot_water": {
         "heating": ["bool", "D_66"],
         "enabled": ["bool", "D_275"],

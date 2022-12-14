@@ -105,18 +105,6 @@ DEVICE_DATA_HCMAP = {
             "temp": ["float", "A_190"],
             "temp_requested": ["float", "A_191"],
         },
-        "control_curve_heating": {
-            "setpoint_a_outside": ["float", "A_35"],
-            "setpoint_a_requested": ["float", "A_37"],
-            "setpoint_b_outside": ["float", "A_36"],
-            "setpoint_b_requested": ["float", "A_38"],
-        },
-        "control_curve_cooling": {
-            "setpoint_a_outside": ["float", "A_47"],
-            "setpoint_a_requested": ["float", "A_49"],
-            "setpoint_b_outside": ["float", "A_48"],
-            "setpoint_b_requested": ["float", "A_50"],
-        },
     },
     "hc1": {
         "enabled": ["fixed", False],
@@ -229,18 +217,6 @@ DEVICE_DATA_HCMAP = {
             "active": ["bool", "D_254"],
             "temp_requested": ["float", "A_238"],
         },
-        "control_curve_heating": {
-            "setpoint_a_outside": ["float", "A_122"],
-            "setpoint_a_requested": ["float", "A_120"],
-            "setpoint_b_outside": ["float", "A_88"],
-            "setpoint_b_requested": ["float", "A_121"],
-        },
-        "control_curve_cooling": {
-            "setpoint_a_outside": ["float", "A_362"],
-            "setpoint_a_requested": ["float", "A_363"],
-            "setpoint_b_outside": ["float", "A_364"],
-            "setpoint_b_requested": ["float", "A_365"],
-        },
     },
     "hc5": {
         "enabled": ["fixed", False],
@@ -327,6 +303,9 @@ DEVICE_DATA_HCMAP = {
 # b_outside: A_48
 # a_requested: A_49
 # b_requested: A_50
+#
+# Moved HC0 Heating/ Cooling Curves to main as always
+# used moving to main section so they don't get disabled
 # --------------------------------------------------------
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
@@ -334,6 +313,18 @@ DEVICE_DATA_MAP = {
     "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
     "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
+    "control_curve_heating": {
+        "setpoint_a_outside": ["float", "A_122"],
+        "setpoint_a_requested": ["float", "A_120"],
+        "setpoint_b_outside": ["float", "A_88"],
+        "setpoint_b_requested": ["float", "A_121"],
+    },
+    "control_curve_cooling": {
+        "setpoint_a_outside": ["float", "A_362"],
+        "setpoint_a_requested": ["float", "A_363"],
+        "setpoint_b_outside": ["float", "A_364"],
+        "setpoint_b_requested": ["float", "A_365"],
+    },
     "domestic_hot_water": {
         "heating": ["bool", "D_66"],
         "enabled": ["bool", "D_275"],

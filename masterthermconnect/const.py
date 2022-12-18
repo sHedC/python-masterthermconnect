@@ -291,7 +291,7 @@ DEVICE_DATA_HCMAP = {
         "enabled": ["bool", "D_348"],
         "name": ["fixed", "Pool"],
         "on": ["bool", "D_238"],
-        "circulation_valve": ["bool", "D_43"],
+        "heating": ["bool", "D_43"],
         "s1_temp": ["float", "A_262"],
         "temp_requested": ["float", "A_15"],
     },

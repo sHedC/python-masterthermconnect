@@ -92,18 +92,21 @@ DEVICE_INFO_MAP = {
 # Heating and Cooling circuits, hc0 is the default
 # hc0 gets disabled if optional hc1 to hc6 are installed
 # Pool and Solar have been added to the heating cooling circuits
+#
+# PAD
+#   entries are related to the Room Thermostats
+#   Active is False if not installed, so will disable the section
 DEVICE_DATA_HCMAP = {
     "hc0": {
         "enabled": ["fixed", False],
         "name": ["string", []],  # hc0 does not have a name
-        "on": ["bool", "A_210"],
         "ambient_temp": ["float", "A_211"],
         "ambient_requested": ["float", "A_210"],
         "pad": {
-            "active": ["bool", "D_242"],
-            "enabled": ["bool", "D_182"],
-            "temp": ["float", "A_190"],
-            "temp_requested": ["float", "A_191"],
+            "active": ["fixed", True],  # No Register in the App
+            "current_humidity": ["float", "I_185"],
+            "requested_temp": ["float", "A_189"],
+            "current_temp": ["float", "A_190"],
         },
     },
     "hc1": {
@@ -120,9 +123,11 @@ DEVICE_DATA_HCMAP = {
         "ambient_temp": ["float", "A_216"],
         "ambient_requested": ["float", "A_215"],
         "auto": ["int", "I_269"],
-        "pad": {  # The PAD Information Below seems to do nothing, same for other pads
+        "pad": {
             "active": ["bool", "D_245"],
-            "temp_requested": ["float", "A_219"],
+            "current_humidity": ["float", "I_219"],
+            "requested_temp": ["float", "A_219"],
+            "current_temp": ["float", "A_220"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_101"],
@@ -153,7 +158,9 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_270"],
         "pad": {
             "active": ["bool", "D_248"],
-            "temp_requested": ["float", "A_225"],
+            "current_humidity": ["float", "I_220"],  # Guess
+            "requested_temp": ["float", "A_225"],
+            "current_temp": ["float", "A_226"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_108"],
@@ -184,7 +191,8 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_271"],
         "pad": {
             "active": ["bool", "D_251"],
-            "temp_requested": ["float", "A_231"],
+            "requested_temp": ["float", "A_231"],
+            "current_temp": ["float", "A_232"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_108"],
@@ -215,7 +223,8 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_272"],
         "pad": {
             "active": ["bool", "D_254"],
-            "temp_requested": ["float", "A_238"],
+            "requested_temp": ["float", "A_238"],
+            "current_temp": ["float", "A_239"],
         },
     },
     "hc5": {
@@ -234,7 +243,8 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_273"],
         "pad": {
             "active": ["bool", "D_257"],
-            "temp_requested": ["float", "A_247"],
+            "requested_temp": ["float", "A_247"],
+            "current_temp": ["float", "A_248"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_387"],
@@ -265,7 +275,8 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_274"],
         "pad": {
             "active": ["bool", "D_259"],
-            "temp_requested": ["float", "A_277"],
+            "requested_temp": ["float", "A_277"],
+            "current_temp": ["float", "A_278"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_401"],
@@ -309,7 +320,7 @@ DEVICE_DATA_HCMAP = {
 # --------------------------------------------------------
 DEVICE_DATA_MAP = {
     "hp_power_state": ["bool", "D_3"],
-    "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto
+    "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
     "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
     "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
@@ -329,7 +340,7 @@ DEVICE_DATA_MAP = {
         "heating": ["bool", "D_66"],
         "enabled": ["bool", "D_275"],
         "current_temp": ["float", "A_126"],
-        "required_temp": ["float", "A_129"],
+        "required_temp": ["float", "A_129"],  # Write
         "min_temp": ["float", "A_296"],
         "max_temp": ["float", "A_297"],
     },
@@ -353,10 +364,10 @@ DEVICE_DATA_MAP = {
         "aux2_runtime": ["int", "I_101"],
     },
     "season_info": {
-        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer
-        "hp_seasonset": ["int", "I_50"],  # True is Manually Set Season, False Auto
-        "hp_season_winter": ["float", "A_82"],
-        "hp_season_summer": ["float", "A_83"],
+        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer (Write)
+        "hp_seasonset": ["int", "I_50"],  # True is Manually Set, False Auto (Write)
+        "hp_season_winter": ["float", "A_82"],  # (Write)
+        "hp_season_summer": ["float", "A_83"],  # (Write)
     },
     "error_info": {
         "some_error": ["bool", "D_20"],

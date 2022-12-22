@@ -35,19 +35,22 @@ Specific Version or Pre-Release: python -m pip install masterthermconnect==1.1.0
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes:
 
+DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
+
 usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
 
 Python Mastertherm Connect API Module, used for debug purposes.<br>
 options:<br>
-&nbsp;&nbsp;-h, --help           show this help message and exit<br>
-&nbsp;&nbsp;--version            display the Mastertherm Connect API version<br>
-&nbsp;&nbsp;--api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-&nbsp;&nbsp;--hide-sensitive     Hide the sensitive information, for debug information for sharing.<br>
-&nbsp;&nbsp;--user USER          login user for Mastertherm<br>
-&nbsp;&nbsp;--password PASSWORD  login password for Mastertherm<br>
-&nbsp;&nbsp;--list-devices       list the devices connected to the account<br>
-&nbsp;&nbsp;--list-device-data   list the data for each device connected to the account<br>
-&nbsp;&nbsp;--list-device-reg    list the raw registers for each device<br>
+&nbsp;&nbsp;-h, --help                          show this help message and exit<br>
+&nbsp;&nbsp;--version                           display the Mastertherm Connect API version<br>
+&nbsp;&nbsp;--api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
+&nbsp;&nbsp;--hide-sensitive                    Hide the sensitive information, for debug information for sharing.<br>
+&nbsp;&nbsp;--user USER                         login user for Mastertherm<br>
+&nbsp;&nbsp;--password PASSWORD                 login password for Mastertherm<br>
+&nbsp;&nbsp;--list-devices                      list the devices connected to the account<br>
+&nbsp;&nbsp;--list-device-data                  list the data for each device connected to the account<br>
+&nbsp;&nbsp;--list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
+&nbsp;&nbsp;---pretty                           Pritify the Output in JSON Format.<br>
 
 ### API Version
 TBC

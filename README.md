@@ -7,9 +7,12 @@ Stable -
 [![GitHub Release][stable-release-shield]][releases]
 [![workflow-stable]][workflows-stable]
 
-Latest -
+Pre-Release -
 [![GitHub Release][latest-release-shield]][releases]
 [![workflow-latest]][workflows-latest]
+
+Main-Branch -
+[![workflow-main]][workflows-main]
 
 ## About
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.
@@ -62,5 +65,7 @@ TBC
 
 [workflows-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
 [workflow-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
-[workflows-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
-[workflow-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
+[workflows-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
+[workflow-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
+[workflows-main]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
+[workflow-main]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg

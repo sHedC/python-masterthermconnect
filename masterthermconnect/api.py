@@ -5,7 +5,7 @@ import time
 from datetime import datetime, timedelta
 from hashlib import sha1
 from json.decoder import JSONDecodeError
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote_plus
 
 from aiohttp import ClientSession, ClientConnectionError, ContentTypeError
 
@@ -73,16 +73,17 @@ class MasterthermAPI:
         self.__expires = None
 
         # Setup the Session Details based on if Old or New API.
+        codeduser = quote_plus(username)
         if self.__api_version == "v1":
             hashpass = sha1(password.encode("utf-8")).hexdigest()
-            codeduser = username.replace(" ", "+")
             self.__login_params = (
                 f"login=login&uname={codeduser}&upwd={hashpass}&{APP_CLIENTINFO}"
             )
         else:
+            codedpass = quote_plus(password)
             self.__login_params = (
-                f"grant_type=password&username={username}&"
-                + f"password={password}&{APP_CLIENTINFO_NEW}"
+                f"grant_type=password&username={codeduser}&"
+                + f"password={codedpass}&{APP_CLIENTINFO_NEW}"
             )
 
     async def __token_expired(self) -> bool:

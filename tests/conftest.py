@@ -2,7 +2,11 @@
 import json
 import os
 
-VALID_LOGIN = {"uname": "user name", "upwd": "hashpass", "token": "9jdhhs78dodlosd"}
+VALID_LOGIN = {
+    "uname": "user name@email",
+    "upwd": "hash%pass or",
+    "token": "9jdhhs78dodlosd",
+}
 
 GENERAL_ERROR_RESPONSE = "User not logged in"
 

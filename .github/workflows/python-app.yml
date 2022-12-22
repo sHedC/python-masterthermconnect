@@ -5,9 +5,9 @@ name: Push Actions
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, sHedC/* ]
   pull_request:
-    branches: [ main, issue39 ]
+    branches: [ main ]
 
 jobs:
   build:

@@ -7,7 +7,7 @@ Stable -
 [![GitHub Release][stable-release-shield]][releases]
 [![workflow-stable]][workflows-stable]
 
-Dev Branches -
+Latest -
 [![GitHub Release][latest-release-shield]][releases]
 [![workflow-dev]][workflows-dev]
 

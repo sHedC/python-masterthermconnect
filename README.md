@@ -3,10 +3,10 @@
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-Main-Branch -
+Main -
 [![workflow-main]][workflows-main]
 
-Pre-Release -
+Latest -
 [![GitHub Release][latest-release-shield]][releases]
 [![workflow-latest]][workflows-latest]
 

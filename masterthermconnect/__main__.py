@@ -2,6 +2,7 @@
 import argparse
 import asyncio
 import getpass
+import json
 
 from aiohttp import ClientSession
 
@@ -51,8 +52,13 @@ def get_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--list-device-reg",
+        type=str,
+        help="List Registers e.g. A_330 or A_330,A_331 or 'all' for everything.",
+    )
+    parser.add_argument(
+        "--pretty",
         action="store_true",
-        help="list the raw registers for each device",
+        help="Pritify the Output in JSON Format.",
     )
 
     arguments = parser.parse_args()
@@ -99,6 +105,9 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
+    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED")
+    print("The App and Web App run once every 30 seconds.")
+
     controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
 
     if args.list_devices:
@@ -122,7 +131,10 @@ def main() -> int:
                 device_item["latitude"] = "1.1"
                 device_item["longitude"] = "-0.1"
 
-            print(device_id + ": " + str(device_item).replace("'", '"'))
+            if args.pretty:
+                print(device_id + ": " + json.dumps(device_item, indent=4))
+            else:
+                print(device_id + ": " + str(device_item).replace("'", '"'))
 
     if args.list_device_data:
         devices = controller.get_devices()
@@ -140,7 +152,10 @@ def main() -> int:
             if args.hide_sensitive:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
-            print(device_id + ": " + str(device_data).replace("'", '"'))
+            if args.pretty:
+                print(device_id + ": " + json.dumps(device_data, indent=4))
+            else:
+                print(device_id + ": " + str(device_data).replace("'", '"'))
 
     if args.list_device_reg:
         devices = controller.get_devices()
@@ -158,7 +173,24 @@ def main() -> int:
             if args.hide_sensitive:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
-            print(device_id + ": " + str(device_reg).replace("'", '"'))
+            sorted_reg = {}
+            for key in sorted(device_reg.keys()):
+                sorted_reg[key] = device_reg[key]
+
+            reg: str = args.list_device_reg
+            if reg.upper() == "ALL":
+                print(device_id + ": " + str(sorted_reg).replace("'", '"'))
+            elif reg.find(",") == -1:
+                print(device_id + ": " + reg + " = " + sorted_reg.get(reg, "Not Found"))
+            else:
+                for key in reg.split(","):
+                    print(
+                        device_id
+                        + ": "
+                        + key
+                        + " = "
+                        + sorted_reg.get(key, "Not Found")
+                    )
 
     return 0
 

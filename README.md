@@ -3,16 +3,16 @@
 ![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
-Stable -
-[![GitHub Release][stable-release-shield]][releases]
-[![workflow-stable]][workflows-stable]
+Main -
+[![workflow-main]][workflows-main]
 
-Pre-Release -
+Latest -
 [![GitHub Release][latest-release-shield]][releases]
 [![workflow-latest]][workflows-latest]
 
-Main-Branch -
-[![workflow-main]][workflows-main]
+Stable -
+[![GitHub Release][stable-release-shield]][releases]
+[![workflow-stable]][workflows-stable]
 
 ## About
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.

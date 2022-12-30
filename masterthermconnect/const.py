@@ -100,13 +100,16 @@ DEVICE_DATA_HCMAP = {
     "hc0": {
         "enabled": ["fixed", False],
         "name": ["string", []],  # hc0 does not have a name
-        "ambient_temp": ["float", "A_211"],
-        "ambient_requested": ["float", "A_210"],
+        "int": {
+            "enabled": ["fixed", False],  # Not located the Register
+            "ambient_requested": ["float", "A_210"],
+            "ambient_temp": ["float", "A_211"],
+        },
         "pad": {
-            "active": ["fixed", True],  # No Register in the App
+            "enabled": ["fixed", True],  # Not located the Register D_193?
             "current_humidity": ["float", "I_185"],
-            "requested_temp": ["float", "A_189"],
-            "current_temp": ["float", "A_190"],
+            "ambient_requested": ["float", "A_189"],
+            "ambient_temp": ["float", "A_190"],
         },
     },
     "hc1": {
@@ -120,14 +123,17 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_68"],
         "water_temp": ["float", "A_90"],
         "water_requested": ["float", "A_96"],
-        "ambient_temp": ["float", "A_216"],
-        "ambient_requested": ["float", "A_215"],
         "auto": ["int", "I_269"],
+        "int": {
+            "enabled": ["not bool", "D_245"],
+            "ambient_requested": ["float", "A_219"],
+            "ambient_temp": ["float", "A_220"],
+        },
         "pad": {
-            "active": ["bool", "D_245"],
+            "enabled": ["bool", "D_245"],
             "current_humidity": ["float", "I_219"],
-            "requested_temp": ["float", "A_219"],
-            "current_temp": ["float", "A_220"],
+            "ambient_requested": ["float", "A_219"],
+            "ambient_temp": ["float", "A_220"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_101"],
@@ -153,14 +159,17 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_69"],
         "water_temp": ["float", "A_91"],
         "water_requested": ["float", "A_97"],
-        "ambient_temp": ["float", "A_222"],
-        "ambient_requested": ["float", "A_221"],
         "auto": ["int", "I_270"],
+        "int": {
+            "enabled": ["not bool", "D_248"],
+            "ambient_requested": ["float", "A_221"],
+            "ambient_temp": ["float", "A_222"],
+        },
         "pad": {
-            "active": ["bool", "D_248"],
+            "enabled": ["bool", "D_248"],
             "current_humidity": ["float", "I_220"],  # Guess
-            "requested_temp": ["float", "A_225"],
-            "current_temp": ["float", "A_226"],
+            "ambient_requested": ["float", "A_225"],
+            "ambient_temp": ["float", "A_226"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_108"],
@@ -186,19 +195,23 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_70"],
         "water_temp": ["float", "A_92"],
         "water_requested": ["float", "A_98"],
-        "ambient_temp": ["float", "A_228"],
-        "ambient_requested": ["float", "A_227"],
         "auto": ["int", "I_271"],
+        "int": {
+            "enabled": ["not bool", "D_251"],
+            "ambient_requested": ["float", "A_227"],
+            "ambient_temp": ["float", "A_228"],
+        },
         "pad": {
-            "active": ["bool", "D_251"],
-            "requested_temp": ["float", "A_231"],
-            "current_temp": ["float", "A_232"],
+            "enabled": ["bool", "D_251"],
+            "current_humidity": ["float", "I_221"],  # Guess
+            "ambient_requested": ["float", "A_231"],
+            "ambient_temp": ["float", "A_231"],
         },
         "control_curve_heating": {
-            "setpoint_a_outside": ["float", "A_108"],
-            "setpoint_a_requested": ["float", "A_84"],
-            "setpoint_b_outside": ["float", "A_109"],
-            "setpoint_b_requested": ["float", "A_85"],
+            "setpoint_a_outside": ["float", "A_113"],
+            "setpoint_a_requested": ["float", "A_86"],
+            "setpoint_b_outside": ["float", "A_114"],
+            "setpoint_b_requested": ["float", "A_87"],
         },
         "control_curve_cooling": {
             "setpoint_a_outside": ["float", "A_346"],
@@ -218,13 +231,29 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_71"],
         "water_temp": ["float", "A_93"],
         "water_requested": ["float", "A_99"],
-        "ambient_temp": ["float", "A_234"],
-        "ambient_requested": ["float", "A_233"],
         "auto": ["int", "I_272"],
+        "int": {
+            "enabled": ["not bool", "D_254"],
+            "ambient_requested": ["float", "A_233"],
+            "ambient_temp": ["float", "A_234"],
+        },
         "pad": {
-            "active": ["bool", "D_254"],
-            "requested_temp": ["float", "A_238"],
-            "current_temp": ["float", "A_239"],
+            "enabled": ["bool", "D_254"],
+            "current_humidity": ["float", "I_222"],  # Guess
+            "ambient_requested": ["float", "A_238"],
+            "ambient_temp": ["float", "A_239"],
+        },
+        "control_curve_heating": {
+            "setpoint_a_outside": ["float", "A_122"],
+            "setpoint_a_requested": ["float", "A_120"],
+            "setpoint_b_outside": ["float", "A_88"],
+            "setpoint_b_requested": ["float", "A_121"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": ["float", "A_362"],
+            "setpoint_a_requested": ["float", "A_363"],
+            "setpoint_b_outside": ["float", "A_364"],
+            "setpoint_b_requested": ["float", "A_365"],
         },
     },
     "hc5": {
@@ -238,13 +267,17 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_72"],
         "water_temp": ["float", "A_243"],
         "water_requested": ["float", "A_242"],
-        "ambient_temp": ["float", "A_241"],
-        "ambient_requested": ["float", "A_240"],
         "auto": ["int", "I_273"],
+        "int": {
+            "enabled": ["not bool", "D_257"],
+            "ambient_requested": ["float", "A_240"],
+            "ambient_temp": ["float", "A_241"],
+        },
         "pad": {
-            "active": ["bool", "D_257"],
-            "requested_temp": ["float", "A_247"],
-            "current_temp": ["float", "A_248"],
+            "enabled": ["bool", "D_257"],
+            "current_humidity": ["float", "I_223"],  # Guess
+            "ambient_requested": ["float", "A_247"],
+            "ambient_temp": ["float", "A_248"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_387"],
@@ -270,13 +303,17 @@ DEVICE_DATA_HCMAP = {
         "circulation_valve": ["bool", "D_73"],
         "water_temp": ["float", "A_252"],
         "water_requested": ["float", "A_251"],
-        "ambient_temp": ["float", "A_250"],
-        "ambient_requested": ["float", "A_249"],
         "auto": ["int", "I_274"],
+        "int": {
+            "enabled": ["not bool", "D_259"],
+            "ambient_requested": ["float", "A_240"],
+            "ambient_temp": ["float", "A_241"],
+        },
         "pad": {
-            "active": ["bool", "D_259"],
-            "requested_temp": ["float", "A_277"],
-            "current_temp": ["float", "A_278"],
+            "enabled": ["bool", "D_259"],
+            "current_humidity": ["float", "I_223"],  # Guess
+            "ambient_requested": ["float", "A_249"],
+            "ambient_temp": ["float", "A_250"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_401"],

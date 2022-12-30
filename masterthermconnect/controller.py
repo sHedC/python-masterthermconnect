@@ -80,6 +80,11 @@ class MasterthermController:
                         data[key] = False
                     else:
                         data[key] = registers[item_value] == "1"
+                elif item_type == "not bool":
+                    if item_value == "":
+                        data[key] = True
+                    else:
+                        data[key] = not registers[item_value] == "1"
                 elif item_type == "float":
                     if item_value == "":
                         data[key] = 0.0
@@ -365,6 +370,10 @@ class MasterthermController:
                     hc_circuits.pop(hc_id)
                 else:
                     hc_circuits[hc_id]["enabled"] = hc_enabled
+                    if hc_circuits[hc_id]["pad"]["enabled"]:
+                        hc_circuits[hc_id].pop("int")
+                    else:
+                        hc_circuits[hc_id].pop("pad")
 
             # Check if the Pool and Solar are enabled
             if not hc_circuits["solar"]["enabled"]:

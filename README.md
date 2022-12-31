@@ -14,11 +14,10 @@ Stable -
 [![workflow-stable]][workflows-stable]
 
 ## About
-If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:
-
+If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:<br>
 [![Charity Link](images/salvationarmy.jpg)](https://www.justgiving.com/fundraising/jackie-holmes1933)
 
-This module provides the connection and conversion for the two Mastertherm Heat Pump API', it is being developed as a best effort to support an integration plugin for Home Assistant.
+This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
 There are two entry points for the Mastertherm Heat Pumps:
     - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
@@ -35,9 +34,9 @@ Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes:
 
-DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
+DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
-usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg]
+usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
 
 Python Mastertherm Connect API Module, used for debug purposes.<br>
 options:<br>
@@ -51,6 +50,8 @@ options:<br>
 &nbsp;&nbsp;--list-device-data                  list the data for each device connected to the account<br>
 &nbsp;&nbsp;--list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
 &nbsp;&nbsp;---pretty                           Pritify the Output in JSON Format.<br>
+
+If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
 
 ### API Version
 TBC

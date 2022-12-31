@@ -15,7 +15,7 @@ Stable -
 
 ## About
 If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:<br>
-[![Charity Link](images/salvationarmy.jpg)](https://www.justgiving.com/fundraising/jackie-holmes1933)
+<a href="https://www.justgiving.com/fundraising/jackie-holmes1933"><img src="images/salvationarmy.jpg" alt="Charity Link" style="width:42px;height:42px;"></a>
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
@@ -28,7 +28,7 @@ NOTES:
     - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
 ## Installation
-Releases are done using PyPi, the release is here: [![masterthermconenct]](https://pypi.org/project/masterthermconnect)
+Releases are done using PyPi, the release is here: <a href="https://pypi.org/project/masterthermconnect" target="_blank">masterthermconnect</a>
 - Latest Release Version: python -m pip install masterthermconnect
 - Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==1.1.0rc9
 

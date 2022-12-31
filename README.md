@@ -1,6 +1,5 @@
 # MaseterTherm Connect Module
 [![License][license-shield]](LICENSE)
-![Project Maintenance][maintenance-shield]
 [![GitHub Activity][commits-shield]][commits]
 
 Main -
@@ -13,6 +12,9 @@ Latest -
 Stable -
 [![GitHub Release][stable-release-shield]][releases]
 [![workflow-stable]][workflows-stable]
+
+## Charity
+If you feel like donating anything, at the moment my wife is running the London marathon for The Salvation Army ![Charity][https://www.justgiving.com/fundraising/jackie-holmes1933]
 
 ## About
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.

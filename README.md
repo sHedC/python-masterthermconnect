@@ -14,8 +14,8 @@ Stable -
 [![workflow-stable]][workflows-stable]
 
 ## About
-If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:<br>
-<a href="https://www.justgiving.com/fundraising/jackie-holmes1933"><img src="images/salvationarmy.jpg" alt="Charity Link" style="width:312px;height:50px;"></a>
+If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:
+<a href="https://www.justgiving.com/fundraising/jackie-holmes1933"><img src="images/salvationarmy.jpg" alt="Charity Link" style="width:156px;height:25px;"></a>
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 

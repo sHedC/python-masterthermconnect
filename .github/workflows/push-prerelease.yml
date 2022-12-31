@@ -4,8 +4,8 @@
 name: Latest Pre Release
 
 on:
-  push:
-    branches: [ releases/**-* ]
+  release:
+    types: [prereleased]
 
 jobs:
   build:

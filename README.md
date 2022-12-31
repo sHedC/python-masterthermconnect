@@ -15,24 +15,22 @@ Stable -
 
 ## About
 If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:
+
 [![Charity Link](images/salvationarmy.jpg)](https://www.justgiving.com/fundraising/jackie-holmes1933)
 
-This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.
-The project was mainly built for a Plugin to Home Assistant.
+This module provides the connection and conversion for the two Mastertherm Heat Pump API', it is being developed as a best effort to support an integration plugin for Home Assistant.
 
 There are two entry points for the Mastertherm Heat Pumps:
     - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
     - mastertherm.online - This is the server for 2022 onward
 
 NOTES:
-    - materhterm.online is sensitive to too many requests, for this reason by default it defaults to updates every 10 minutes, the App updates every 2 minutes. To help the Info updates every 30 min and data can be set in the options.
+    - materhterm.online is sensitive to too many requests so take care when using the command line or using this libary. The Application and Web App does a refresh on one module/ unit every 30 seconds.
     - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
 ## Installation
 Latest Release Version: python -m pip install masterthermconnect
-Specific Version or Pre-Release: python -m pip install masterthermconnect==1.1.0rc2
-
-## Usage
+Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==1.1.0rc9
 
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes:

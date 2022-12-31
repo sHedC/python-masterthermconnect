@@ -13,11 +13,10 @@ Stable -
 [![GitHub Release][stable-release-shield]][releases]
 [![workflow-stable]][workflows-stable]
 
-## Charity
-If you feel like donating anything, at the moment my wife is running the London marathon for The Salvation Army and we are raiing money here:
+## About
+If you feel like donating to a worthy charity my wife is running the London Marathon for the Salvation Army:
 [![Charity Link](images/salvationarmy.jpg)](https://www.justgiving.com/fundraising/jackie-holmes1933)
 
-## About
 This module provides the connection and conversion tools to the API for the Mastertherm Heatpump Products.
 The project was mainly built for a Plugin to Home Assistant.
 

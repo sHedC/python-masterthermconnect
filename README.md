@@ -92,7 +92,7 @@ The data is stored under the controller as an array of module and unit's making 
 The information is stored as key value pairs as below:
 
 ```
-DEVICE_INFO_MAP = {
+{
     "name": "givenname",
     "surname": "surname",
     "country": "localization",
@@ -113,6 +113,101 @@ DEVICE_INFO_MAP = {
     "pade": "pade",
     "padf": "padf",
     "padz": "padz",
+}
+```
+
+The data is normallies based on the following key value pairs and sub dictionary setup below is the format but exact mappings can be found in the const.py file.
+
+Where possble the normalized data is filtered out based on whether a feature is enabled or not, for example HC0-HC6, Pool and Solar are avaialble only if the circuits are enabled and available.
+```
+{
+    "hp_power_state": ["bool", "D_3"],
+    "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
+    "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
+    "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
+    "cooling_mode": ["bool", "D_4"],
+    "control_curve_heating": {
+        "setpoint_a_outside": ["float", "A_122"],
+    },
+    "control_curve_cooling": {
+        "setpoint_a_outside": ["float", "A_362"],
+    },
+    "domestic_hot_water": {
+        "heating": ["bool", "D_66"],
+        "enabled": ["bool", "D_275"],
+    },
+    "compressor_running": ["bool", "D_5"],
+    "compressor2_running": ["bool", "D_32"],
+    "runtime_info": {
+        "compressor_run_time": ["int", "I_11"],
+        "compressor_start_counter": ["int", "I_12"],
+    },
+    "season_info": {
+        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer (Write)
+        "hp_seasonset": ["int", "I_50"],  # True is Manually Set, False Auto (Write)
+    },
+    "error_info": {
+        "some_error": ["bool", "D_20"],
+        "three_errors": ["bool", "D_21"],
+    },
+    "heating_circuits": {}, # Heating and Cooling Circuits
+}
+```
+
+The Heating/ Cooling Ciruits are optionally installed, HC0 refers to the main heat pump, HC1 to 6 are optional heating and cooling cirguits and additionally there is Pool and Solar as optional components.
+
+In addition each Heating/ Cooling Circuit can have a room thermostat installed or not.  Where possible the sections that are not enabled are removed.
+
+Within each of the hc0 to hc6 a room thermostat can be installed if so then the pad sub key is enabled, if not then the int sub key is enabled.
+
+```
+{
+    "hc0": {
+        "enabled": boolean Disabled if any of HC1 to HC6 are installed.
+        "name": ["string", []],  # hc0 does not have a name, default is Home
+        "int": {
+            "enabled": ["fixed", False],  # Not located the Register
+            "ambient_requested": ["float", "A_210"],
+            "ambient_temp": ["float", "A_211"],
+        },
+        "pad": {
+            "enabled": ["fixed", True],  # Not located the Register D_193?
+            "current_humidity": ["float", "I_185"],
+            "ambient_requested": ["float", "A_189"],
+            "ambient_temp": ["float", "A_190"],
+        },
+    },
+    "hc1": {
+        "enabled": ["fixed", False],
+        "name": [
+            "string",
+            ["I_211", "I_212", "I_213", "I_214", "I_215", "I_216"],
+        ],
+        "on": ["bool", "D_212"],
+        "int": {
+            "enabled": ["not bool", "D_245"],
+        },
+        "pad": {
+            "enabled": ["bool", "D_245"],
+        },
+        "control_curve_heating": {
+            "setpoint_a_outside": ["float", "A_101"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": ["float", "A_314"],
+        },
+    },
+    .
+    .
+    .
+    "solar": {
+        "enabled": ["bool", "D_433"],
+        "name": ["fixed", "Solar"],
+    },
+    "pool": {
+        "enabled": ["bool", "D_348"],
+        "name": ["fixed", "Pool"],
+    },
 }
 ```
 

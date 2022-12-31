@@ -38,10 +38,12 @@ This is used as a libary but it can also be run directly for debug purposes:
 
 DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
-usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
-
 ```
-Python Mastertherm Connect API Module, used for debug purposes, options:
+usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive]
+[--user USER] [--password PASSWORD] [--list-devices]
+[--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
+
+Options:
     -h, --help                          show this help message and exit<br>
     --version                           display the Mastertherm Connect API version<br>
     --api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
@@ -74,9 +76,9 @@ The data is stored under the controller as an array of module and unit's making 
 ```
 {
     "module_id_unit_id": {
-        "last_data_update": <datetime> used internally to keep track of update frequency,
-        "last_info_update": <datetime> used internally so info is not updated frequently,
-        "last_update_time": "1192282722" used by the API to indicate last date/time data was retrieved
+        "last_data_update": <datetime> control data update frequency
+        "last_info_update": <datetime> control info update frequently
+        "last_update_time": "1192282722" used for data updates in the API
         "info":             normallised information for the device
         "data":             normallised data for the devive
         "api_info":         All Info retrieved from the API

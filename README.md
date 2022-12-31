@@ -20,6 +20,8 @@ If you feel like donating to a charity, I would love you to sponsor my wife and 
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
+__Current Implementation is read only__
+
 There are two entry points for the Mastertherm Heat Pumps:
 - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
 - mastertherm.online - This is the server for 2022 onward
@@ -94,7 +96,9 @@ To setup a connection create a new aiohttp ClientSession and pass the login deta
                 await controller.refresh()
 
             return controller
-        except MasterthermError as mte:
+        except MasterthermAutenticationError as mte:
+            print("Authentication Failed " + mte.message)
+        except MaseterthermConnectionError as mte:
             print("Connection Failed " + mte.message)
         finally:
             await session.close()

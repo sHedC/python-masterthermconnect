@@ -59,7 +59,52 @@ Options:
 If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
 
 ### API Version
-TBC
+For examples on how to use the API please see __main__.py file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
+
+To import the required modules:
+```
+from masterthermconnect import (
+    MasterthermController,
+    MasterthermAuthenticationError,
+    MasterthermConnectionError,
+    MasterthermResponseFormatError,
+    MasterthermTokenInvalid,
+    MasterthermUnsupportedRole,
+    MasterthermUnsupportedVersion,
+)
+```
+
+To setup a connection create a new aiohttp ClientSession and pass the login details:
+```
+    async def connect(
+        username: str, password: str, api_version: str, refresh: bool
+    ) -> MasterthermController:
+        """Setup and Connect to the Mastertherm Server."""
+        # Login to the Server.
+        session = ClientSession()
+        controller = MasterthermController(
+            username, password, session, api_version=api_version
+        )
+
+        try:
+            await controller.connect()
+            if refresh:
+                await controller.refresh()
+
+            return controller
+        except MasterthermError as mte:
+            print("Connection Failed " + mte.message)
+        finally:
+            await session.close()
+
+        return None
+```
+
+Device Information and Data can be retrieved from the controller for example. Data is available in a dictionary format described below:
+```
+     devices = controller.get_devices()
+     device_data = controller.get_device_data(module_id, unit_id)
+```
 
 ## Heat Pump Details
 Current version is read only, updates do not work yet but that will be worked on in the next version, the work is best effort so there is no quick implementations and it is being developed to support the Home Assistant integration.

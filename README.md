@@ -21,12 +21,12 @@ If you feel like donating to a charity, I would love you to sponsor my wife and 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
 There are two entry points for the Mastertherm Heat Pumps:
-    - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
-    - mastertherm.online - This is the server for 2022 onward
+- mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
+- mastertherm.online - This is the server for 2022 onward
 
 NOTES:
-    - materhterm.online is sensitive to too many requests so take care when using the command line or using this libary. The Application and Web App does a refresh on one module/ unit every 30 seconds.
-    - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
+- materhterm.online is sensitive to too many requests so take care when using the command line or using this libary. The Application and Web App does a refresh on one module/ unit every 30 seconds.
+- if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
 ## Installation
 Releases are done using PyPi, the release is here: <a href="https://pypi.org/project/masterthermconnect" target="_blank">masterthermconnect</a>

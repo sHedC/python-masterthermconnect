@@ -58,8 +58,10 @@ Options:
 
 If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
 
+If you use spaces in your user name relpace the space with a +.
+
 ### API Version
-For examples on how to use the API please see __main__.py file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
+For examples on how to use the API please see `__main__.py` file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
 
 To import the required modules:
 ```

@@ -40,18 +40,19 @@ DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknow
 
 usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive] [--user USER] [--password PASSWORD] [--list-devices] [--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
 
-Python Mastertherm Connect API Module, used for debug purposes.<br>
-options:<br>
-&nbsp;&nbsp;-h, --help                          show this help message and exit<br>
-&nbsp;&nbsp;--version                           display the Mastertherm Connect API version<br>
-&nbsp;&nbsp;--api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-&nbsp;&nbsp;--hide-sensitive                    Hide the sensitive information, for debug information for sharing.<br>
-&nbsp;&nbsp;--user USER                         login user for Mastertherm<br>
-&nbsp;&nbsp;--password PASSWORD                 login password for Mastertherm<br>
-&nbsp;&nbsp;--list-devices                      list the devices connected to the account<br>
-&nbsp;&nbsp;--list-device-data                  list the data for each device connected to the account<br>
-&nbsp;&nbsp;--list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
-&nbsp;&nbsp;---pretty                           Pritify the Output in JSON Format.<br>
+```
+Python Mastertherm Connect API Module, used for debug purposes, options:
+    -h, --help                          show this help message and exit<br>
+    --version                           display the Mastertherm Connect API version<br>
+    --api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
+    --hide-sensitive                    Hide the sensitive information, for debug information for sharing.<br>
+    --user USER                         login user for Mastertherm<br>
+    --password PASSWORD                 login password for Mastertherm<br>
+    --list-devices                      list the devices connected to the account<br>
+    --list-device-data                  list the data for each device connected to the account<br>
+    --list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
+    ---pretty                           Pritify the Output in JSON Format.<br>
+```
 
 If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
 
@@ -68,20 +69,21 @@ Everything is based on observations from the Web and Android Applications, the c
 #### Mapping Setup
 Pretty much every piece of information and settings are stored as registry keys such as D_110 and I_120, there are hundreds. There is a mapping to the structure used in this module in the const.py.
 
-The data is stored under the controller in the form:
+The data is stored under the controller as an array of module and unit's making a device.
 
 ```
 {
     "module_id_unit_id": {
-        "last_data_update": <datetime>,
-        "last_info_update": <datetime>,
-        "last_update_time": "1192282722"
-        "info": { Various Information },
-        "data": { Normalized Data Information },
-         "api_info": { All Info retrieved from the API },
-        "api_update_data": { All Updated Data since last update },
-        "api_full_data": { Full Data including last updated },
+        "last_data_update": <datetime> used internally to keep track of update frequency,
+        "last_info_update": <datetime> used internally so info is not updated frequently,
+        "last_update_time": "1192282722" used by the API to indicate last date/time data was retrieved
+        "info":             normallised information for the device
+        "data":             normallised data for the devive
+        "api_info":         All Info retrieved from the API
+        "api_update_data":  All Updated Data since last update
+        "api_full_data":    Full Data including last updated
     },
+    ...
 }
 ```
 

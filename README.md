@@ -15,7 +15,7 @@ Stable -
 
 ## About
 If you feel like donating to a charity, I would love you to sponsor my wife and the Salvation Army here:
-<a href="https://www.justgiving.com/fundraising/jackie-holmes1933"><img src="images/salvationarmy.jpg" alt="Charity Link" style="width:125px;height:20px;"></a>
+<a href="https://www.justgiving.com/fundraising/jackie-holmes1933" target="_blank"><img src="images/salvationarmy.jpg" alt="Charity Link" style="width:125px;height:20px;"></a>
 
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
@@ -86,6 +86,33 @@ The data is stored under the controller as an array of module and unit's making 
         "api_full_data":    Full Data including last updated
     },
     ...
+}
+```
+
+The information is stored as key value pairs as below:
+
+```
+DEVICE_INFO_MAP = {
+    "name": "givenname",
+    "surname": "surname",
+    "country": "localization",
+    "language": "lang",
+    "hp_type": "type",
+    "controller": "regulation",
+    "exp": "exp",
+    "output": "output",
+    "reservation": "reservation",
+    "place": "city",
+    "latitude": "password9",
+    "longitude": "password10",
+    "notes": "notes",
+    "pada": "pada",
+    "padb": "padb",
+    "padc": "padc",
+    "padd": "padd",
+    "pade": "pade",
+    "padf": "padf",
+    "padz": "padz",
 }
 ```
 

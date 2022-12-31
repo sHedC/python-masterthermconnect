@@ -28,8 +28,9 @@ NOTES:
     - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
 ## Installation
-Latest Release Version: python -m pip install masterthermconnect
-Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==1.1.0rc9
+Releases are done using PyPi, the release is here: [![masterthermconenct]](https://pypi.org/project/masterthermconnect)
+- Latest Release Version: python -m pip install masterthermconnect
+- Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==1.1.0rc9
 
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes:

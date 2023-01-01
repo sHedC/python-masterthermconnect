@@ -126,8 +126,8 @@ DEVICE_DATA_HCMAP = {
         "auto": ["int", "I_269"],
         "int": {
             "enabled": ["not bool", "D_245"],
-            "ambient_requested": ["float", "A_219"],
-            "ambient_temp": ["float", "A_220"],
+            "ambient_requested": ["float", "A_215"],
+            "ambient_temp": ["float", "A_216"],
         },
         "pad": {
             "enabled": ["bool", "D_245"],

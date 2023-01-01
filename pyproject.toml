@@ -27,6 +27,9 @@ Homepage = "https://github.com/sHedC/python-masterthermconnect"
 [project.scripts]
 masterthermconnect = "masterthermconnect.__main__:main"
 
+[tool.setuptools]
+py-modules = ['masterthermconnect']
+
 [tool.bumpver]
 current_version = "1.1.0-rc9"
 version_pattern = "MAJOR.MINOR.PATCH[-PYTAGNUM]"

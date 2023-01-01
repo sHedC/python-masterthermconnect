@@ -15,7 +15,7 @@ Stable -
 
 ## About
 If you feel like donating to a charity, I would love you to sponsor my wife and the Salvation Army here:
-<a href="https://www.justgiving.com/fundraising/jackie-holmes1933" target="_blank"><img src="https://github.com/sHedC/python-masterthermconnect/tree/main/images/salvationarmy.jpg" alt="Charity Link" style="width:125px;height:20px;"></a>
+<a href="https://www.justgiving.com/fundraising/jackie-holmes1933" target="_blank"><img src="https://github.com/sHedC/python-masterthermconnect/blob/main/images/salvationarmy.jpg?raw=true" alt="Charity Link" style="width:125px;height:20px;"></a>
 
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.

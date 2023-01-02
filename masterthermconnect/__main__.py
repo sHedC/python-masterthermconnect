@@ -58,7 +58,7 @@ def get_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--pretty",
         action="store_true",
-        help="Pritify the Output in JSON Format.",
+        help="Prettify the Output in JSON Format.",
     )
 
     arguments = parser.parse_args()
@@ -132,7 +132,7 @@ def main() -> int:
                 device_item["longitude"] = "-0.1"
 
             if args.pretty:
-                print(device_id + ": " + json.dumps(device_item, indent=4))
+                print("{\"" + device_id + "\": " + json.dumps(device_item, indent=4) + "}")
             else:
                 print(device_id + ": " + str(device_item).replace("'", '"'))
 
@@ -153,7 +153,7 @@ def main() -> int:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
             if args.pretty:
-                print(device_id + ": " + json.dumps(device_data, indent=4))
+                print("{\"" + device_id + "\": " + json.dumps(device_data, indent=4) + "}")
             else:
                 print(device_id + ": " + str(device_data).replace("'", '"'))
 
@@ -179,7 +179,10 @@ def main() -> int:
 
             reg: str = args.list_device_reg
             if reg.upper() == "ALL":
-                print(device_id + ": " + str(sorted_reg).replace("'", '"'))
+                if args.pretty:
+                    print("{\"" + device_id + "\": " + str(sorted_reg).replace("'", '"') + "}")
+                else:
+                    print(device_id + ": " + str(sorted_reg).replace("'", '"'))
             elif reg.find(",") == -1:
                 print(device_id + ": " + reg + " = " + sorted_reg.get(reg, "Not Found"))
             else:

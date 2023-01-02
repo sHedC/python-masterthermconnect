@@ -4,6 +4,7 @@ import asyncio
 import getpass
 import json
 import sys
+from natsort import natsorted
 
 from aiohttp import ClientSession
 
@@ -175,7 +176,7 @@ def main() -> int:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
             sorted_reg = {}
-            for key in sorted(device_reg.keys()):
+            for key in natsorted(device_reg.keys()):
                 sorted_reg[key] = device_reg[key]
 
             reg: str = args.list_device_reg

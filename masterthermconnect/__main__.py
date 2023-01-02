@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import getpass
 import json
+import sys
 
 from aiohttp import ClientSession
 
@@ -105,8 +106,8 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED")
-    print("The App and Web App run once every 30 seconds.")
+    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED", file=sys.stderr)
+    print("The App and Web App run once every 30 seconds.", file=sys.stderr)
 
     controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
 

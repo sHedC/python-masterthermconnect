@@ -66,6 +66,43 @@ class MasterthermController:
         # }
         self.__devices = {}
 
+    def __convert_data(self, item_type, item_value, registers) -> any:
+        """Convert the data for use with Populate Data."""
+        return_value: any = None
+
+        if item_type == "fixed":
+            return_value = item_value
+        elif item_type == "bool":
+            if item_value == "":
+                return_value = False
+            else:
+                return_value = registers[item_value] == "1"
+        elif item_type == "not bool":
+            if item_value == "":
+                return_value = True
+            else:
+                return_value = not registers[item_value] == "1"
+        elif item_type == "float":
+            if item_value == "":
+                return_value = 0.0
+            else:
+                return_value = float(registers[item_value])
+        elif item_type == "int":
+            if item_value == "":
+                return_value = 0
+            else:
+                return_value = int(registers[item_value])
+        elif item_type == "string":
+            if item_value == "":
+                return_value = ""
+            else:
+                item_str = ""
+                for list_value in item_value:
+                    item_str = item_str + CHAR_MAP[int(registers[list_value])]
+                return_value = item_str
+
+        return return_value
+
     def __populate_data(self, device_map, registers) -> dict:
         """Populate the Data from the api_full_data and DeviceMap."""
         data = {}
@@ -73,36 +110,14 @@ class MasterthermController:
             if not isinstance(item, dict):
                 item_type = item[0]
                 item_value = item[1]
-                if item_type == "fixed":
-                    data[key] = item_value
-                elif item_type == "bool":
-                    if item_value == "":
-                        data[key] = False
+
+                if item_type == "if":
+                    if registers[item_value] == "1":
+                        data[key] = self.__convert_data(item[2], item[3], registers)
                     else:
-                        data[key] = registers[item_value] == "1"
-                elif item_type == "not bool":
-                    if item_value == "":
-                        data[key] = True
-                    else:
-                        data[key] = not registers[item_value] == "1"
-                elif item_type == "float":
-                    if item_value == "":
-                        data[key] = 0.0
-                    else:
-                        data[key] = float(registers[item_value])
-                elif item_type == "int":
-                    if item_value == "":
-                        data[key] = 0
-                    else:
-                        data[key] = int(registers[item_value])
-                elif item_type == "string":
-                    if item_value == "":
-                        data[key] = ""
-                    else:
-                        item_str = ""
-                        for list_value in item_value:
-                            item_str = item_str + CHAR_MAP[int(registers[list_value])]
-                        data[key] = item_str
+                        data[key] = self.__convert_data(item[2], item[4], registers)
+                else:
+                    data[key] = self.__convert_data(item_type, item_value, registers)
             else:
                 data[key] = self.__populate_data(device_map[key], registers)
 
@@ -370,10 +385,6 @@ class MasterthermController:
                     hc_circuits.pop(hc_id)
                 else:
                     hc_circuits[hc_id]["enabled"] = hc_enabled
-                    if hc_circuits[hc_id]["pad"]["enabled"]:
-                        hc_circuits[hc_id].pop("int")
-                    else:
-                        hc_circuits[hc_id].pop("pad")
 
             # Check if the Pool and Solar are enabled
             if not hc_circuits["solar"]["enabled"]:

@@ -3,6 +3,8 @@ import argparse
 import asyncio
 import getpass
 import json
+import sys
+from natsort import natsorted
 
 from aiohttp import ClientSession
 
@@ -58,7 +60,7 @@ def get_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--pretty",
         action="store_true",
-        help="Pritify the Output in JSON Format.",
+        help="Prettify the Output in JSON Format.",
     )
 
     arguments = parser.parse_args()
@@ -105,8 +107,8 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED")
-    print("The App and Web App run once every 30 seconds.")
+    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED", file=sys.stderr)
+    print("The App and Web App run once every 30 seconds.", file=sys.stderr)
 
     controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
 
@@ -132,7 +134,7 @@ def main() -> int:
                 device_item["longitude"] = "-0.1"
 
             if args.pretty:
-                print(device_id + ": " + json.dumps(device_item, indent=4))
+                print("{\"" + device_id + "\": " + json.dumps(device_item, indent=4) + "}")
             else:
                 print(device_id + ": " + str(device_item).replace("'", '"'))
 
@@ -153,7 +155,7 @@ def main() -> int:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
             if args.pretty:
-                print(device_id + ": " + json.dumps(device_data, indent=4))
+                print("{\"" + device_id + "\": " + json.dumps(device_data, indent=4) + "}")
             else:
                 print(device_id + ": " + str(device_data).replace("'", '"'))
 
@@ -174,12 +176,15 @@ def main() -> int:
                 device_id = f"{str(new_module_id)}_{unit_id}"
 
             sorted_reg = {}
-            for key in sorted(device_reg.keys()):
+            for key in natsorted(device_reg.keys()):
                 sorted_reg[key] = device_reg[key]
 
             reg: str = args.list_device_reg
             if reg.upper() == "ALL":
-                print(device_id + ": " + str(sorted_reg).replace("'", '"'))
+                if args.pretty:
+                    print("{\"" + device_id + "\": " + str(sorted_reg).replace("'", '"') + "}")
+                else:
+                    print(device_id + ": " + str(sorted_reg).replace("'", '"'))
             elif reg.find(",") == -1:
                 print(device_id + ": " + reg + " = " + sorted_reg.get(reg, "Not Found"))
             else:

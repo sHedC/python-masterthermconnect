@@ -102,14 +102,14 @@ DEVICE_DATA_HCMAP = {
         "name": ["string", []],  # hc0 does not have a name
         "int": {
             "enabled": ["fixed", False],  # Not located the Register
-            "ambient_requested": ["float", "A_210"],
-            "ambient_temp": ["float", "A_211"],
+            "ambient_requested": ["float", "A_189"],
+            "ambient_temp": ["float", "A_190"],
         },
         "pad": {
             "enabled": ["fixed", True],  # Not located the Register D_193?
             "current_humidity": ["float", "I_185"],
-            "ambient_requested": ["float", "A_189"],
-            "ambient_temp": ["float", "A_190"],
+            "ambient_requested": ["float", "A_210"],
+            "ambient_temp": ["float", "A_211"],
         },
     },
     "hc1": {

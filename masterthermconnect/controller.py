@@ -385,6 +385,8 @@ class MasterthermController:
                     hc_circuits.pop(hc_id)
                 else:
                     hc_circuits[hc_id]["enabled"] = hc_enabled
+                    if not hc_circuits[hc_id]["pad"]["enabled"]:
+                        hc_circuits[hc_id].pop("pad")
 
             # Check if the Pool and Solar are enabled
             if not hc_circuits["solar"]["enabled"]:

@@ -207,25 +207,21 @@ Where possble the normalized data is filtered out based on whether a feature is 
 
 The Heating/ Cooling Ciruits are optionally installed, HC0 refers to the main heat pump, HC1 to 6 are optional heating and cooling cirguits and additionally there is Pool and Solar as optional components.
 
-In addition each Heating/ Cooling Circuit can have a room thermostat installed or not.  Where possible the sections that are not enabled are removed.
+In addition each Heating/ Cooling Circuit can have a room thermostat installed or not.  Where possible the sections that are not enabled are removed. Within each of the hc0 to hc6 a room thermostat can be installed if so then the pad sub key is enabled, if not then the int sub key is enabled.
 
-Within each of the hc0 to hc6 a room thermostat can be installed if so then the pad sub key is enabled, if not then the int sub key is enabled.
+Note Ambient Requested Temperature and Ambient Current Temperatures remain at the hcX level in line with the UI, they should show the correct temperature based on whether a thermostat is installed or not.
+
+Additionally hc0 the control curves are the same as the main cuves so not shown in this section.
 
 ```
 {
     "hc0": {
         "enabled": boolean Disabled if any of HC1 to HC6 are installed.
         "name": ["string", []],  # hc0 does not have a name, default is Home
-        "int": {
-            "enabled": ["fixed", False],  # Not located the Register
-            "ambient_requested": ["float", "A_210"],
-            "ambient_temp": ["float", "A_211"],
-        },
+        "ambient_temp": ["float", "A_211"],
         "pad": {
-            "enabled": ["fixed", True],  # Not located the Register D_193?
+            "enabled": ["not bool", "D_242"],  # Seems to be enabled if this is false.
             "current_humidity": ["float", "I_185"],
-            "ambient_requested": ["float", "A_189"],
-            "ambient_temp": ["float", "A_190"],
         },
     },
     "hc1": {
@@ -238,8 +234,12 @@ Within each of the hc0 to hc6 a room thermostat can be installed if so then the 
         "int": {
             "enabled": ["not bool", "D_245"],
         },
+        "ambient_requested": ["if", "D_245", "float", "A_219", "A_215"],
+        "ambient_temp": ["float", "A_216"],
         "pad": {
             "enabled": ["bool", "D_245"],
+            "state": ["int", "I_15"],  # 0 - Permanently Off, 1 - Scheduled Off, 2 - On
+            "current_humidity": ["float", "I_219"],
         },
         "control_curve_heating": {
             "setpoint_a_outside": ["float", "A_101"],

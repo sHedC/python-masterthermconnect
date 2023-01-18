@@ -180,6 +180,11 @@ class MasterthermController:
 
         return hc_info
 
+    def __get_registers(self, data: dict) -> dict:
+        """Read the Normalized data and retrieve register/ value pairs."""
+        # TODO: Add details
+        return {}
+
     async def __get_hp_updates(self, full_load: bool = False) -> None:
         """Refresh data and information for all the devices, apply default restrictions to
                the number of times a call can be made..
@@ -461,3 +466,21 @@ class MasterthermController:
             data = self.__devices[key]["data"]
 
         return data
+
+    def set_device_data(self, module_id: str, unit_id: str, update_data: dict) -> bool:
+        """Set the Device Data and Update to the Mastertherm Heat Pump.
+        Parameters:
+            module_id (str): The id of the module
+            unit_id (str): The id of the unit
+            update_data (dict): The data to update, in the same form as read data
+
+        Returns:
+            bool: True if success, False if failure"""
+        key = module_id + "_" + unit_id
+        update_reg = self.__get_registers(update_data[key])
+
+        #  Perform the Updates, TODO add try exception.
+        for reg, value in update_reg.items():
+            print(f"{reg} = {value}")
+
+        return False

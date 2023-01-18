@@ -1,0 +1,16 @@
+{
+    "timestamp": 1673695865,
+    "error": {
+        "errorId": 0,
+        "errorMessage": ""
+    },
+    "messageId": 1,
+    "data": {
+        "data": {
+            "001": {
+                "D_3": "0"
+            }
+        }
+    },
+    "type": "read"
+}

@@ -1,4 +1,6 @@
 """Test the API Client."""
+import json
+
 from datetime import datetime, timedelta
 from hashlib import sha1
 from unittest.mock import patch
@@ -23,6 +25,8 @@ from masterthermconnect.const import (
     URL_PUMPDATA_NEW,
     URL_PUMPINFO,
     URL_PUMPINFO_NEW,
+    URL_POSTUPDATE,
+    URL_POSTUPDATE_NEW,
 )
 
 from .conftest import GENERAL_ERROR_RESPONSE, VALID_LOGIN, load_fixture
@@ -33,12 +37,17 @@ class APITestCase(AioHTTPTestCase):
     """Test the Original API Connection"""
 
     error_type = ""
+    data: dict = None
+    info: dict = None
 
     async def get_application(self):
         """Start and Return a mock application."""
 
         async def _connect_response(request: Request):
             """Check the Test Login Credentials and return login connect or failure."""
+            self.data = None
+            self.info = None
+
             data = await request.post()
             password = sha1(VALID_LOGIN["upwd"].encode("utf-8")).hexdigest()
             if data["uname"] == VALID_LOGIN["uname"] and data["upwd"] == password:
@@ -70,10 +79,14 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
             elif self.error_type == "unavailable":
                 response_text = load_fixture("pumpdata_unavailable.json")
-            else:
+            elif self.info is None:
                 module_id = data["moduleid"]
                 unit_id = data["unitid"]
                 response_text = load_fixture(f"pumpinfo_{module_id}_{unit_id}.json")
+                if response_text is not None:
+                    self.info = json.loads(response_text)
+            else:
+                response_text = json.dumps(self.info)
 
             if response_text is None:
                 response_text = load_fixture("pumpinfo_invalid.json")
@@ -82,7 +95,7 @@ class APITestCase(AioHTTPTestCase):
             return response
 
         async def _get_data(request: Request):
-            """Get the Pump Info."""
+            """Get the Pump Data."""
             data = await request.post()
             content_type = "application/json"
             module_id = data["moduleId"]
@@ -94,13 +107,39 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
             elif self.error_type == "unavailable":
                 response_text = load_fixture("pumpdata_unavailable.json")
-            else:
+            elif self.data is None or last_update_time != "0":
                 response_text = load_fixture(
                     f"pumpdata_{module_id}_{unit_id}_{last_update_time}.json"
                 )
+            else:
+                response_text = json.dumps(self.data)
 
             if response_text is None:
                 response_text = load_fixture("pumpdata_invalid.json")
+            else:
+                self.data = json.loads(response_text)
+
+            response = web.Response(text=response_text, content_type=content_type)
+            return response
+
+        async def _set_data(request: Request):
+            """Set the Pump Data."""
+            data = await request.post()
+            content_type = "application/json"
+            # module_id = data["moduleId"]
+            unit_id = str(data["deviceId"]).zfill(3)
+            variable_id = data["variableId"]
+            variable_value = data["variableValue"]
+
+            response_text = load_fixture("pumpwrite_success.json")
+            if "varfile_mt1_config1" in self.data["data"]:
+                self.data["data"]["varfile_mt1_config1"][unit_id][
+                    variable_id
+                ] = variable_value
+            else:
+                self.data["data"]["varfile_mt1_config2"][unit_id][
+                    variable_id
+                ] = variable_value
 
             response = web.Response(text=response_text, content_type=content_type)
             return response
@@ -109,6 +148,7 @@ class APITestCase(AioHTTPTestCase):
         app.router.add_post(URL_LOGIN, _connect_response)
         app.router.add_post(URL_PUMPINFO, _get_info)
         app.router.add_post(URL_PUMPDATA, _get_data)
+        app.router.add_post(URL_POSTUPDATE, _set_data)
         return app
 
     async def test_setup(self):
@@ -241,18 +281,41 @@ class APITestCase(AioHTTPTestCase):
         assert data != {}
         assert data["error"]["errorId"] == 9
 
+    async def test_setdata(self):
+        """Test we can send data to update the API."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect() is not {}
+
+        # Read the Data and issue, Power State
+        data = await api.get_device_data("1234", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "1"
+
+        # Issue an update back to the API
+        assert await api.set_device_data("1234", "1", "D_3", "0")
+
+        # Re-Read to check the update is correct.
+        data = await api.get_device_data("1234", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "0"
+
 
 @patch("masterthermconnect.api.URL_BASE_NEW", "")
 class APINewTestCase(AioHTTPTestCase):
     """Test the New API Connection"""
 
     error_type = ""
+    data: dict = None
+    info: dict = None
 
     async def get_application(self):
         """Start and Return a mock application."""
 
         async def _connect_response(request: Request):
             """Check the Test Login Credentials and return login connect or failure."""
+            self.data = None
+            self.info = None
+
             data = await request.post()
             if (
                 data["username"] == VALID_LOGIN["uname"]
@@ -299,16 +362,20 @@ class APINewTestCase(AioHTTPTestCase):
             if self.error_type == "login" or token != "Bearer bearertoken":
                 response_text = load_fixture("newapi/error_authorization.json")
                 response_status = 401
-            else:
+            elif self.info is None:
                 module_id = data["moduleid"]
                 unit_id = data["unitid"]
                 response_text = load_fixture(
                     f"newapi/pumpinfo_{module_id}_{unit_id}.json"
                 )
+            else:
+                response_text = json.dumps(self.info)
 
             if response_text is None:
                 response_text = load_fixture("newapi/error_unavailable.json")
                 response_status = 500
+            else:
+                self.info = json.loads(response_text)
 
             response = web.Response(
                 status=response_status, text=response_text, content_type=content_type
@@ -329,18 +396,37 @@ class APINewTestCase(AioHTTPTestCase):
             if self.error_type == "login" or token != "Bearer bearertoken":
                 response_text = load_fixture("newapi/error_authorization.json")
                 response_status = 401
-            else:
+            elif self.data is None or last_update_time != "0":
                 response_text = load_fixture(
                     f"newapi/pumpdata_{module_id}_{unit_id}_{last_update_time}.json"
                 )
+            else:
+                response_text = json.dumps(self.data)
 
             if response_text is None:
                 response_text = load_fixture("newapi/error_unavailable.json")
                 response_status = 500
+            else:
+                self.data = json.loads(response_text)
 
             response = web.Response(
                 status=response_status, text=response_text, content_type=content_type
             )
+            return response
+
+        async def _set_data(request: Request):
+            """Set the Pump Data."""
+            data = await request.post()
+            content_type = "application/json"
+            # module_id = data["moduleId"]
+            unit_id = str(data["deviceId"]).zfill(3)
+            variable_id = data["variableId"]
+            variable_value = data["variableValue"]
+
+            response_text = load_fixture("newapi/pumpwrite_success.json")
+            self.data["data"]["varFileData"][unit_id][variable_id] = variable_value
+
+            response = web.Response(text=response_text, content_type=content_type)
             return response
 
         app: web.Application = web.Application()
@@ -348,6 +434,8 @@ class APINewTestCase(AioHTTPTestCase):
         app.router.add_get(URL_MODULES_NEW, _get_modules)
         app.router.add_get(URL_PUMPINFO_NEW, _get_info)
         app.router.add_get(URL_PUMPDATA_NEW, _get_data)
+        app.router.add_post(URL_POSTUPDATE_NEW, _set_data)
+
         return app
 
     async def test_setup(self):
@@ -468,3 +556,21 @@ class APINewTestCase(AioHTTPTestCase):
 
         with pytest.raises(MasterthermResponseFormatError):
             await api.get_device_info("1234", "2")
+
+    async def test_setdata(self):
+        """Test we can send data to update the API."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v2"
+        )
+        assert await api.connect() is not {}
+
+        # Read the Data and issue, Power State
+        data = await api.get_device_data("10021", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "1"
+
+        # Issue an update back to the API
+        assert await api.set_device_data("10021", "1", "D_3", "0")
+
+        # Re-Read to check the update is correct.
+        data = await api.get_device_data("10021", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "0"

@@ -1,0 +1,16 @@
+{
+    "timestamp": 1673635009,
+    "error": {
+        "errorMessage": "",
+        "errorId": 0
+    },
+    "messageId": 1,
+    "data": {
+        "varfile_mt1_config2": {
+            "001": {
+                "D_3": "0"
+            }
+        }
+    },
+    "type": "write"
+}

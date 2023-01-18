@@ -3,14 +3,22 @@ import argparse
 import asyncio
 import getpass
 import json
-import sys
+import logging
 from natsort import natsorted
 
 from aiohttp import ClientSession
 
 from masterthermconnect.__version__ import __version__
+from masterthermconnect.api import MasterthermAPI
 from masterthermconnect.controller import MasterthermController
-from masterthermconnect.exceptions import MasterthermError
+from masterthermconnect.exceptions import (
+    MasterthermAuthenticationError,
+    MasterthermConnectionError,
+    MasterthermUnsupportedRole,
+    MasterthermError,
+)
+
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 def get_arguments() -> argparse.Namespace:
@@ -18,7 +26,15 @@ def get_arguments() -> argparse.Namespace:
     # formatter_class=argparse.MetavarTypeHelpFormatter,
     parser = argparse.ArgumentParser(
         prog="masterthermconnect",
-        description="Python Mastertherm Connect API Module, used for debug purposes",
+        description=(
+            "Python Mastertherm Connect API Module, used for debug purposes, "
+            "allows you to get and set registers and other information for testing, "
+            "use with caution!!!"
+        ),
+        epilog=(
+            "DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED, "
+            "I think new new API is sensitive to logging in too frequently."
+        ),
     )
     parser.add_argument(
         "--version",
@@ -26,41 +42,105 @@ def get_arguments() -> argparse.Namespace:
         version="Mastertherm Connect API Version: " + __version__,
         help="display the Mastertherm Connect API version",
     )
-    parser.add_argument(
+
+    # Sub Commands are get and set:
+    subparsers = parser.add_subparsers(
+        title="commands",
+        description=(
+            "Valid commands to access the API, use -h to get "
+            "more help after the command for specific help."
+        ),
+        help="Retrieve and Send data to or from the API.",
+    )
+
+    # Get has opitions for user/ password/ api-ver/ sensitive info and pretty
+    parser_get = subparsers.add_parser(
+        "get", help="Read data from the API and Display it"
+    )
+
+    parser_get.set_defaults(command="get")
+    parser_get.add_argument("--user", type=str, help="login user for Mastertherm")
+    parser_get.add_argument(
+        "--password", type=str, help="login password for Mastertherm"
+    )
+    parser_get.add_argument(
         "--api-ver",
         type=str,
         choices=["v1", "v2"],
         default="v1",
         help="API Version to use: Default: v1 (pre 2022), v2 (post 2022)",
     )
-    parser.add_argument(
+    parser_get.add_argument(
         "--hide-sensitive",
         action="store_true",
         help="Hide the actual sensitive information, "
         + "used when creating debug information for sharing.",
     )
-    parser.add_argument("--user", type=str, help="login user for Mastertherm")
-    parser.add_argument("--password", type=str, help="login password for Mastertherm")
-
-    parser.add_argument(
-        "--list-devices",
-        action="store_true",
-        help="list the devices connected to the account",
-    )
-    parser.add_argument(
-        "--list-device-data",
-        action="store_true",
-        help="list the data for each device connected to the account",
-    )
-    parser.add_argument(
-        "--list-device-reg",
-        type=str,
-        help="List Registers e.g. A_330 or A_330,A_331 or 'all' for everything.",
-    )
-    parser.add_argument(
+    parser_get.add_argument(
         "--pretty",
         action="store_true",
         help="Prettify the Output in JSON Format.",
+    )
+
+    subparser_get = parser_get.add_subparsers(title="get commands", required=True)
+    parser_getdevice = subparser_get.add_parser(
+        "devices", help="All Devices List associated with the account."
+    )
+    parser_getdevice.set_defaults(subcommand="devices")
+
+    parser_getdata = subparser_get.add_parser(
+        "data",
+        help="Normalized data for a speicif device, e.g. data 1234 1",
+    )
+    parser_getdata.set_defaults(subcommand="data")
+    parser_getdata.add_argument("module_id", type=str, help="Module ID e.g. 1234")
+    parser_getdata.add_argument("unit_id", type=str, help="Unit Id e.g. 1")
+
+    parser_getreg = subparser_get.add_parser(
+        "reg",
+        help=(
+            "Registers for a specific device, "
+            "e.g. get reg 1234 1 A_101,A102 or reg 1234 1 all"
+        ),
+    )
+    parser_getreg.set_defaults(subcommand="reg")
+    parser_getreg.add_argument("module_id", type=str, help="Module ID e.g. 1234")
+    parser_getreg.add_argument("unit_id", type=str, help="Unit Id e.g. 1")
+    parser_getreg.add_argument(
+        "reg",
+        type=str,
+        help="List Registers e.g. A_330 or A_330,A_331 or 'all' for everything.",
+    )
+
+    # Set has opitions for user/ password/ api-ver
+    parser_set = subparsers.add_parser(
+        "set", help="Set data to the API and check the Result"
+    )
+
+    parser_set.set_defaults(command="set")
+    parser_set.add_argument("--user", type=str, help="login user for Mastertherm")
+    parser_set.add_argument(
+        "--password", type=str, help="login password for Mastertherm"
+    )
+    parser_set.add_argument(
+        "--api-ver",
+        type=str,
+        choices=["v1", "v2"],
+        default="v1",
+        help="API Version to use: Default: v1 (pre 2022), v2 (post 2022)",
+    )
+
+    subparser_set = parser_set.add_subparsers(title="set commands", required=True)
+    parser_setreg = subparser_set.add_parser(
+        "reg",
+        help="Registers for a specific device, e.g. reg 1234 1 D_3 0",
+    )
+    parser_setreg.set_defaults(subcommand="reg")
+    parser_setreg.add_argument("module_id", type=str, help="Module ID e.g. 1234")
+    parser_setreg.add_argument("unit_id", type=str, help="Unit Id e.g. 1")
+    parser_setreg.add_argument("reg", type=str, help="Register to Set")
+    parser_setreg.add_argument(
+        "value", type=str, help="Value to Set, all values are set as strings"
     )
 
     arguments = parser.parse_args()
@@ -83,19 +163,67 @@ async def connect(
             await controller.refresh()
 
         return controller
+    except MasterthermConnectionError as mte:
+        _LOGGER.error("Connection Failed %s", mte.message)
+    except MasterthermAuthenticationError as mte:
+        _LOGGER.error("Authentication Failed %s", mte.message)
+    except MasterthermUnsupportedRole as mte:
+        _LOGGER.error("Unsupported Role %s", mte.message)
     except MasterthermError as mte:
-        print("Connection Failed " + mte.message)
+        _LOGGER.error("Other Error %s", mte.message)
     finally:
         await session.close()
 
     return None
 
 
+async def set_reg(
+    username: str,
+    password: str,
+    api_version: str,
+    module_id: str,
+    unit_id: str,
+    register: str,
+    value: str,
+) -> bool:
+    """Setup and Connect to the MasterthermAPI."""
+    session = ClientSession()
+
+    success = False
+    try:
+        api = MasterthermAPI(username, password, session, api_version=api_version)
+        await api.connect()
+
+        success = await api.set_device_data(module_id, unit_id, register, value)
+        if success:
+            data = await api.get_device_data(module_id, unit_id)
+            print(
+                "Registration after Update: %s = %s",
+                register,
+                data["data"]["varData"][unit_id.zfill(3)][register],
+            )
+        else:
+            _LOGGER.error("Failed to Set the Device Registry.")
+
+    except MasterthermConnectionError as mte:
+        _LOGGER.error("Connection Failed %s", mte.message)
+    except MasterthermAuthenticationError as mte:
+        _LOGGER.error("Authentication Failed %s", mte.message)
+    except MasterthermUnsupportedRole as mte:
+        _LOGGER.error("Unsupported Role %s", mte.message)
+    except MasterthermError as mte:
+        _LOGGER.error("Other Error %s", mte.message)
+    finally:
+        await session.close()
+
+    return success
+
+
 def main() -> int:
-    """Allow for some testing of connections from Command Line."""
+    """Allow for testing connectivity from the command line."""
     login_user = ""
     login_pass = ""
-    args = get_arguments()
+    args: argparse.Namespace = get_arguments()
 
     if args.user is not None:
         login_user = args.user
@@ -107,95 +235,88 @@ def main() -> int:
     else:
         login_pass = getpass.getpass()
 
-    print("DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED", file=sys.stderr)
-    print("The App and Web App run once every 30 seconds.", file=sys.stderr)
+    if args.command == "get":
+        controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
 
-    controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
+        if args.subcommand == "devices":
+            devices = controller.get_devices()
+            new_module_id = 1111
+            old_module_id = ""
+            for device_id, device_item in devices.items():
+                module_id = device_item["module_id"]
+                unit_id = device_item["unit_id"]
 
-    if args.list_devices:
-        devices = controller.get_devices()
-        new_module_id = 1111
-        old_module_id = ""
-        for device_id, device_item in devices.items():
-            module_id = device_item["module_id"]
-            unit_id = device_item["unit_id"]
+                if module_id != old_module_id:
+                    old_module_id = module_id
+                    new_module_id = new_module_id + 1
 
-            if module_id != old_module_id:
-                old_module_id = module_id
-                new_module_id = new_module_id + 1
+                if args.hide_sensitive:
+                    device_id = f"{str(new_module_id)}_{unit_id}"
+                    device_item["module_id"] = str(new_module_id)
+                    device_item["module_name"] = "Hidden Name"
+                    device_item["name"] = "First"
+                    device_item["surname"] = "Last"
+                    device_item["latitude"] = "1.1"
+                    device_item["longitude"] = "-0.1"
 
-            if args.hide_sensitive:
-                device_id = f"{str(new_module_id)}_{unit_id}"
-                device_item["module_id"] = str(new_module_id)
-                device_item["module_name"] = "Hidden Name"
-                device_item["name"] = "First"
-                device_item["surname"] = "Last"
-                device_item["latitude"] = "1.1"
-                device_item["longitude"] = "-0.1"
-
-            if args.pretty:
-                print("{\"" + device_id + "\": " + json.dumps(device_item, indent=4) + "}")
-            else:
-                print(device_id + ": " + str(device_item).replace("'", '"'))
-
-    if args.list_device_data:
-        devices = controller.get_devices()
-        new_module_id = 1111
-        old_module_id = ""
-        for device_id, device_item in devices.items():
-            module_id = device_item["module_id"]
-            unit_id = device_item["unit_id"]
-
+                device = {}
+                device[device_id] = device_item
+                if args.pretty:
+                    print(json.dumps(device, indent=4))
+                else:
+                    print(str(device).replace("'", '"'))
+        elif args.subcommand == "data":
+            module_id = args.module_id
+            unit_id = args.unit_id
             device_data = controller.get_device_data(module_id, unit_id)
-            if module_id != old_module_id:
-                old_module_id = module_id
-                new_module_id = new_module_id + 1
-
-            if args.hide_sensitive:
-                device_id = f"{str(new_module_id)}_{unit_id}"
-
             if args.pretty:
-                print("{\"" + device_id + "\": " + json.dumps(device_data, indent=4) + "}")
+                print(json.dumps(device_data, indent=4))
             else:
-                print(device_id + ": " + str(device_data).replace("'", '"'))
-
-    if args.list_device_reg:
-        devices = controller.get_devices()
-        new_module_id = 1111
-        old_module_id = ""
-        for device_id, device_item in devices.items():
-            module_id = device_item["module_id"]
-            unit_id = device_item["unit_id"]
-
+                print(str(device_data).replace("'", '"'))
+        elif args.subcommand == "reg":
+            module_id = args.module_id
+            unit_id = args.unit_id
             device_reg = controller.get_device_registers(module_id, unit_id)
-            if module_id != old_module_id:
-                old_module_id = module_id
-                new_module_id = new_module_id + 1
-
-            if args.hide_sensitive:
-                device_id = f"{str(new_module_id)}_{unit_id}"
 
             sorted_reg = {}
             for key in natsorted(device_reg.keys()):
                 sorted_reg[key] = device_reg[key]
 
-            reg: str = args.list_device_reg
+            reg: str = args.reg
             if reg.upper() == "ALL":
                 if args.pretty:
-                    print("{\"" + device_id + "\": " + str(sorted_reg).replace("'", '"') + "}")
+                    print(json.dumps(sorted_reg, indent=4))
                 else:
-                    print(device_id + ": " + str(sorted_reg).replace("'", '"'))
+                    print(str(sorted_reg).replace("'", '"'))
             elif reg.find(",") == -1:
-                print(device_id + ": " + reg + " = " + sorted_reg.get(reg, "Not Found"))
+                print(reg + " = " + sorted_reg.get(reg, "Not Found"))
             else:
                 for key in reg.split(","):
-                    print(
-                        device_id
-                        + ": "
-                        + key
-                        + " = "
-                        + sorted_reg.get(key, "Not Found")
-                    )
+                    print(key + " = " + sorted_reg.get(key, "Not Found"))
+        else:
+            _LOGGER.error(
+                "Sub Command [%s] Not Found in [get], arguments %s", args.command, args
+            )
+
+    elif args.command == "set":
+        if args.subcommand == "reg":
+            module_id = args.module_id
+            unit_id = args.unit_id
+            reg = args.reg
+            value = args.value
+
+            if not asyncio.run(
+                set_reg(
+                    login_user, login_pass, args.api_ver, module_id, unit_id, reg, value
+                )
+            ):
+                _LOGGER.error("Set Register Command Failed, %s == %s", reg, value)
+        else:
+            _LOGGER.error(
+                "Sub Command [%s] Not Found in [set], arguments %s", args.command, args
+            )
+    else:
+        _LOGGER.error("Command [%s] Not Found, arguments %s", args.command, args)
 
     return 0
 

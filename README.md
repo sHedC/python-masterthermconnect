@@ -61,7 +61,7 @@ DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED, I think ne
 ```
 
 Get
-'''
+```
 usage: masterthermconnect get [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] [--hide-sensitive] [--pretty] {devices,data,reg} ...
 
 options:
@@ -77,10 +77,10 @@ get commands:
     devices            All Devices List associated with the account.
     data               Normalized data for a speicif device, e.g. data 1234 1
     reg                Registers for a specific device, e.g. get reg 1234 1 A_101,A102 or reg 1234 1 all
-'''
+```
 
 Set
-'''
+```
 usage: masterthermconnect set [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] {reg} ...
 
 options:
@@ -92,7 +92,7 @@ options:
 set commands:
   {reg}
     reg                Registers for a specific device, e.g. reg 1234 1 D_3 0
-'''
+```
 
 If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide. If you use special characters or spaces in user name or password use double quotes "user name" to quote the parameter.
 

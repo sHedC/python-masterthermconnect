@@ -41,26 +41,60 @@ This is used as a libary but it can also be run directly for debug purposes:
 DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
 ```
-usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive]
-[--user USER] [--password PASSWORD] [--list-devices]
-[--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
+usage: masterthermconnect [-h] [--version] {get,set} ...
 
-Options:
-    -h, --help                          show this help message and exit<br>
-    --version                           display the Mastertherm Connect API version<br>
-    --api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-    --hide-sensitive                    Hide the sensitive information, for debug information for sharing.<br>
-    --user USER                         login user for Mastertherm<br>
-    --password PASSWORD                 login password for Mastertherm<br>
-    --list-devices                      list the devices connected to the account<br>
-    --list-device-data                  list the data for each device connected to the account<br>
-    --list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
-    ---pretty                           Pritify the Output in JSON Format.<br>
+Python Mastertherm Connect API Module, used for debug purposes, allows you to get and set registers and other information for testing, use with
+caution!!!
+
+options:
+  -h, --help        show this help message and exit
+  --version         display the Mastertherm Connect API version
+
+commands:
+  Valid commands to access the API, use -h to get more help after the command for specific help.
+
+  {get,set}         Retrieve and Send data to or from the API.
+    get             Read data from the API and Display it
+    set             Set data to the API and check the Result
+
+DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED, I think new new API is sensitive to logging in too frequently.
 ```
 
-If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
+Get
+'''
+usage: masterthermconnect get [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] [--hide-sensitive] [--pretty] {devices,data,reg} ...
 
-If you use spaces in your user name relpace the space with a +.
+options:
+  -h, --help           show this help message and exit
+  --user USER          login user for Mastertherm
+  --password PASSWORD  login password for Mastertherm
+  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)
+  --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.
+  --pretty             Prettify the Output in JSON Format.
+
+get commands:
+  {devices,data,reg}
+    devices            All Devices List associated with the account.
+    data               Normalized data for a speicif device, e.g. data 1234 1
+    reg                Registers for a specific device, e.g. get reg 1234 1 A_101,A102 or reg 1234 1 all
+'''
+
+Set
+'''
+usage: masterthermconnect set [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] {reg} ...
+
+options:
+  -h, --help           show this help message and exit
+  --user USER          login user for Mastertherm
+  --password PASSWORD  login password for Mastertherm
+  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)
+
+set commands:
+  {reg}
+    reg                Registers for a specific device, e.g. reg 1234 1 D_3 0
+'''
+
+If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide. If you use special characters or spaces in user name or password use double quotes "user name" to quote the parameter.
 
 ### API Version
 For examples on how to use the API please see `__main__.py` file as an exmaple, it is quite simple to use and retrieve information and is documented inline:

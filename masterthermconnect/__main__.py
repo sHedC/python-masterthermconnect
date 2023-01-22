@@ -4,7 +4,9 @@ import asyncio
 import getpass
 import json
 import logging
+
 from natsort import natsorted
+from time import sleep
 
 from aiohttp import ClientSession
 
@@ -19,6 +21,21 @@ from masterthermconnect.exceptions import (
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
+
+
+def guess_type(value: str) -> any:
+    """Convert an Augument Type to a best guess format."""
+    try:
+        return int(value)
+    except ValueError:
+        try:
+            return float(value)
+        except ValueError:
+            if value.lower() == "true":
+                return True
+            elif value.lower() == "false":
+                return False
+    return value
 
 
 def get_arguments() -> argparse.Namespace:
@@ -143,6 +160,26 @@ def get_arguments() -> argparse.Namespace:
         "value", type=str, help="Value to Set, all values are set as strings"
     )
 
+    parser_setdata = subparser_set.add_parser(
+        "data",
+        help=(
+            "Data for a specific device, e.g. reg 1234 1 hp_power_state true"
+            " or reg 1234 1 heating_circuits.hc0.on true "
+            "Acceptable values are string, boolean, float or integer."
+        ),
+    )
+    parser_setdata.set_defaults(subcommand="data")
+    parser_setdata.add_argument("module_id", type=str, help="Module ID e.g. 1234")
+    parser_setdata.add_argument("unit_id", type=str, help="Unit Id e.g. 1")
+    parser_setdata.add_argument(
+        "data", type=str, help="Data to Set using dot notation for parent child."
+    )
+    parser_setdata.add_argument(
+        "value",
+        type=guess_type,
+        help="Value to Set, all values are string, boolean, float or integer.",
+    )
+
     arguments = parser.parse_args()
     return arguments
 
@@ -204,6 +241,49 @@ async def set_reg(
             )
         else:
             _LOGGER.error("Failed to Set the Device Registry.")
+
+    except MasterthermConnectionError as mte:
+        _LOGGER.error("Connection Failed %s", mte.message)
+    except MasterthermAuthenticationError as mte:
+        _LOGGER.error("Authentication Failed %s", mte.message)
+    except MasterthermUnsupportedRole as mte:
+        _LOGGER.error("Unsupported Role %s", mte.message)
+    except MasterthermError as mte:
+        _LOGGER.error("Other Error %s", mte.message)
+    finally:
+        await session.close()
+
+    return success
+
+
+async def set_data(
+    username: str,
+    password: str,
+    api_version: str,
+    module_id: str,
+    unit_id: str,
+    data: str,
+    value: any,
+) -> bool:
+    """Setup and Connect to the MasterthermController to set data."""
+    session = ClientSession()
+
+    success = False
+    try:
+        controller = MasterthermController(
+            username, password, session, api_version=api_version
+        )
+        controller.set_refresh_rate(data_refresh_seconds=0)
+        await controller.connect()
+        await controller.refresh()
+
+        success = await controller.set_device_data_item(module_id, unit_id, data, value)
+        if success:
+            await controller.refresh(full_load=True)
+            updated_item = controller.get_device_data_item(module_id, unit_id, data)
+            print(f"Data after Update: {data} = {updated_item}")
+        else:
+            _LOGGER.error("Failed to Set the Device Data.")
 
     except MasterthermConnectionError as mte:
         _LOGGER.error("Connection Failed %s", mte.message)
@@ -307,10 +387,34 @@ def main() -> int:
 
             if not asyncio.run(
                 set_reg(
-                    login_user, login_pass, args.api_ver, module_id, unit_id, reg, value
+                    login_user,
+                    login_pass,
+                    args.api_ver,
+                    module_id,
+                    unit_id,
+                    reg,
+                    value,
                 )
             ):
                 _LOGGER.error("Set Register Command Failed, %s == %s", reg, value)
+        elif args.subcommand == "data":
+            module_id = args.module_id
+            unit_id = args.unit_id
+            data = args.data
+            value = args.value
+
+            if not asyncio.run(
+                set_data(
+                    login_user,
+                    login_pass,
+                    args.api_ver,
+                    module_id,
+                    unit_id,
+                    data,
+                    value,
+                )
+            ):
+                _LOGGER.error("Set Data Command Failed, %s == %s", data, value)
         else:
             _LOGGER.error(
                 "Sub Command [%s] Not Found in [set], arguments %s", args.command, args

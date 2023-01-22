@@ -8,11 +8,13 @@ from aiohttp import ClientSession
 from .api import MasterthermAPI
 from .const import (
     CHAR_MAP,
-    DEVICE_DATA_MAP,
-    DEVICE_DATA_HCMAP,
     DEVICE_INFO_MAP,
     HC_MAP,
 )
+from .datamapread import DEVICE_READ_MAP, DEVICE_READ_HCMAP
+from .datamapwrite import DEVICE_WRITE_MAP
+from .exceptions import MasterthermEntryNotFound
+from .special import Special
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -46,7 +48,6 @@ class MasterthermController:
         self.__api = MasterthermAPI(
             username, password, session, api_version=api_version
         )
-        self.__device_map = DEVICE_DATA_MAP
         self.__api_connected = False
         self.__info_update_minutes = 30
         self.__data_update_seconds = 60
@@ -70,36 +71,34 @@ class MasterthermController:
         """Convert the data for use with Populate Data."""
         return_value: any = None
 
-        if item_type == "fixed":
-            return_value = item_value
-        elif item_type == "bool":
-            if item_value == "":
-                return_value = False
-            else:
-                return_value = registers[item_value] == "1"
-        elif item_type == "not bool":
-            if item_value == "":
-                return_value = True
-            else:
-                return_value = not registers[item_value] == "1"
-        elif item_type == "float":
-            if item_value == "":
-                return_value = 0.0
-            else:
-                return_value = float(registers[item_value])
-        elif item_type == "int":
-            if item_value == "":
-                return_value = 0
-            else:
-                return_value = int(registers[item_value])
-        elif item_type == "string":
-            if item_value == "":
-                return_value = ""
-            else:
+        if isinstance(item_type, Special):
+            # Handle Special Types
+            special_item: Special = item_type
+
+            if special_item.condition == Special.FIXED:
+                return_value = special_item.data_type(item_value)
+            elif special_item.condition == Special.NAMEARRAY:
                 item_str = ""
                 for list_value in item_value:
                     item_str = item_str + CHAR_MAP[int(registers[list_value])]
                 return_value = item_str
+            elif special_item.condition == Special.FORMULA:
+                values = []
+                for item in item_value[1]:
+                    # Bool needs to converted as an int not string
+                    if item[0] == bool:
+                        values.append(item[0](int(registers[item[1]])))
+                    else:
+                        values.append(item[0](registers[item[1]]))
+
+                return_value = special_item.evaluate(item_value[0], values)
+        else:
+            # Convert Simple Types
+            # Bool needs to converted as an int not string
+            if item_type == bool:
+                return_value = item_type(int(registers[item_value]))
+            else:
+                return_value = item_type(registers[item_value])
 
         return return_value
 
@@ -108,16 +107,7 @@ class MasterthermController:
         data = {}
         for key, item in device_map.items():
             if not isinstance(item, dict):
-                item_type = item[0]
-                item_value = item[1]
-
-                if item_type == "if":
-                    if registers[item_value] == "1":
-                        data[key] = self.__convert_data(item[2], item[3], registers)
-                    else:
-                        data[key] = self.__convert_data(item[2], item[4], registers)
-                else:
-                    data[key] = self.__convert_data(item_type, item_value, registers)
+                data[key] = self.__convert_data(item[0], item[1], registers)
             else:
                 data[key] = self.__populate_data(device_map[key], registers)
 
@@ -125,7 +115,7 @@ class MasterthermController:
 
     def __get_hc_name(self, hc_id: int, device_key: str) -> str:
         """Build the Heating Cooling Circuit Name from the full data."""
-        if HC_MAP[hc_id]["id"] not in DEVICE_DATA_HCMAP:
+        if HC_MAP[hc_id]["id"] not in DEVICE_READ_HCMAP:
             return "0"
 
         hc_name = ""
@@ -133,7 +123,7 @@ class MasterthermController:
         full_data = self.__devices[device_key]["api_full_data"]
 
         # Get the Name from the api data.
-        for key in DEVICE_DATA_HCMAP[HC_MAP[hc_id]["id"]]["name"][1]:
+        for key in DEVICE_READ_HCMAP[HC_MAP[hc_id]["id"]]["name"][1]:
             hc_name = hc_name + CHAR_MAP[int(full_data[key])]
             hc_empty = hc_empty + "-"
 
@@ -180,11 +170,6 @@ class MasterthermController:
 
         return hc_info
 
-    def __get_registers(self, data: dict) -> dict:
-        """Read the Normalized data and retrieve register/ value pairs."""
-        # TODO: Add details
-        return {}
-
     async def __get_hp_updates(self, full_load: bool = False) -> None:
         """Refresh data and information for all the devices, apply default restrictions to
                the number of times a call can be made..
@@ -219,8 +204,10 @@ class MasterthermController:
             # Refresh the Device Data, refresh rate of this data is restricted by default
             # to try and keep frequency of requests down.all(iterable)
             last_data_update = None
+            last_update_time = "0"
             if "last_data_update" in device and not full_load:
                 last_data_update = device["last_data_update"]
+                last_update_time = device["last_update_time"]
 
             if (
                 last_data_update is None
@@ -229,7 +216,7 @@ class MasterthermController:
             ):
                 # Refresh Device Data.
                 device_data = await self.__api.get_device_data(
-                    module_id, unit_id, last_update_time=device["last_update_time"]
+                    module_id, unit_id, last_update_time=last_update_time
                 )
                 device["last_data_update"] = datetime.now()
 
@@ -334,7 +321,7 @@ class MasterthermController:
 
             # Populate Device Data
             device["data"] = self.__populate_data(
-                self.__device_map, device["api_full_data"]
+                DEVICE_READ_MAP, device["api_full_data"]
             )
             data = device["data"]
 
@@ -467,20 +454,105 @@ class MasterthermController:
 
         return data
 
-    def set_device_data(self, module_id: str, unit_id: str, update_data: dict) -> bool:
+    def get_device_data_item(self, module_id: str, unit_id: str, entry: str) -> any:
+        """Get the Device Data Item based on the dot notation.
+        Parameters:
+            module_id (str): The id of the module
+            unit_id (str):   The id of the unit
+            entry (str):     The entry to using dot notation, e.g. hp_power_state
+                             or heating_circuits.hc0.on
+
+        Returns:
+            any: Returns the value of the item found
+
+        Raises:
+            MasterthermEntryNotFound - Entry is not valid."""
+        data = self.get_device_data(module_id, unit_id)
+
+        keys: list[str] = entry.split(".")
+        for i in range(len(keys) - 1):
+            if keys[i] in data:
+                data = data[keys[i]]
+            else:
+                raise MasterthermEntryNotFound(
+                    "401", f"{keys[i]} in {entry} not found."
+                )
+
+        item = keys[len(keys) - 1]
+        if not item in data:
+            raise MasterthermEntryNotFound("401", f"{item} in {entry} not found.")
+
+        return data[item]
+
+    async def set_device_data_item(
+        self, module_id: str, unit_id: str, entry: str, value: any
+    ) -> bool:
         """Set the Device Data and Update to the Mastertherm Heat Pump.
         Parameters:
             module_id (str): The id of the module
-            unit_id (str): The id of the unit
-            update_data (dict): The data to update, in the same form as read data
+            unit_id (str):   The id of the unit
+            entry (str):     The entry to using dot notation, e.g. hp_power_state
+                             or heating_circuits.hc0.on
+            value:           The value to set should be bool, str, float or int
 
         Returns:
-            bool: True if success, False if failure"""
-        key = module_id + "_" + unit_id
-        update_reg = self.__get_registers(update_data[key])
+            bool: True if success, False if failure
 
-        #  Perform the Updates, TODO add try exception.
-        for reg, value in update_reg.items():
-            print(f"{reg} = {value}")
+        Raises:
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermEntryNotFound - Entry is not valid."""
+        # Split the entry into its components and find the mapping and data type.
+        # TODO: Add some controls on the values that can be set as some should be restricted.
+        map_file = DEVICE_WRITE_MAP
+        keys: list[str] = entry.split(".")
+        for i in range(len(keys) - 1):
+            if keys[i] in map_file:
+                map_file = map_file[keys[i]]
+            else:
+                raise MasterthermEntryNotFound(
+                    "401", f"{keys[i]} in {entry} not found."
+                )
 
-        return False
+        # Make sure the item is valid the start processing.
+        item = keys[len(keys) - 1]
+        if not item in map_file:
+            raise MasterthermEntryNotFound("401", f"{item} in {entry} not found.")
+
+        # Get the Registry to set and prepare the value.
+        entry_type = map_file[item][0]
+        entry_value = map_file[item][1]
+        entry_reg = ""
+
+        if isinstance(entry_type, Special):
+            # If Special then find the Registry Entry.
+            special_item: Special = entry_type
+            registers = self.get_device_registers(module_id, unit_id)
+            if special_item.condition == Special.FORMULA:
+                values = []
+                for item in entry_value[1]:
+                    if item[0] == bool:
+                        values.append(item[0](int(registers[item[1]])))
+                    else:
+                        values.append(item[0](registers[item[1]]))
+
+                entry_reg = special_item.evaluate(entry_value[0], values)
+                entry_type = special_item.data_type
+            else:
+                return False
+        else:
+            # If Normal just set it from the Value
+            entry_reg = entry_value
+
+        # Test if the entry_type matches our value type.
+        if isinstance(value, entry_type):
+            if isinstance(value, bool):
+                entry_value = str(int(value))
+            else:
+                entry_value = str(value)
+        else:
+            return False
+
+        return await self.__api.set_device_data(
+            module_id, unit_id, entry_reg, entry_value
+        )

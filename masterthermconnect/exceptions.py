@@ -33,3 +33,7 @@ class MasterthermTokenInvalid(MasterthermError):
 
 class MasterthermUnsupportedRole(MasterthermError):
     """Raised when connecting to an Unsupported Role."""
+
+
+class MasterthermEntryNotFound(MasterthermError):
+    """Raised when the data entry update requested is not found."""

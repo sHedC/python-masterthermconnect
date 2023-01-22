@@ -8,6 +8,7 @@ from masterthermconnect.exceptions import (
     MasterthermTokenInvalid,
     MasterthermUnsupportedRole,
     MasterthermUnsupportedVersion,
+    MasterthermEntryNotFound,
 )
 
 __all__ = [

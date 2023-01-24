@@ -6,7 +6,6 @@ import json
 import logging
 
 from natsort import natsorted
-from time import sleep
 
 from aiohttp import ClientSession
 
@@ -17,6 +16,7 @@ from masterthermconnect.exceptions import (
     MasterthermAuthenticationError,
     MasterthermConnectionError,
     MasterthermUnsupportedRole,
+    MasterthermEntryNotFound,
     MasterthermError,
 )
 
@@ -38,7 +38,7 @@ def guess_type(value: str) -> any:
     return value
 
 
-def get_arguments() -> argparse.Namespace:
+def get_arguments(argv) -> argparse.Namespace:
     """Read the Arguments passed in."""
     # formatter_class=argparse.MetavarTypeHelpFormatter,
     parser = argparse.ArgumentParser(
@@ -180,8 +180,7 @@ def get_arguments() -> argparse.Namespace:
         help="Value to Set, all values are string, boolean, float or integer.",
     )
 
-    arguments = parser.parse_args()
-    return arguments
+    return parser.parse_args(argv)
 
 
 async def connect(
@@ -291,6 +290,8 @@ async def set_data(
         _LOGGER.error("Authentication Failed %s", mte.message)
     except MasterthermUnsupportedRole as mte:
         _LOGGER.error("Unsupported Role %s", mte.message)
+    except MasterthermEntryNotFound as mte:
+        _LOGGER.error("Entry not Found, Update Failed %s", mte.message)
     except MasterthermError as mte:
         _LOGGER.error("Other Error %s", mte.message)
     finally:
@@ -299,131 +300,125 @@ async def set_data(
     return success
 
 
-def main() -> int:
+async def set_command(login_user: str, login_pass: str, args) -> int:
+    """Set Command to set data/registry."""
+    if args.subcommand == "reg":
+        if not await set_reg(
+            login_user,
+            login_pass,
+            args.api_ver,
+            args.module_id,
+            args.unit_id,
+            args.data,
+            args.value,
+        ):
+            _LOGGER.error(
+                "Set Register Command Failed, %s == %s", args.data, args.value
+            )
+            return 2
+    elif args.subcommand == "data":
+        if not await set_data(
+            login_user,
+            login_pass,
+            args.api_ver,
+            args.module_id,
+            args.unit_id,
+            args.data,
+            args.value,
+        ):
+            _LOGGER.error("Set Data Command Failed, %s == %s", args.data, args.value)
+            return 2
+
+    return 0
+
+
+async def get_command(login_user: str, login_pass: str, args) -> int:
+    """Get Command to get data/ registry/ devices."""
+    controller = await connect(login_user, login_pass, args.api_ver, True)
+    if controller is None:
+        _LOGGER("Connection Failed.")
+        return 1
+
+    if args.subcommand == "devices":
+        devices = controller.get_devices()
+        new_module_id = 1111
+        old_module_id = ""
+        new_devices = {}
+
+        for device_id, device_item in devices.items():
+            module_id = device_item["module_id"]
+            unit_id = device_item["unit_id"]
+
+            if module_id != old_module_id:
+                old_module_id = module_id
+                new_module_id = new_module_id + 1
+
+            if args.hide_sensitive:
+                device_id = f"{str(new_module_id)}_{unit_id}"
+                device_item["module_id"] = str(new_module_id)
+                device_item["module_name"] = "Hidden Name"
+                device_item["name"] = "First"
+                device_item["surname"] = "Last"
+                device_item["latitude"] = "1.1"
+                device_item["longitude"] = "-0.1"
+
+            new_devices[device_id] = device_item
+
+        if args.pretty:
+            print(json.dumps(new_devices, indent=4))
+        else:
+            print(str(new_devices).replace("'", '"'))
+    elif args.subcommand == "data":
+        module_id = args.module_id
+        unit_id = args.unit_id
+        device_data = controller.get_device_data(module_id, unit_id)
+        if args.pretty:
+            print(json.dumps(device_data, indent=4))
+        else:
+            print(str(device_data).replace("'", '"'))
+    elif args.subcommand == "reg":
+        module_id = args.module_id
+        unit_id = args.unit_id
+        device_reg = controller.get_device_registers(module_id, unit_id)
+
+        sorted_reg = {}
+        for key in natsorted(device_reg.keys()):
+            sorted_reg[key] = device_reg[key]
+
+        reg: str = args.reg
+        if reg.upper() == "ALL":
+            if args.pretty:
+                print(json.dumps(sorted_reg, indent=4))
+            else:
+                print(str(sorted_reg).replace("'", '"'))
+        elif reg.find(",") == -1:
+            print(reg + " = " + sorted_reg.get(reg, "Not Found"))
+        else:
+            for key in reg.split(","):
+                print(key + " = " + sorted_reg.get(key, "Not Found"))
+
+    return 0
+
+
+def main(argv=None) -> int:
     """Allow for testing connectivity from the command line."""
-    login_user = ""
-    login_pass = ""
-    args: argparse.Namespace = get_arguments()
+    # Arg Parse raises SystemExit, get return value
+    try:
+        args: argparse.Namespace = get_arguments(argv)
+    except SystemExit as ex:
+        return ex.code
 
-    if args.user is not None:
-        login_user = args.user
-    else:
-        login_user = input("User: ")
-
-    if args.password is not None:
-        login_pass = args.password
-    else:
-        login_pass = getpass.getpass()
+    # If User/ Pass is not provided then get from the command line.
+    login_user = input("User: ") if args.user is None else args.user
+    login_pass = getpass.getpass() if args.password is None else args.password
 
     if args.command == "get":
-        controller = asyncio.run(connect(login_user, login_pass, args.api_ver, True))
-
-        if args.subcommand == "devices":
-            devices = controller.get_devices()
-            new_module_id = 1111
-            old_module_id = ""
-            for device_id, device_item in devices.items():
-                module_id = device_item["module_id"]
-                unit_id = device_item["unit_id"]
-
-                if module_id != old_module_id:
-                    old_module_id = module_id
-                    new_module_id = new_module_id + 1
-
-                if args.hide_sensitive:
-                    device_id = f"{str(new_module_id)}_{unit_id}"
-                    device_item["module_id"] = str(new_module_id)
-                    device_item["module_name"] = "Hidden Name"
-                    device_item["name"] = "First"
-                    device_item["surname"] = "Last"
-                    device_item["latitude"] = "1.1"
-                    device_item["longitude"] = "-0.1"
-
-                device = {}
-                device[device_id] = device_item
-                if args.pretty:
-                    print(json.dumps(device, indent=4))
-                else:
-                    print(str(device).replace("'", '"'))
-        elif args.subcommand == "data":
-            module_id = args.module_id
-            unit_id = args.unit_id
-            device_data = controller.get_device_data(module_id, unit_id)
-            if args.pretty:
-                print(json.dumps(device_data, indent=4))
-            else:
-                print(str(device_data).replace("'", '"'))
-        elif args.subcommand == "reg":
-            module_id = args.module_id
-            unit_id = args.unit_id
-            device_reg = controller.get_device_registers(module_id, unit_id)
-
-            sorted_reg = {}
-            for key in natsorted(device_reg.keys()):
-                sorted_reg[key] = device_reg[key]
-
-            reg: str = args.reg
-            if reg.upper() == "ALL":
-                if args.pretty:
-                    print(json.dumps(sorted_reg, indent=4))
-                else:
-                    print(str(sorted_reg).replace("'", '"'))
-            elif reg.find(",") == -1:
-                print(reg + " = " + sorted_reg.get(reg, "Not Found"))
-            else:
-                for key in reg.split(","):
-                    print(key + " = " + sorted_reg.get(key, "Not Found"))
-        else:
-            _LOGGER.error(
-                "Sub Command [%s] Not Found in [get], arguments %s", args.command, args
-            )
-
+        return asyncio.run(get_command(login_user, login_pass, args))
     elif args.command == "set":
-        if args.subcommand == "reg":
-            module_id = args.module_id
-            unit_id = args.unit_id
-            reg = args.reg
-            value = args.value
-
-            if not asyncio.run(
-                set_reg(
-                    login_user,
-                    login_pass,
-                    args.api_ver,
-                    module_id,
-                    unit_id,
-                    reg,
-                    value,
-                )
-            ):
-                _LOGGER.error("Set Register Command Failed, %s == %s", reg, value)
-        elif args.subcommand == "data":
-            module_id = args.module_id
-            unit_id = args.unit_id
-            data = args.data
-            value = args.value
-
-            if not asyncio.run(
-                set_data(
-                    login_user,
-                    login_pass,
-                    args.api_ver,
-                    module_id,
-                    unit_id,
-                    data,
-                    value,
-                )
-            ):
-                _LOGGER.error("Set Data Command Failed, %s == %s", data, value)
-        else:
-            _LOGGER.error(
-                "Sub Command [%s] Not Found in [set], arguments %s", args.command, args
-            )
-    else:
-        _LOGGER.error("Command [%s] Not Found, arguments %s", args.command, args)
+        return asyncio.run(set_command(login_user, login_pass, args))
 
     return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

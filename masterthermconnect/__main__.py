@@ -309,12 +309,10 @@ async def set_command(login_user: str, login_pass: str, args) -> int:
             args.api_ver,
             args.module_id,
             args.unit_id,
-            args.data,
+            args.reg,
             args.value,
         ):
-            _LOGGER.error(
-                "Set Register Command Failed, %s == %s", args.data, args.value
-            )
+            _LOGGER.error("Set Register Command Failed, %s == %s", args.reg, args.value)
             return 2
     elif args.subcommand == "data":
         if not await set_data(

@@ -308,7 +308,7 @@ DEVICE_READ_MAP = {
         "heating": [bool, "D_66"],
         "enabled": [bool, "D_275"],
         "current_temp": [float, "A_126"],
-        "required_temp": [float, "A_129"],  # Write
+        "required_temp": [float, "A_129"],
         "min_temp": [float, "A_296"],
         "max_temp": [float, "A_297"],
     },

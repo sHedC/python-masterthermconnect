@@ -514,13 +514,17 @@ class MasterthermController:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermEntryNotFound - Entry is not valid."""
-        # Split the entry into its components and find the mapping and data type.
         # TODO: Add some controls on the values that can be set as some should be restricted.
-        map_file = DEVICE_WRITE_MAP
+
+        # Split the entry into its components and find the mapping and data type.
+        # Check if in both read and write map, if not in both stop.
+        write_map = DEVICE_WRITE_MAP
+        device_data = self.get_device_data(module_id, unit_id)
         keys: list[str] = entry.split(".")
         for i in range(len(keys) - 1):
-            if keys[i] in map_file:
-                map_file = map_file[keys[i]]
+            if keys[i] in write_map and keys[i] in device_data:
+                write_map = write_map[keys[i]]
+                device_data = device_data[keys[i]]
             else:
                 raise MasterthermEntryNotFound(
                     "401", f"{keys[i]} in {entry} not found."
@@ -528,12 +532,12 @@ class MasterthermController:
 
         # Make sure the item is valid the start processing.
         item = keys[len(keys) - 1]
-        if not item in map_file:
+        if not item in write_map or not item in device_data:
             raise MasterthermEntryNotFound("401", f"{item} in {entry} not found.")
 
         # Get the Registry to set and prepare the value.
-        entry_type = map_file[item][0]
-        entry_value = map_file[item][1]
+        entry_type = write_map[item][0]
+        entry_value = write_map[item][1]
         entry_reg = ""
 
         if isinstance(entry_type, Special):

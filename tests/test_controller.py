@@ -430,7 +430,7 @@ async def test_toggle_hc1_on():
 
 
 async def test_set_not_valid():
-    """Test type of Special should not update."""
+    """Test that value that can't be updated is disabled."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
@@ -467,7 +467,7 @@ async def test_set_not_valid():
         assert data == temp
 
 
-async def test_cooling_enabled_disabled():
+async def test_cooling_feature():
     """Test the Controller Correctly disables Cooling Mode"""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
@@ -501,3 +501,40 @@ async def test_cooling_enabled_disabled():
     assert info2["cooling"] == "1"
     assert "hp_function" in data2
     assert "control_curve_cooling" in data2
+
+
+async def test_set_cooling_feature():
+    """Test t."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        with pytest.raises(MasterthermEntryNotFound):
+            await controller.set_device_data_item("10021", "1", "hp_function", 1)
+
+        with pytest.raises(MasterthermEntryNotFound):
+            await controller.set_device_data_item(
+                "10021", "1", "control_curve_cooling.setpoint_a_outside", 20.2
+            )
+
+        await controller.set_device_data_item("10021", "2", "hp_function", 1)
+        await controller.set_device_data_item(
+            "10021", "2", "control_curve_cooling.setpoint_a_outside", 20.2
+        )

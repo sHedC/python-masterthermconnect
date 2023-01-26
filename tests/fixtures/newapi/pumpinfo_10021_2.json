@@ -18,7 +18,7 @@
     "city": "Jablonec nad Jizerou",
     "invertor": "0",
     "hpType": "BAI",
-    "reversation": "0",
+    "reversation": "1",
     "serialnumber": "BAI000SIM",
     "localization": "CZ",
     "controller": "uPC",

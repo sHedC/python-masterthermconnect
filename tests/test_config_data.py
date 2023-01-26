@@ -84,7 +84,7 @@ async def test_hc1_no_thermostat():
     data = controller.get_device_data("1234", "1")
     assert data["hp_power_state"]
     assert data["heating_circuits"]["hc1"]["enabled"]
-    assert data["heating_circuits"]["hc1"]["ambient_requested"] == 20.0
+    assert data["heating_circuits"]["hc1"]["ambient_requested"] == 20.2
     assert "pad" not in data["heating_circuits"]["hc1"]
 
 

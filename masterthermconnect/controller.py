@@ -368,6 +368,12 @@ class MasterthermController:
                     hc_pad
                 ]
 
+            # Disable certain fields if Cooling Mode is disabled
+            cooling_disabled = not device["info"]["cooling"] == "1"
+            if cooling_disabled:
+                device["data"].pop("hp_function")
+                device["data"].pop("control_curve_cooling")
+
             # Set if circuits are enabled or not, remove circuts that
             # are not enabled.
             hc_enabled_result = self.__hc_enabled(device_id)
@@ -379,6 +385,12 @@ class MasterthermController:
                     hc_circuits[hc_id]["enabled"] = hc_enabled
                     if not hc_circuits[hc_id]["pad"]["enabled"]:
                         hc_circuits[hc_id].pop("pad")
+
+                    if (
+                        cooling_disabled
+                        and "control_curve_cooling" in hc_circuits[hc_id]
+                    ):
+                        hc_circuits[hc_id].pop("control_curve_cooling")
 
             # Check if the Pool and Solar are enabled
             if not hc_circuits["solar"]["enabled"]:

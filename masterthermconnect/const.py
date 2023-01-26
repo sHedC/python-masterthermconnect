@@ -75,7 +75,7 @@ DEVICE_INFO_MAP = {
     "controller": "regulation",
     "exp": "exp",
     "output": "output",
-    "reservation": "reservation",
+    "cooling": "reversation",  # 0 - Cooling Disabled, 1 - Cooling Enabled.
     "place": "city",
     "latitude": "password9",
     "longitude": "password10",

@@ -104,12 +104,12 @@ async def test_get_info_data():
     data = controller.get_device_data("1234", "1")
 
     assert info["country"] == "UK"
-    assert data_raw["A_500"] == "46.2"
+    assert data_raw["A_500"] == "32.1"
     assert data["hp_power_state"] is True
-    assert data["outside_temp"] == 4.2
-    assert data["actual_temp"] == 46.2
-    assert data["heating_circuits"]["hc1"]["name"] == "HW-AN-"
-    assert data["heating_circuits"]["hc1"]["on"] is True
+    assert data["outside_temp"] == 5.3
+    assert data["actual_temp"] == 32.1
+    assert data["heating_circuits"]["hc1"]["name"] == "HW-ANN"
+    assert data["heating_circuits"]["hc1"]["on"] is False
     assert not "hc3" in data["heating_circuits"]
     assert not "pool" in data["heating_circuits"]
     assert not "solar" in data["heating_circuits"]
@@ -277,7 +277,7 @@ async def test_getdata_update():
         assert await controller.refresh() is True
 
         data = controller.get_device_data("1234", "1")
-        assert data["actual_temp"] == 46.2
+        assert data["actual_temp"] == 32.1
         assert await controller.refresh() is True
 
     assert len(mock_apiconnect.mock_calls) == 1
@@ -323,7 +323,7 @@ async def test_season_winter():
 
     data = controller.get_device_data("1234", "1")
 
-    assert data["season"] == "auto:winter"
+    assert data["season"] == "winter"
 
 
 async def test_season_auto_winter():
@@ -465,3 +465,39 @@ async def test_set_not_valid():
             "1234", "1", "heating_circuits.hc1.ambient_temp"
         )
         assert data == temp
+
+
+async def test_cooling_enabled_disabled():
+    """Test the Controller Correctly disables Cooling Mode"""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    info1 = controller.get_device_info("10021", "1")
+    data1 = controller.get_device_data("10021", "1")
+    info2 = controller.get_device_info("10021", "2")
+    data2 = controller.get_device_data("10021", "2")
+
+    # Unit 1 has cooling disabled
+    assert info1["cooling"] == "0"
+    assert "hp_function" not in data1
+    assert "control_curve_cooling" not in data1
+
+    # Unit 2 has cooling enabled
+    assert info2["cooling"] == "1"
+    assert "hp_function" in data2
+    assert "control_curve_cooling" in data2

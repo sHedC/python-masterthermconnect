@@ -325,12 +325,6 @@ class MasterthermController:
             )
             data = device["data"]
 
-            # Update Season Setting
-            season_info = data["season_info"]
-            data["season"] = ("" if season_info["hp_seasonset"] else "auto:") + (
-                "winter" if season_info["hp_season"] else "summer"
-            )
-
             # Update Operating Mode
             operating_mode = "heating"
             if data["domestic_hot_water"]["heating"]:

@@ -284,9 +284,12 @@ DEVICE_READ_MAP = {
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
     "season": [
-        Special(str, Special.FIXED),
-        "",
-    ],  # summer, auto:summer, winter, auto:winter
+        Special(str, Special.FORMULA),
+        [
+            "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
+            [[bool, "I_50"], [bool, "D_24"]],
+        ],
+    ],
     "operating_mode": [
         Special(str, Special.FIXED),
         "heating",

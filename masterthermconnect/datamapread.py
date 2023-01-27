@@ -256,27 +256,21 @@ DEVICE_READ_HCMAP = {
     "solar": {
         "enabled": [bool, "D_433"],
         "name": [Special(str, Special.FIXED), "Solar"],
-        "s1_temp": [float, "A_258"],
-        "s2_temp": [float, "A_259"],
-        "s3_temp": [float, "A_260"],
+        "solar_collector": [float, "A_258"],
+        "water_tank1": [float, "A_259"],
+        "water_tank2": [float, "A_260"],
     },
     "pool": {
         "name": [Special(str, Special.FIXED), "Pool"],
         "enabled": [bool, "D_348"],
         "on": [bool, "D_238"],
         "heating": [bool, "D_43"],
-        "s1_temp": [float, "A_262"],
-        "temp_requested": [float, "A_15"],
+        "temp_actual": [float, "A_262"],
+        "temp_requested": [float, "A_210"],
     },
 }
 
 # NOTES --------------------------------------------------
-# pswitch_data_1: Cooling Curve
-# a_outside: A_47
-# b_outside: A_48
-# a_requested: A_49
-# b_requested: A_50
-#
 # Moved HC0 Heating/ Cooling Curves to main as always
 # used moving to main section so they don't get disabled
 # --------------------------------------------------------
@@ -296,16 +290,16 @@ DEVICE_READ_MAP = {
     ],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": [bool, "D_4"],
     "control_curve_heating": {
-        "setpoint_a_outside": [float, "A_122"],
-        "setpoint_a_requested": [float, "A_120"],
-        "setpoint_b_outside": [float, "A_88"],
-        "setpoint_b_requested": [float, "A_121"],
+        "setpoint_a_outside": [float, "A_35"],
+        "setpoint_a_requested": [float, "A_37"],
+        "setpoint_b_outside": [float, "A_36"],
+        "setpoint_b_requested": [float, "A_38"],
     },
     "control_curve_cooling": {
-        "setpoint_a_outside": [float, "A_362"],
-        "setpoint_a_requested": [float, "A_363"],
-        "setpoint_b_outside": [float, "A_364"],
-        "setpoint_b_requested": [float, "A_365"],
+        "setpoint_a_outside": [float, "A_47"],
+        "setpoint_a_requested": [float, "A_48"],
+        "setpoint_b_outside": [float, "A_49"],
+        "setpoint_b_requested": [float, "A_50"],
     },
     "domestic_hot_water": {
         "heating": [bool, "D_66"],

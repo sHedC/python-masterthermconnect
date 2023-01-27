@@ -71,22 +71,26 @@ DEVICE_WRITE_HCMAP = {
             ],
         ],
     },
+    "pool": {
+        "on": [bool, "D_238"],
+        "temp_requested": [float, "A_210"],
+    },
 }
 
 DEVICE_WRITE_MAP = {
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
     "control_curve_heating": {
-        "setpoint_a_outside": [float, "A_122"],  # Wrong Mapping
-        "setpoint_a_requested": [float, "A_120"],  # Wrong Mapping
-        "setpoint_b_outside": [float, "A_88"],  # Wrong Mapping
-        "setpoint_b_requested": [float, "A_121"],  # Wrong Mapping
+        "setpoint_a_outside": [float, "A_35"],
+        "setpoint_a_requested": [float, "A_37"],
+        "setpoint_b_outside": [float, "A_36"],
+        "setpoint_b_requested": [float, "A_38"],
     },
     "control_curve_cooling": {
-        "setpoint_a_outside": [float, "A_362"],  # Wrong Mapping
-        "setpoint_a_requested": [float, "A_363"],  # Wrong Mapping
-        "setpoint_b_outside": [float, "A_364"],  # Wrong Mapping
-        "setpoint_b_requested": [float, "A_365"],  # Wrong Mapping
+        "setpoint_a_outside": [float, "A_47"],
+        "setpoint_a_requested": [float, "A_48"],
+        "setpoint_b_outside": [float, "A_49"],
+        "setpoint_b_requested": [float, "A_50"],
     },
     "domestic_hot_water": {
         "required_temp": [float, "A_129"],

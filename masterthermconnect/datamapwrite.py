@@ -20,6 +20,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_245"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_101"],
+            "setpoint_a_requested": [float, "A_106"],
+            "setpoint_b_outside": [float, "A_102"],
+            "setpoint_b_requested": [float, "A_107"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_314"],
+            "setpoint_a_requested": [float, "A_315"],
+            "setpoint_b_outside": [float, "A_316"],
+            "setpoint_b_requested": [float, "A_317"],
+        },
     },
     "hc2": {
         "on": [bool, "D_216"],
@@ -30,6 +42,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_248"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_108"],
+            "setpoint_a_requested": [float, "A_84"],
+            "setpoint_b_outside": [float, "A_109"],
+            "setpoint_b_requested": [float, "A_85"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_330"],
+            "setpoint_a_requested": [float, "A_331"],
+            "setpoint_b_outside": [float, "A_332"],
+            "setpoint_b_requested": [float, "A_333"],
+        },
     },
     "hc3": {
         "on": [bool, "D_220"],
@@ -40,6 +64,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_251"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_113"],
+            "setpoint_a_requested": [float, "A_86"],
+            "setpoint_b_outside": [float, "A_114"],
+            "setpoint_b_requested": [float, "A_87"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_346"],
+            "setpoint_a_requested": [float, "A_347"],
+            "setpoint_b_outside": [float, "A_348"],
+            "setpoint_b_requested": [float, "A_349"],
+        },
     },
     "hc4": {
         "on": [bool, "D_50"],
@@ -50,6 +86,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_254"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_122"],
+            "setpoint_a_requested": [float, "A_120"],
+            "setpoint_b_outside": [float, "A_88"],
+            "setpoint_b_requested": [float, "A_121"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_362"],
+            "setpoint_a_requested": [float, "A_363"],
+            "setpoint_b_outside": [float, "A_364"],
+            "setpoint_b_requested": [float, "A_365"],
+        },
     },
     "hc5": {
         "on": [bool, "D_51"],
@@ -60,6 +108,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_257"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_387"],
+            "setpoint_a_requested": [float, "A_388"],
+            "setpoint_b_outside": [float, "A_389"],
+            "setpoint_b_requested": [float, "A_390"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_379"],
+            "setpoint_a_requested": [float, "A_380"],
+            "setpoint_b_outside": [float, "A_381"],
+            "setpoint_b_requested": [float, "A_382"],
+        },
     },
     "hc6": {
         "on": [bool, "D_52"],
@@ -70,6 +130,18 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_259"]],
             ],
         ],
+        "control_curve_heating": {
+            "setpoint_a_outside": [float, "A_401"],
+            "setpoint_a_requested": [float, "A_402"],
+            "setpoint_b_outside": [float, "A_403"],
+            "setpoint_b_requested": [float, "A_404"],
+        },
+        "control_curve_cooling": {
+            "setpoint_a_outside": [float, "A_405"],
+            "setpoint_a_requested": [float, "A_406"],
+            "setpoint_b_outside": [float, "A_407"],
+            "setpoint_b_requested": [float, "A_408"],
+        },
     },
     "pool": {
         "on": [bool, "D_238"],

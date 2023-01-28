@@ -166,7 +166,7 @@ DEVICE_WRITE_MAP = {
     },
     "season_info": {
         # Based on Average Temperature, set manual_set then winter if manual.
-        "manual_set": [int, "I_50"],  # True if Manual Set, False if Auto
+        "manual_set": [bool, "I_50"],  # True if Manual Set, False if Auto
         "winter": [bool, "D_24"],  # True is Winter, False is Summer
         "winter_temp": [float, "A_82"],  # -20.0 to 40.0 Below Winter Mode
         "summer_temp": [float, "A_83"],  # -20.0 to 40.0 Above Summer Mode

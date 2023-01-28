@@ -330,7 +330,7 @@ DEVICE_READ_MAP = {
     },
     "season_info": {
         "winter": [bool, "D_24"],
-        "manual_set": [int, "I_50"],
+        "manual_set": [bool, "I_50"],
         "winter_temp": [float, "A_82"],
         "summer_temp": [float, "A_83"],
     },

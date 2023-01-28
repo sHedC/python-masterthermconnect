@@ -329,8 +329,8 @@ DEVICE_READ_MAP = {
         "aux2_runtime": [int, "I_101"],
     },
     "season_info": {
-        "winter": [bool, "D_24"],
         "manual_set": [bool, "I_50"],
+        "winter": [bool, "D_24"],
         "winter_temp": [float, "A_82"],
         "summer_temp": [float, "A_83"],
     },

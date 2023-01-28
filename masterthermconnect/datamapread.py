@@ -329,10 +329,10 @@ DEVICE_READ_MAP = {
         "aux2_runtime": [int, "I_101"],
     },
     "season_info": {
-        "hp_season": [bool, "D_24"],  # True is Winter, False is Summer (Write)
-        "hp_seasonset": [int, "I_50"],  # True is Manually Set, False Auto (Write)
-        "hp_season_winter": [float, "A_82"],  # (Write)
-        "hp_season_summer": [float, "A_83"],  # (Write)
+        "winter": [bool, "D_24"],
+        "manual_set": [int, "I_50"],
+        "winter_temp": [float, "A_82"],
+        "summer_temp": [float, "A_83"],
     },
     "error_info": {
         "some_error": [bool, "D_20"],

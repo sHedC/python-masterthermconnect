@@ -148,3 +148,63 @@ async def test_set_ambient_requested():
             "1234", "1", "heating_circuits.hc1.ambient_requested"
         )
         assert data == 50.1
+
+
+async def test_season_set():
+    """Test Season Sets correctly."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect()
+        assert await controller.refresh()
+
+        # Test Winter Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.manual_set", True
+        )
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.winter", True
+        )
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season")
+        assert season == "winter"
+
+        # Test Summer Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.manual_set", True
+        )
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.winter", False
+        )
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season")
+        assert season == "summer"
+
+        # Test Auto Winter Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.manual_set", False
+        )
+        assert await controller.set_device_data_item(
+            "1234", "1", "season_info.winter", True
+        )
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season")
+        assert season == "auto-winter"

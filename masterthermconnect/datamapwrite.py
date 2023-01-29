@@ -152,6 +152,13 @@ DEVICE_WRITE_HCMAP = {
 DEVICE_WRITE_MAP = {
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
+    "season": {
+        # Based on Average Temperature, set manual_set then winter if manual.
+        "manual_set": [bool, "I_50"],  # True if Manual Set, False if Auto
+        "winter": [bool, "D_24"],  # True is Winter, False is Summer
+        "winter_temp": [float, "A_82"],  # -20.0 to 40.0 Below Winter Mode
+        "summer_temp": [float, "A_83"],  # -20.0 to 40.0 Above Summer Mode
+    },
     "control_curve_heating": {  # -99.9 to 99.9
         "setpoint_a_outside": [float, "A_35"],
         "setpoint_a_requested": [float, "A_37"],
@@ -163,13 +170,6 @@ DEVICE_WRITE_MAP = {
         "setpoint_a_requested": [float, "A_48"],
         "setpoint_b_outside": [float, "A_49"],
         "setpoint_b_requested": [float, "A_50"],
-    },
-    "season_info": {
-        # Based on Average Temperature, set manual_set then winter if manual.
-        "manual_set": [bool, "I_50"],  # True if Manual Set, False if Auto
-        "winter": [bool, "D_24"],  # True is Winter, False is Summer
-        "winter_temp": [float, "A_82"],  # -20.0 to 40.0 Below Winter Mode
-        "summer_temp": [float, "A_83"],  # -20.0 to 40.0 Above Summer Mode
     },
     "domestic_hot_water": {
         "required_temp": [float, "A_129"],  # Range min_temp to max_temp

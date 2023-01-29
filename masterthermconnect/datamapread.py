@@ -277,17 +277,23 @@ DEVICE_READ_HCMAP = {
 DEVICE_READ_MAP = {
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
-    "season": [
-        Special(str, Special.FORMULA),
-        [
-            "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
-            [[bool, "I_50"], [bool, "D_24"]],
-        ],
-    ],
     "operating_mode": [
         Special(str, Special.FIXED),
         "heating",
     ],  # heating, cooling, pool, dhw, dpc
+    "season": {
+        "mode": [
+            Special(str, Special.FORMULA),
+            [
+                "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
+                [[bool, "I_50"], [bool, "D_24"]],
+            ],
+        ],
+        "manual_set": [bool, "I_50"],
+        "winter": [bool, "D_24"],
+        "winter_temp": [float, "A_82"],
+        "summer_temp": [float, "A_83"],
+    },
     "cooling_mode": [bool, "D_4"],
     "control_curve_heating": {
         "setpoint_a_outside": [float, "A_35"],
@@ -327,12 +333,6 @@ DEVICE_READ_MAP = {
         "pump_runtime": [int, "I_13"],
         "aux1_runtime": [int, "I_100"],
         "aux2_runtime": [int, "I_101"],
-    },
-    "season_info": {
-        "manual_set": [bool, "I_50"],
-        "winter": [bool, "D_24"],
-        "winter_temp": [float, "A_82"],
-        "summer_temp": [float, "A_83"],
     },
     "error_info": {
         "some_error": [bool, "D_20"],

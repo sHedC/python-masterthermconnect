@@ -323,7 +323,7 @@ async def test_season_winter():
 
     data = controller.get_device_data("1234", "1")
 
-    assert data["season"] == "winter"
+    assert data["season"]["mode"] == "winter"
 
 
 async def test_season_auto_winter():
@@ -352,7 +352,7 @@ async def test_season_auto_winter():
 
     data = controller.get_device_data("0001", "1")
 
-    assert data["season"] == "winter"
+    assert data["season"]["mode"] == "winter"
 
 
 async def test_toggle_hp_on():

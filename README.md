@@ -20,8 +20,6 @@ If you feel like donating to a charity, I would love you to sponsor my wife and 
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
-__Current Implementation is read only__
-
 There are two entry points for the Mastertherm Heat Pumps:
 - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
 - mastertherm.online - This is the server for 2022 onward
@@ -208,7 +206,19 @@ Where possble the normalized data is filtered out based on whether a feature is 
 {
     "hp_power_state": ["bool", "D_3"],
     "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
-    "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
+    "season": {
+        "mode": [
+            Special(str, Special.FORMULA),
+            [
+                "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
+                [[bool, "I_50"], [bool, "D_24"]],
+            ],
+        ],
+        "manual_set": [bool, "I_50"],
+        "winter": [bool, "D_24"],
+        "winter_temp": [float, "A_82"],
+        "summer_temp": [float, "A_83"],
+    },
     "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
     "control_curve_heating": {
@@ -226,10 +236,6 @@ Where possble the normalized data is filtered out based on whether a feature is 
     "runtime_info": {
         "compressor_run_time": ["int", "I_11"],
         "compressor_start_counter": ["int", "I_12"],
-    },
-    "season_info": {
-        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer (Write)
-        "hp_seasonset": ["int", "I_50"],  # True is Manually Set, False Auto (Write)
     },
     "error_info": {
         "some_error": ["bool", "D_20"],

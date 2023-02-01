@@ -3,7 +3,8 @@
 [![GitHub Activity][commits-shield]][commits]
 
 Main -
-[![workflow-main]][workflows-main][![codecov](https://codecov.io/gh/sHedC/python-masterthermconnect/branch/nextrelease/graph/badge.svg?token=747WODRAGO)](https://codecov.io/gh/sHedC/python-masterthermconnect)
+[![workflow-main]][workflows-main]
+[![codecov](https://codecov.io/gh/sHedC/python-masterthermconnect/branch/nextrelease/graph/badge.svg?token=747WODRAGO)](https://codecov.io/gh/sHedC/python-masterthermconnect)
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]

@@ -35,12 +35,8 @@ jobs:
     - name: Test with tox
       run: |
         tox -e py-coverage
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        files: ./coverage.xml
-        verbose: true
     - name: Build and publish
+      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' }}
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}

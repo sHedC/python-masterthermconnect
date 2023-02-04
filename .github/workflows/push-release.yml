@@ -33,10 +33,7 @@ jobs:
       run: |
         pytest
 
-    - name: Build and upload to PyPi
-      run: |
-        python3 setup.py sdist bdist_wheel
-        python3 -m twine upload dist/*
-      env:
-        TWINE_USEARNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Publish a Python distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        password: ${{ secrets.PYPI_API_TOKEN }}

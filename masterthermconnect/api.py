@@ -294,6 +294,7 @@ class MasterthermAPI:
             # Old Process gets return and modules in one go
             # token and expiry is stored in a cookie.
             if response_json["returncode"] != 0:
+                _LOGGER.error("Authentication Error: %s", response_json)
                 raise MasterthermAuthenticationError(
                     response_json["returncode"], response_json["message"]
                 )

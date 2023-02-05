@@ -36,7 +36,7 @@ from .exceptions import (
     MasterthermResponseFormatError,
 )
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 class MasterthermAPI:
@@ -279,12 +279,15 @@ class MasterthermAPI:
                 headers={"content-type": "application/x-www-form-urlencoded"},
             )
         except ClientConnectionError as ex:
-            _LOGGER.error("Client Connection Error: %s", ex)
+            _LOGGER.warning("Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
 
         # Response shoudl always be 200 even for login failures
         if response.status != 200:
             error_msg = await response.text()
+            _LOGGER.warning(
+                "Site Error status=%s, Error=%s", response.status, error_msg
+            )
             raise MasterthermConnectionError(str(response.status), error_msg)
 
         response_json = await response.json()
@@ -294,7 +297,6 @@ class MasterthermAPI:
             # Old Process gets return and modules in one go
             # token and expiry is stored in a cookie.
             if response_json["returncode"] != 0:
-                _LOGGER.error("Authentication Error: %s", response_json)
                 raise MasterthermAuthenticationError(
                     response_json["returncode"], response_json["message"]
                 )

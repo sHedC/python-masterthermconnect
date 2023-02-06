@@ -436,7 +436,9 @@ class MasterthermAPI:
     async def set_device_data(
         self, module_id: str, unit_id: str, register: str, value: any
     ) -> bool:
-        """Set device data a specific register to a specific value.
+        """Set device data a specific register to a specific value,
+        updating any registry setting can cause the system to stop working
+        the controller only allows tested updates this API has no protection.
 
         Parameters:
             module_id (str): This is the module_id for the unit

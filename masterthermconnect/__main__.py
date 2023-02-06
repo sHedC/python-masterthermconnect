@@ -303,17 +303,27 @@ async def set_data(
 async def set_command(login_user: str, login_pass: str, args) -> int:
     """Set Command to set data/registry."""
     if args.subcommand == "reg":
-        if not await set_reg(
-            login_user,
-            login_pass,
-            args.api_ver,
-            args.module_id,
-            args.unit_id,
-            args.reg,
-            args.value,
+        if (
+            input(
+                "Setting untested registry setitngs can break your system. "
+                "Using this feature is entirely at your risk. "
+                "Type Yes to Continue: "
+            )
+            == "Yes"
         ):
-            _LOGGER.error("Set Register Command Failed, %s == %s", args.reg, args.value)
-            return 2
+            if not await set_reg(
+                login_user,
+                login_pass,
+                args.api_ver,
+                args.module_id,
+                args.unit_id,
+                args.reg,
+                args.value,
+            ):
+                _LOGGER.error(
+                    "Set Register Command Failed, %s == %s", args.reg, args.value
+                )
+                return 2
     elif args.subcommand == "data":
         if not await set_data(
             login_user,

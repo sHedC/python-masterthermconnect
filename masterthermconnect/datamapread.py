@@ -326,7 +326,13 @@ DEVICE_READ_MAP = {
     "requested_temp": [float, "A_5"],
     "actual_temp": [float, "A_1"],
     "dewp_control": [bool, "D_196"],
-    "hdo_on": [bool, "D_15"],
+    "high_tariff_control": [
+        Special(bool, Special.FORMULA),
+        [
+            "not {0}",
+            [[bool, "D_15"]],
+        ],
+    ],
     "runtime_info": {
         "compressor_run_time": [int, "I_11"],
         "compressor_start_counter": [int, "I_12"],

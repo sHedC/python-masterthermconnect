@@ -344,7 +344,7 @@ async def get_command(login_user: str, login_pass: str, args) -> int:
     """Get Command to get data/ registry/ devices."""
     controller = await connect(login_user, login_pass, args.api_ver, True)
     if controller is None:
-        _LOGGER("Connection Failed.")
+        _LOGGER.error("Connection Failed.")
         return 1
 
     if args.subcommand == "devices":

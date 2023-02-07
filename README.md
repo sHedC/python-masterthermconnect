@@ -38,19 +38,9 @@ Releases are done using PyPi, the release is here: <a href="https://pypi.org/pro
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes and must be used with extreme caution, especially when using the set commands.
 
-<div class="panel panel-warning">
-**Warning**
-{: .panel-heading}
-<div class="panel-body">
+> :warning: **Using Set with Reg to set directly.**: There is no protection on the masterhterm API Web for updating registry settings you must not and updating these can break your system, this applies to using the mastertherm set & reg command but a warning is provided on each set.
 
-There is no protection on the masterhterm API Web for updating registry settings you must not and updating these can break your system, this applies to using the mastertherm set & reg command but a warning is provided on each set.
-
-The settings that are updated using the set & data command are restricted to those that follow the Web UI controls.
-
-DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
-
-</div>
-</div>
+> :warning: **DO NOT RUN THIS TOO FREQUENTLY.**: The new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
 ```
 usage: masterthermconnect [-h] [--version] {get,set} ...

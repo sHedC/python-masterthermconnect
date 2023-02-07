@@ -383,7 +383,12 @@ async def get_command(login_user: str, login_pass: str, args) -> int:
         if args.pretty:
             print(json.dumps(device_data, indent=4))
         else:
-            print(str(device_data).replace("'", '"'))
+            print(
+                str(device_data)
+                .replace("'", '"')
+                .replace("True", "true")
+                .replace("False", "false")
+            )
     elif args.subcommand == "reg":
         module_id = args.module_id
         unit_id = args.unit_id

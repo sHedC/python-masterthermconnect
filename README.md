@@ -101,7 +101,7 @@ If you can login using mastertherm.online then use the api version v2, for maste
 ### API Version
 For examples on how to use the API please see `__main__.py` file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
 
-> :warning: **Do NOT use the API Directly**: There is no control on updating registries using the API and updating the wrong one can break your system.  The Controller updates are based on what can be changed by the User in the UI or controllers.
+> :warning: **Do NOT use the MasterthermAPI Directly**: There is no control on updating registries using the API and updating the wrong one can break your system.  The MasterthermController has controls to only allow certain updates that are avialable on the Web UI and Thermostats.
 
 To import the required modules:
 ```

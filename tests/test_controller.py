@@ -8,6 +8,7 @@ from masterthermconnect import (
     MasterthermController,
     MasterthermAuthenticationError,
     MasterthermConnectionError,
+    MasterthermEntryNotFound,
 )
 from masterthermconnect.const import URL_BASE
 
@@ -103,12 +104,12 @@ async def test_get_info_data():
     data = controller.get_device_data("1234", "1")
 
     assert info["country"] == "UK"
-    assert data_raw["A_500"] == "46.2"
+    assert data_raw["A_500"] == "32.1"
     assert data["hp_power_state"] is True
-    assert data["outside_temp"] == 4.2
-    assert data["actual_temp"] == 46.2
-    assert data["heating_circuits"]["hc1"]["name"] == "HW-AN-"
-    assert data["heating_circuits"]["hc1"]["on"] is True
+    assert data["outside_temp"] == 5.3
+    assert data["actual_temp"] == 32.1
+    assert data["heating_circuits"]["hc1"]["name"] == "HW-ANN"
+    assert data["heating_circuits"]["hc1"]["on"] is False
     assert not "hc3" in data["heating_circuits"]
     assert not "pool" in data["heating_circuits"]
     assert not "solar" in data["heating_circuits"]
@@ -276,7 +277,7 @@ async def test_getdata_update():
         assert await controller.refresh() is True
 
         data = controller.get_device_data("1234", "1")
-        assert data["actual_temp"] == 46.2
+        assert data["actual_temp"] == 32.1
         assert await controller.refresh() is True
 
     assert len(mock_apiconnect.mock_calls) == 1
@@ -322,7 +323,7 @@ async def test_season_winter():
 
     data = controller.get_device_data("1234", "1")
 
-    assert data["season"] == "auto:winter"
+    assert data["season"]["mode"] == "winter"
 
 
 async def test_season_auto_winter():
@@ -351,4 +352,189 @@ async def test_season_auto_winter():
 
     data = controller.get_device_data("0001", "1")
 
-    assert data["season"] == "winter"
+    assert data["season"]["mode"] == "winter"
+
+
+async def test_toggle_hp_on():
+    """Test toggling the HP Main Switch."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ) as mock_set:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        data = controller.get_device_data("0001", "1")
+        state = data["hp_power_state"]
+
+        assert await controller.set_device_data_item(
+            "0001", "1", "hp_power_state", not state
+        )
+
+        await controller.refresh(full_load=True)
+        data = controller.get_device_data_item("0001", "1", "hp_power_state")
+        assert data != state
+
+    assert len(mock_set.mock_calls) > 0
+
+
+async def test_toggle_hc1_on():
+    """Test toggling the Heating Circuit 1 Switch."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ) as mock_set:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        data = controller.get_device_data("1234", "1")
+        state = data["heating_circuits"]["hc1"]["on"]
+
+        assert await controller.set_device_data_item(
+            "1234", "1", "heating_circuits.hc1.on", not state
+        )
+
+        await controller.refresh(full_load=True)
+        data = controller.get_device_data_item("1234", "1", "heating_circuits.hc1.on")
+        assert data != state
+
+    assert len(mock_set.mock_calls) > 0
+
+
+async def test_set_not_valid():
+    """Test that value that can't be updated is disabled."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        data = controller.get_device_data("1234", "1")
+        temp = data["heating_circuits"]["hc1"]["ambient_temp"]
+
+        with pytest.raises(MasterthermEntryNotFound):
+            await controller.set_device_data_item(
+                "1234", "1", "heating_circuits.hc1.ambient_temp", 50.1
+            )
+
+        await controller.refresh(full_load=True)
+        data = controller.get_device_data_item(
+            "1234", "1", "heating_circuits.hc1.ambient_temp"
+        )
+        assert data == temp
+
+
+async def test_cooling_feature():
+    """Test the Controller Correctly disables Cooling Mode"""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    info1 = controller.get_device_info("10021", "1")
+    data1 = controller.get_device_data("10021", "1")
+    info2 = controller.get_device_info("10021", "2")
+    data2 = controller.get_device_data("10021", "2")
+
+    # Unit 1 has cooling disabled
+    assert info1["cooling"] == "0"
+    assert "hp_function" not in data1
+    assert "control_curve_cooling" not in data1
+
+    # Unit 2 has cooling enabled
+    assert info2["cooling"] == "1"
+    assert "hp_function" in data2
+    assert "control_curve_cooling" in data2
+
+
+async def test_set_cooling_feature():
+    """Test t."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        with pytest.raises(MasterthermEntryNotFound):
+            await controller.set_device_data_item("10021", "1", "hp_function", 1)
+
+        with pytest.raises(MasterthermEntryNotFound):
+            await controller.set_device_data_item(
+                "10021", "1", "control_curve_cooling.setpoint_a_outside", 20.2
+            )
+
+        await controller.set_device_data_item("10021", "2", "hp_function", 1)
+        await controller.set_device_data_item(
+            "10021", "2", "control_curve_cooling.setpoint_a_outside", 20.2
+        )

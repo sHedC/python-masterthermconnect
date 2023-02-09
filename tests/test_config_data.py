@@ -84,7 +84,7 @@ async def test_hc1_no_thermostat():
     data = controller.get_device_data("1234", "1")
     assert data["hp_power_state"]
     assert data["heating_circuits"]["hc1"]["enabled"]
-    assert data["heating_circuits"]["hc1"]["ambient_requested"] == 20.0
+    assert data["heating_circuits"]["hc1"]["ambient_requested"] == 20.2
     assert "pad" not in data["heating_circuits"]["hc1"]
 
 
@@ -113,3 +113,94 @@ async def test_hcx_thermostat():
     assert data["hp_power_state"]
     assert data["heating_circuits"]["hc2"]["enabled"]
     assert data["heating_circuits"]["hc2"]["ambient_requested"] == 20.1
+
+
+async def test_set_ambient_requested():
+    """Test HC1 Ambient Requested."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        data = controller.get_device_data("1234", "1")
+        assert await controller.set_device_data_item(
+            "1234", "1", "heating_circuits.hc1.ambient_requested", 50.1
+        )
+
+        await controller.refresh(full_load=True)
+        data = controller.get_device_data_item(
+            "1234", "1", "heating_circuits.hc1.ambient_requested"
+        )
+        assert data == 50.1
+
+
+async def test_season_set():
+    """Test Season Sets correctly."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        assert await controller.connect()
+        assert await controller.refresh()
+
+        # Test Winter Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season.manual_set", True
+        )
+        assert await controller.set_device_data_item("1234", "1", "season.winter", True)
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season.mode")
+        assert season == "winter"
+
+        # Test Summer Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season.manual_set", True
+        )
+        assert await controller.set_device_data_item(
+            "1234", "1", "season.winter", False
+        )
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season.mode")
+        assert season == "summer"
+
+        # Test Auto Winter Set
+        assert await controller.set_device_data_item(
+            "1234", "1", "season.manual_set", False
+        )
+        assert await controller.set_device_data_item("1234", "1", "season.winter", True)
+
+        assert await controller.refresh(full_load=True)
+        season = controller.get_device_data_item("1234", "1", "season.mode")
+        assert season == "auto-winter"

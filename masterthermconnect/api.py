@@ -24,6 +24,8 @@ from .const import (
     URL_PUMPDATA_NEW,
     URL_PUMPINFO,
     URL_PUMPINFO_NEW,
+    URL_POSTUPDATE,
+    URL_POSTUPDATE_NEW,
 )
 from .exceptions import (
     MasterthermAuthenticationError,
@@ -34,7 +36,7 @@ from .exceptions import (
     MasterthermResponseFormatError,
 )
 
-_LOGGER: logging.Logger = logging.getLogger(__package__)
+_LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
 class MasterthermAPI:
@@ -102,6 +104,76 @@ class MasterthermAPI:
             return True
 
         return False
+
+    async def __post(self, url: str, params: str) -> dict:
+        """Push updates to the API."""
+        if await self.__token_expired():
+            await self.connect()
+
+        try:
+            if self.__api_version == "v1":
+                # Original uses post, with Cookie Token
+                response = await self.__session.post(
+                    urljoin(URL_BASE, url),
+                    data=params,
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
+                    cookies={"PHPSESSID": self.__token, "$version": "1"},
+                )
+            else:
+                # New uses get, with Authorization Bearer
+                response = await self.__session.post(
+                    urljoin(URL_BASE_NEW, url),
+                    data=params,
+                    headers={
+                        "Authorization": f"Bearer {self.__token}",
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "Host": "mastertherm.online",
+                        "Connection": "close",
+                    },
+                )
+        except ClientConnectionError as ex:
+            _LOGGER.error("Client Connection Error: %s", ex)
+            raise MasterthermConnectionError("3", "Client Connection Error") from ex
+        except JSONDecodeError as ex:
+            _LOGGER.error("JSON Decode Error: %s", ex)
+            raise MasterthermConnectionError("3", "JSON Decode Error") from ex
+
+        # Version 2 responds with an error and json.
+        # We should only get something other than 200 if the servers are down.
+        if response.status != 200:
+            try:
+                response_json = await response.json()
+
+                # Deal with the v2 error if we have a response
+                if response_json["status"]["id"] == 401:
+                    raise MasterthermTokenInvalid("1", response_json)
+                else:
+                    _LOGGER.error("Mastertherm API some other error: %s", response_json)
+                    raise MasterthermResponseFormatError("2", response_json)
+            except ContentTypeError as ex:
+                response_text = await response.text()
+                _LOGGER.error(
+                    "Mastertherm API Connection Error %s:%s",
+                    str(response.status),
+                    response_text,
+                )
+                raise MasterthermConnectionError(
+                    str(response.status), response_text
+                ) from ex
+
+        # Convert to JSON if possible and return the result
+        try:
+            response_json = await response.json()
+        except ContentTypeError as exc:
+            response_text = await response.text()
+            if response_text == "User not logged in":
+
+                raise MasterthermTokenInvalid("1", response_text) from exc
+            else:
+                _LOGGER.error("Mastertherm API some other error: %s", response_text)
+                raise MasterthermResponseFormatError("2", response_text) from exc
+
+        return response_json
 
     async def __get(self, url: str, params: str) -> dict:
         """Get updates from the API, for old this mostly uses Post."""
@@ -207,12 +279,15 @@ class MasterthermAPI:
                 headers={"content-type": "application/x-www-form-urlencoded"},
             )
         except ClientConnectionError as ex:
-            _LOGGER.error("Client Connection Error: %s", ex)
+            _LOGGER.warning("Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
 
         # Response shoudl always be 200 even for login failures
         if response.status != 200:
             error_msg = await response.text()
+            _LOGGER.warning(
+                "Site Error status=%s, Error=%s", response.status, error_msg
+            )
             raise MasterthermConnectionError(str(response.status), error_msg)
 
         response_json = await response.json()
@@ -344,16 +419,72 @@ class MasterthermAPI:
             )
 
         if response_json["data"] != {}:
-            data_key = ""
+            data_file = ""
             if self.__api_version == "v1":
                 if "varfile_mt1_config1" in response_json["data"]:
-                    data_key = "varfile_mt1_config1"
+                    data_file = "varfile_mt1_config1"
                 elif "varfile_mt1_config2" in response_json["data"]:
-                    data_key = "varfile_mt1_config2"
+                    data_file = "varfile_mt1_config2"
             elif self.__api_version == "v2":
-                data_key = "varFileData"
+                data_file = "varFileData"
 
-            response_json["data"]["varData"] = response_json["data"][data_key]
-            del response_json["data"][data_key]
+            response_json["data"]["varData"] = response_json["data"][data_file]
+            del response_json["data"][data_file]
 
         return response_json
+
+    async def set_device_data(
+        self, module_id: str, unit_id: str, register: str, value: any
+    ) -> bool:
+        """Set device data a specific register to a specific value,
+        updating any registry setting can cause the system to stop working
+        the controller only allows tested updates this API has no protection.
+
+        Parameters:
+            module_id (str): This is the module_id for the unit
+            unit_id (str): This is the unit id for the unit
+            register (str): The Register to update
+            value (str|float): The value to set.
+
+        Return:
+           success (bool): return true if succes and false if not.
+
+        Raises:
+            MasterthermConnectionError - General Connection Issue
+            MasterthermTokenInvalid - Token has expired or is invalid
+            MasterthermResponseFormatError - Some other issue, probably temporary"""
+        params = (
+            f"moduleId={module_id}&deviceId={unit_id}&"
+            + "configFile=varfile_mt1_config&messageId=1&errorResponse=true&"
+            + f"variableId={register}&variableValue={value}&application=android"
+        )
+
+        try:
+            response_json = await self.__post(
+                url=URL_POSTUPDATE
+                if self.__api_version == "v1"
+                else URL_POSTUPDATE_NEW,
+                params=params,
+            )
+        except MasterthermTokenInvalid:
+            self.__expires = None
+            response_json = await self.__get(
+                url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
+                params=params,
+            )
+
+        # Get the Value that is returned and set.
+        if self.__api_version == "v1":
+            data_file = ""
+            if "varfile_mt1_config1" in response_json["data"]:
+                data_file = "varfile_mt1_config1"
+            elif "varfile_mt1_config2" in response_json["data"]:
+                data_file = "varfile_mt1_config2"
+
+            set_value = response_json["data"][data_file][str(unit_id).zfill(3)][
+                register
+            ]
+        else:
+            set_value = response_json["data"]["data"][str(unit_id).zfill(3)][register]
+
+        return set_value == value

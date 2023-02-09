@@ -4,6 +4,7 @@
 
 Main -
 [![workflow-main]][workflows-main]
+[![codecov](https://codecov.io/gh/sHedC/python-masterthermconnect/branch/nextrelease/graph/badge.svg?token=747WODRAGO)](https://codecov.io/gh/sHedC/python-masterthermconnect)
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]
@@ -20,8 +21,6 @@ If you feel like donating to a charity, I would love you to sponsor my wife and 
 
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
-__Current Implementation is read only__
-
 There are two entry points for the Mastertherm Heat Pumps:
 - mastertherm.vip-it.cz - This is the server for pre 2022 heat pumps
 - mastertherm.online - This is the server for 2022 onward
@@ -30,40 +29,79 @@ NOTES:
 - materhterm.online is sensitive to too many requests so take care when using the command line or using this libary. The Application and Web App does a refresh on one module/ unit every 30 seconds.
 - if multiple requests are sent at the same time (i.e. from home assistant/ the app and web) some will be refused by the servers, its temporary.  The updates have been built to report but ignore these.
 
+
 ## Installation
 Releases are done using PyPi, the release is here: <a href="https://pypi.org/project/masterthermconnect" target="_blank">masterthermconnect</a>
 - Latest Release Version: python -m pip install masterthermconnect
 - Specific Version or Pre-Release e.g.: python -m pip install masterthermconnect==1.1.0rc9
 
 ### Command Line
-This is used as a libary but it can also be run directly for debug purposes:
+This is used as a libary but it can also be run directly for debug purposes and must be used with extreme caution, especially when using the set commands.
 
-DO NOT RUN THIS TOO FREQUENTLY, the new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
+> :warning: **Use SET with REG directly with extreme caution**: There is no protection on the masterhterm API Web for updating registry settings you must not and updating these can break your system, this applies to using the mastertherm set & reg command you have to actively confirm each set command when using this feature.
+
+> :warning: **Do Not Run This Too Frequently**: The new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
 ```
-usage: masterthermconnect [-h] [--version] [--api-ver {v1,v2}] [--hide-sensitive]
-[--user USER] [--password PASSWORD] [--list-devices]
-[--list-device-data] [--list-device-reg LIST_DEVICE_REG] [--pretty]
+usage: masterthermconnect [-h] [--version] {get,set} ...
 
-Options:
-    -h, --help                          show this help message and exit<br>
-    --version                           display the Mastertherm Connect API version<br>
-    --api-ver {v1,v2}                   API Version to use: Default: v1 (pre 2022), v2 (post 2022)<br>
-    --hide-sensitive                    Hide the sensitive information, for debug information for sharing.<br>
-    --user USER                         login user for Mastertherm<br>
-    --password PASSWORD                 login password for Mastertherm<br>
-    --list-devices                      list the devices connected to the account<br>
-    --list-device-data                  list the data for each device connected to the account<br>
-    --list-device-reg LIST_DEVICE_REG   list Registers e.g. A_330 or A_330,A_331 or 'all' for everything.<br>
-    ---pretty                           Pritify the Output in JSON Format.<br>
+Python Mastertherm Connect API Module, used for debug purposes, allows you to get and set registers and other information for testing, use with
+caution!!!
+
+options:
+  -h, --help        show this help message and exit
+  --version         display the Mastertherm Connect API version
+
+commands:
+  Valid commands to access the API, use -h to get more help after the command for specific help.
+
+  {get,set}         Retrieve and Send data to or from the API.
+    get             Read data from the API and Display it
+    set             Set data to the API and check the Result
+
+DO NOT RUN THIS TOO FREQENTLY, IT IS POSSIBLE TO GET YOUR IP BLOCKED, I think new new API is sensitive to logging in too frequently.
 ```
 
-If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide.
+Get
+```
+usage: masterthermconnect get [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] [--hide-sensitive] [--pretty] {devices,data,reg} ...
 
-If you use spaces in your user name relpace the space with a +.
+options:
+  -h, --help           show this help message and exit
+  --user USER          login user for Mastertherm
+  --password PASSWORD  login password for Mastertherm
+  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)
+  --hide-sensitive     Hide the actual sensitive information, used when creating debug information for sharing.
+  --pretty             Prettify the Output in JSON Format.
+
+get commands:
+  {devices,data,reg}
+    devices            All Devices List associated with the account.
+    data               Normalized data for a speicif device, e.g. data 1234 1
+    reg                Registers for a specific device, e.g. get reg 1234 1 A_101,A102 or reg 1234 1 all
+```
+
+Set
+```
+usage: masterthermconnect set [-h] [--user USER] [--password PASSWORD] [--api-ver {v1,v2}] {reg} ...
+
+options:
+  -h, --help           show this help message and exit
+  --user USER          login user for Mastertherm
+  --password PASSWORD  login password for Mastertherm
+  --api-ver {v1,v2}    API Version to use: Default: v1 (pre 2022), v2 (post 2022)
+
+set commands:
+  {reg}
+    reg                Registers for a specific device, e.g. reg 1234 1 D_3 0
+```
+
+If you can login using mastertherm.online then use the api version v2, for mastertherm.vip-it.cz use v1 or do not provide. If you use special characters or spaces in user name or password use double quotes "user name" to quote the parameter.
 
 ### API Version
 For examples on how to use the API please see `__main__.py` file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
+
+> :warning: **Do NOT use the MasterthermAPI Directly**: There is no control on updating registries using the API and updating the wrong one can break your system.  The MasterthermController has controls to only allow certain updates that are avialable on the Web UI and Thermostats.
 
 To import the required modules:
 ```
@@ -113,7 +151,11 @@ Device Information and Data can be retrieved from the controller for example. Da
 ```
 
 ## Heat Pump Details
-Current version is read only, updates do not work yet but that will be worked on in the next version, the work is best effort so there is no quick implementations and it is being developed to support the Home Assistant integration.
+Writes are avaialble in limited capacity based on the UI and Thermostat controls. Some controls have a min/ max value that is configured in the heatpump, whilst we don't have any restrictions built in masterthermconnect the min and max values are available:
+- Domestic Hot Water has a min and max temperature exposed
+- Heating/ Cooling Curves - have a min/ max in the main heating/ cooling curve
+
+ This is being developed to support the Home Assistant integration.
 
 Everything is based on observations from the Web and Android Applications, the current testing has been done on some basic setup we have not tested options with Solar and Pool but have tried to add sensors based on the apps.
 1. One Main circuit with heating and cooling and domestic hot water with attached room thermostats
@@ -174,7 +216,19 @@ Where possble the normalized data is filtered out based on whether a feature is 
 {
     "hp_power_state": ["bool", "D_3"],
     "hp_function": ["int", "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
-    "season": ["fixed", ""],  # summer, auto:summer, winter, auto:winter
+    "season": {
+        "mode": [
+            Special(str, Special.FORMULA),
+            [
+                "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
+                [[bool, "I_50"], [bool, "D_24"]],
+            ],
+        ],
+        "manual_set": [bool, "I_50"],
+        "winter": [bool, "D_24"],
+        "winter_temp": [float, "A_82"],
+        "summer_temp": [float, "A_83"],
+    },
     "operating_mode": ["fixed", "heating"],  # heating, cooling, pool, dhw, dpc
     "cooling_mode": ["bool", "D_4"],
     "control_curve_heating": {
@@ -192,10 +246,6 @@ Where possble the normalized data is filtered out based on whether a feature is 
     "runtime_info": {
         "compressor_run_time": ["int", "I_11"],
         "compressor_start_counter": ["int", "I_12"],
-    },
-    "season_info": {
-        "hp_season": ["bool", "D_24"],  # True is Winter, False is Summer (Write)
-        "hp_seasonset": ["int", "I_50"],  # True is Manually Set, False Auto (Write)
     },
     "error_info": {
         "some_error": ["bool", "D_20"],

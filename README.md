@@ -38,9 +38,9 @@ Releases are done using PyPi, the release is here: <a href="https://pypi.org/pro
 ### Command Line
 This is used as a libary but it can also be run directly for debug purposes and must be used with extreme caution, especially when using the set commands.
 
-> :warning: **Use SET with REG directly with extreme caution.**: There is no protection on the masterhterm API Web for updating registry settings you must not and updating these can break your system, this applies to using the mastertherm set & reg command but a warning is provided on each set.
+> :warning: **Use SET with REG directly with extreme caution**: There is no protection on the masterhterm API Web for updating registry settings you must not and updating these can break your system, this applies to using the mastertherm set & reg command you have to actively confirm each set command when using this feature.
 
-> :warning: **Do Not Run This Too Frequently.**: The new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
+> :warning: **Do Not Run This Too Frequently**: The new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
 ```
 usage: masterthermconnect [-h] [--version] {get,set} ...
@@ -100,6 +100,8 @@ If you can login using mastertherm.online then use the api version v2, for maste
 
 ### API Version
 For examples on how to use the API please see `__main__.py` file as an exmaple, it is quite simple to use and retrieve information and is documented inline:
+
+> :warning: **Do NOT use the API Directly**: There is no control on updating registries using the API and updating the wrong one can break your system.  The Controller updates are based on what can be changed by the User in the UI or controllers.
 
 To import the required modules:
 ```

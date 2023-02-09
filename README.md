@@ -151,7 +151,11 @@ Device Information and Data can be retrieved from the controller for example. Da
 ```
 
 ## Heat Pump Details
-Current version is read only, updates do not work yet but that will be worked on in the next version, the work is best effort so there is no quick implementations and it is being developed to support the Home Assistant integration.
+Writes are avaialble in limited capacity based on the UI and Thermostat controls. Some controls have a min/ max value that is configured in the heatpump, whilst we don't have any restrictions built in masterthermconnect the min and max values are available:
+- Domestic Hot Water has a min and max temperature exposed
+- Heating/ Cooling Curves - have a min/ max in the main heating/ cooling curve
+
+ This is being developed to support the Home Assistant integration.
 
 Everything is based on observations from the Web and Android Applications, the current testing has been done on some basic setup we have not tested options with Solar and Pool but have tried to add sensors based on the apps.
 1. One Main circuit with heating and cooling and domestic hot water with attached room thermostats

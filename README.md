@@ -9,11 +9,11 @@ Main -
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]
-[![workflow-latest]][workflows-latest]
+[![workflow-latest][workflow-latest-shield]][workflow-lastest-link]
 
 Stable -
 [![GitHub Release][stable-release-shield]][releases]
-[![workflow-stable]][workflows-stable]
+[![workflow-stable][workflow-stable-shield]][workflow-stable-link]
 
 ## About
 If you feel like donating to a charity, I would love you to sponsor my wife and the Salvation Army here:
@@ -331,8 +331,7 @@ Additionally hc0 the control curves are the same as the main cuves so not shown 
 
 [workflow-main-shield]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
 [workflow-main-link]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml
-
-[workflows-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
-[workflow-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
-[workflows-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
-[workflow-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
+[workflow-stable-shield]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
+[workflow-stable-link]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml
+[workflow-latest-shield]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
+[workflow-latest-link]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml

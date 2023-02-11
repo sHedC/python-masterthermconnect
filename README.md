@@ -3,8 +3,9 @@
 [![GitHub Activity][commits-shield]][commits]
 
 Main -
-[![workflow-main]][workflows-main]
-[![codecov](https://codecov.io/gh/sHedC/python-masterthermconnect/branch/nextrelease/graph/badge.svg?token=747WODRAGO)](https://codecov.io/gh/sHedC/python-masterthermconnect)
+[![workflow-main](workflow-main-shield)][workflow-main-link]
+[![codecov](codecov-shield)][codecov-link]
+[![issues](issues-shield)][issues-link]
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]
@@ -318,13 +319,20 @@ Additionally hc0 the control curves are the same as the main cuves so not shown 
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
 
+[codecov-shield]: https://codecov.io/gh/sHedC/python-masterthermconnect/branch/main/graph/badge.svg?token=747WODRAGO
+[codecov-link]: https://codecov.io/gh/sHedC/python-masterthermconnect
+
+[issues-shield]: https://img.shields.io/github/issues/shedc/python-masterthermconnect?style=flat
+[issues-link]: https://github.com/sHedC/python-masterthermconnect/issues
+
 [releases]: https://github.com/shedc/python-masterthermconnect/releases
 [stable-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?style=flat
 [latest-release-shield]: https://img.shields.io/github/v/release/shedc/python-masterthermconnect?include_prereleases&style=flat
+
+[workflow-main-shield]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
+[workflow-main-link]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml
 
 [workflows-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
 [workflow-stable]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-release.yml/badge.svg
 [workflows-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
 [workflow-latest]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-prerelease.yml/badge.svg
-[workflows-main]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg
-[workflow-main]: https://github.com/sHedC/python-masterthermconnect/actions/workflows/push-main.yml/badge.svg

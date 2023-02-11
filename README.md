@@ -3,9 +3,9 @@
 [![GitHub Activity][commits-shield]][commits]
 
 Main -
-[![workflow-main](workflow-main-shield)][workflow-main-link]
-[![codecov](codecov-shield)][codecov-link]
-[![issues](issues-shield)][issues-link]
+[![workflow-main][workflow-main-shield]][workflow-main-link]
+[![codecov][codecov-shield]][codecov-link]
+[![issues][issues-shield]][issues-link]
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]

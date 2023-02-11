@@ -9,7 +9,7 @@ Main -
 
 Latest -
 [![GitHub Release][latest-release-shield]][releases]
-[![workflow-latest][workflow-latest-shield]][workflow-lastest-link]
+[![workflow-latest][workflow-latest-shield]][workflow-latest-link]
 
 Stable -
 [![GitHub Release][stable-release-shield]][releases]

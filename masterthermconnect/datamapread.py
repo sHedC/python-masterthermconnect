@@ -48,6 +48,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_216"],
+        "loop_type": [int, "I_62"],  # 0=none, 1=mix, 2=thermostatic, 3=hot water
         "pad": {
             "enabled": [bool, "D_245"],
             "state": [int, "I_15"],  # 0 - Permanently Off, 1 - Scheduled Off, 2 - On
@@ -86,6 +87,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_222"],
+        "loop_type": [int, "I_65"],
         "pad": {
             "enabled": [bool, "D_248"],
             "current_humidity": [float, "I_220"],
@@ -123,6 +125,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_228"],
+        "loop_type": [int, "I_68"],
         "pad": {
             "enabled": [bool, "D_251"],
             "current_humidity": [float, "I_221"],
@@ -161,6 +164,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_234"],
+        "loop_type": [int, "I_69"],
         "pad": {
             "enabled": [bool, "D_254"],
             "current_humidity": [float, "I_222"],
@@ -198,6 +202,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_241"],
+        "loop_type": [int, "I_285"],
         "pad": {
             "enabled": [bool, "D_257"],
             "current_humidity": [float, "I_223"],
@@ -236,6 +241,7 @@ DEVICE_READ_HCMAP = {
             ],
         ],
         "ambient_temp": [float, "A_250"],
+        "loop_type": [int, "I_290"],
         "pad": {
             "enabled": [bool, "D_259"],
             "current_humidity": [float, "I_224"],

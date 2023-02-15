@@ -34,6 +34,7 @@ from .exceptions import (
     MasterthermUnsupportedVersion,
     MasterthermTokenInvalid,
     MasterthermResponseFormatError,
+    MasterthermPumpError,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -212,13 +213,6 @@ class MasterthermAPI:
         if response.status != 200:
             try:
                 response_json = await response.json()
-
-                # Deal with the v2 error if we have a response
-                if response_json["status"]["id"] == 401:
-                    raise MasterthermTokenInvalid("1", response_json)
-                else:
-                    _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                    raise MasterthermResponseFormatError("2", response_json)
             except ContentTypeError as ex:
                 response_text = await response.text()
                 _LOGGER.error(
@@ -230,13 +224,19 @@ class MasterthermAPI:
                     str(response.status), response_text
                 ) from ex
 
+            # Deal with the v2 error if we have a response
+            if response_json["status"]["id"] == 401:
+                raise MasterthermTokenInvalid("1", response_json)
+            else:
+                _LOGGER.error("Mastertherm API some other error: %s", response_json)
+                raise MasterthermResponseFormatError("2", response_json)
+
         # Convert to JSON if possible and return the result
         try:
             response_json = await response.json()
         except ContentTypeError as exc:
             response_text = await response.text()
             if response_text == "User not logged in":
-
                 raise MasterthermTokenInvalid("1", response_text) from exc
             else:
                 _LOGGER.error("Mastertherm API some other error: %s", response_text)
@@ -321,17 +321,7 @@ class MasterthermAPI:
             )
 
             # Get the Modules as this now has moved to outside of the auth process
-            url = urljoin(URL_BASE_NEW, URL_MODULES_NEW)
-            response = await self.__session.get(
-                url, headers={"Authorization": f"Bearer {self.__token}"}
-            )
-
-            # Response shoudl always be 200 even for login failures
-            if response.status != 200:
-                error_msg = await response.text()
-                raise MasterthermConnectionError(str(response.status), error_msg)
-
-            response_json = await response.json()
+            response_json = await self.__get(url=URL_MODULES_NEW, params=None)
 
         # Next is same for old and new process, doing a double check just incase
         if response_json["returncode"] != 0:
@@ -393,7 +383,8 @@ class MasterthermAPI:
         Raises:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
-            MasterthermResponseFormatError - Some other issue, probably temporary"""
+            MasterthermResponseFormatError - Some other issue, probably temporary
+            MasterthermPumpDisconnected - Pump is unavailable, disconnected or offline."""
         params = f"moduleId={module_id}&deviceId={unit_id}&application=android&"
         if last_update_time is None:
             params = (
@@ -418,6 +409,12 @@ class MasterthermAPI:
                 params=params,
             )
 
+        # Check for Errors with the Pump.
+        error_id = response_json["error"]["errorId"]
+        if error_id != 0:
+            raise MasterthermPumpError(error_id, response_json["error"]["errorMessage"])
+
+        # No error process the response.
         if response_json["data"] != {}:
             data_file = ""
             if self.__api_version == "v1":

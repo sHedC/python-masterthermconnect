@@ -9,6 +9,7 @@ from masterthermconnect import (
     MasterthermAuthenticationError,
     MasterthermConnectionError,
     MasterthermEntryNotFound,
+    MasterthermPumpError,
 )
 from masterthermconnect.const import URL_BASE
 
@@ -147,6 +148,35 @@ async def test_pool_solar():
     assert info["country"] == "DE"
     assert data["heating_circuits"]["pool"]
     assert data["heating_circuits"]["solar"]
+
+
+async def test_operating_mode_idle():
+    """Test the Controller Operating Mode."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_api_connect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert len(mock_api_connect.mock_calls) > 0
+    assert len(mock_get_device_info.mock_calls) > 0
+    assert len(mock_get_device_data.mock_calls) > 0
+
+    data = controller.get_device_data("0524", "4")
+
+    assert data["operating_mode"] == "idle"
 
 
 async def test_operating_mode_heating():
@@ -504,7 +534,7 @@ async def test_cooling_feature():
 
 
 async def test_set_cooling_feature():
-    """Test t."""
+    """Test cooling feature setting."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
@@ -538,3 +568,64 @@ async def test_set_cooling_feature():
         await controller.set_device_data_item(
             "10021", "2", "control_curve_cooling.setpoint_a_outside", 20.2
         )
+
+
+async def test_pump_offline_connect():
+    """Test the Pump being offline on initial connect."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=MasterthermPumpError(
+            MasterthermPumpError.OFFLINE,
+            "Actual data for some variables are not available.",
+        ),
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert controller.get_device_data_item("1234", "1", "operating_mode") == "offline"
+
+
+async def test_pump_offline_update():
+    """Test the Pump being offline after connect on update."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=MasterthermPumpError(
+            MasterthermPumpError.OFFLINE,
+            "Actual data for some variables are not available.",
+        ),
+    ):
+        assert await controller.refresh(full_load=True)
+
+    assert controller.get_device_data_item("1234", "1", "operating_mode") == "offline"

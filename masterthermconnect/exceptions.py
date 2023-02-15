@@ -37,3 +37,10 @@ class MasterthermUnsupportedRole(MasterthermError):
 
 class MasterthermEntryNotFound(MasterthermError):
     """Raised when the data entry update requested is not found."""
+
+
+class MasterthermPumpError(MasterthermError):
+    """Raised if there is an Error retrieving data from the pump."""
+
+    DEVICENOTFOUND = 5
+    OFFLINE = 9

@@ -115,6 +115,32 @@ async def test_hcx_thermostat():
     assert data["heating_circuits"]["hc2"]["ambient_requested"] == 20.1
 
 
+async def test_hcx_loop_type():
+    """Test HCx Loop Type?"""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    # Verify Setup with HC1 and HC2
+    data = controller.get_device_data("1234", "1")
+    assert data["heating_circuits"]["hc1"]["loop_type"] == 3
+    assert data["heating_circuits"]["hc2"]["loop_type"] == 3
+
+
 async def test_set_ambient_requested():
     """Test HC1 Ambient Requested."""
     controller = MasterthermController(

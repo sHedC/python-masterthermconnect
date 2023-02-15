@@ -13,7 +13,7 @@ from .const import (
 )
 from .datamapread import DEVICE_READ_MAP, DEVICE_READ_HCMAP
 from .datamapwrite import DEVICE_WRITE_MAP
-from .exceptions import MasterthermEntryNotFound
+from .exceptions import MasterthermEntryNotFound, MasterthermPumpError
 from .special import Special
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
@@ -172,15 +172,15 @@ class MasterthermController:
 
     async def __get_hp_updates(self, full_load: bool = False) -> None:
         """Refresh data and information for all the devices, apply default restrictions to
-               the number of times a call can be made..
+        the number of times a call can be made..
 
-               Parameters:
-                   full_load: Optional Force a full load of the data, defaultis false
-        gd
-               Raises
-                   MasterthermConnectionError - Failed to Connect
-                   MasterthermAuthenticationError - Failed to Authenticate
-                   MasterthermUnsupportedRole - Role is not in supported roles"""
+        Parameters:
+            full_load: Optional Force a full load of the data, defaultis false
+
+        Raises
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermUnsupportedRole - Role is not in supported roles"""
         for device in self.__devices.values():
             module_id = device["info"]["module_id"]
             unit_id = device["info"]["unit_id"]
@@ -214,19 +214,27 @@ class MasterthermController:
                 or datetime.now()
                 >= last_data_update + timedelta(seconds=self.__data_update_seconds)
             ):
-                # Refresh Device Data.
-                device_data = await self.__api.get_device_data(
-                    module_id, unit_id, last_update_time=last_update_time
-                )
-                device["last_data_update"] = datetime.now()
+                try:
+                    # Refresh Device Data.
+                    device_data = await self.__api.get_device_data(
+                        module_id, unit_id, last_update_time=last_update_time
+                    )
+                    device["last_data_update"] = datetime.now()
+                    device["data"]["operating_mode"] = "online"
 
-                # Check that we have data, sometimes nothing is returned.
-                if device_data["data"]:
-                    device["last_update_time"] = device_data["timestamp"]
-                    device["api_update_data"] = device_data["data"]["varData"][
-                        str(unit_id).zfill(3)
-                    ].copy()
-                    device["api_full_data"].update(device["api_update_data"])
+                    # Check that we have data, sometimes nothing is returned.
+                    if device_data["data"]:
+                        device["last_update_time"] = device_data["timestamp"]
+                        device["api_update_data"] = device_data["data"]["varData"][
+                            str(unit_id).zfill(3)
+                        ].copy()
+                        device["api_full_data"].update(device["api_update_data"])
+
+                except MasterthermPumpError as mpe:
+                    if mpe.status == MasterthermPumpError.OFFLINE:
+                        device["data"]["operating_mode"] = "offline"
+                    else:
+                        raise MasterthermPumpError(mpe.status, mpe.message) from mpe
 
     async def connect(self, reload_modules: bool = False) -> bool:
         """Connect to the API, check the supported roles and update if required.
@@ -319,82 +327,66 @@ class MasterthermController:
             # Add some additional details to the info such as URL
             device["info"]["api_url"] = self.__api.get_url()
 
-            # Populate Device Data
-            device["data"] = self.__populate_data(
-                DEVICE_READ_MAP, device["api_full_data"]
-            )
-            data = device["data"]
+            if not device["data"]["operating_mode"] == "offline":
+                # Populate Device Data
+                device["data"] = self.__populate_data(
+                    DEVICE_READ_MAP, device["api_full_data"]
+                )
+                data = device["data"]
 
-            # Update Operating Mode
-            operating_mode = "heating"
-            if data["domestic_hot_water"]["heating"]:
-                operating_mode = "dhw"
-            elif data["heating_circuits"]["pool"]["heating"]:
-                operating_mode = "pool"
-            else:
-                error_info = data["error_info"]
-                if (
-                    error_info["some_error"]
-                    or error_info["three_errors"]
-                    or not data["aux_heater_1"]
-                ):
-                    if data["cooling_mode"]:
-                        if data["dewp_control"]:
-                            operating_mode = "dpc"
-                        else:
-                            operating_mode = "cooling"
+                # Check the Pad Names, if blank get them from the data
+                # Populate all data correctly.
+                for hc_id in range(0, 7):
+                    hc_key = HC_MAP[hc_id]["id"]
+                    hc_pad = HC_MAP[hc_id]["pad"]
 
-            device["data"]["operating_mode"] = operating_mode
+                    if device["api_info"][hc_pad] in ("", "0"):
+                        device["info"][hc_pad] = self.__get_hc_name(hc_id, device_id)
 
-            # Check the Pad Names, if blank get them from the data
-            # Populate all data correctly.
-            for hc_id in range(0, 7):
-                hc_key = HC_MAP[hc_id]["id"]
-                hc_pad = HC_MAP[hc_id]["pad"]
+                    if device["info"][hc_pad] in ("", "0"):
+                        device["info"][hc_pad] = HC_MAP[hc_id]["default"]
 
-                if device["api_info"][hc_pad] in ("", "0"):
-                    device["info"][hc_pad] = self.__get_hc_name(hc_id, device_id)
+                    device["data"]["heating_circuits"][hc_key]["name"] = device["info"][
+                        hc_pad
+                    ]
 
-                if device["info"][hc_pad] in ("", "0"):
-                    device["info"][hc_pad] = HC_MAP[hc_id]["default"]
+                # Disable certain fields if Cooling Mode is disabled
+                cooling_disabled = not device["info"]["cooling"] == "1"
+                if cooling_disabled:
+                    device["data"].pop("hp_function")
+                    device["data"].pop("control_curve_cooling")
 
-                device["data"]["heating_circuits"][hc_key]["name"] = device["info"][
-                    hc_pad
+                # Set if circuits are enabled or not, remove circuts that
+                # are not enabled.
+                hc_enabled_result = self.__hc_enabled(device_id)
+                hc_circuits: dict = self.__devices[device_id]["data"][
+                    "heating_circuits"
                 ]
+                for hc_id, hc_enabled in hc_enabled_result.items():
+                    if not hc_enabled:
+                        hc_circuits.pop(hc_id)
+                    else:
+                        hc_circuits[hc_id]["enabled"] = hc_enabled
+                        if not hc_circuits[hc_id]["pad"]["enabled"]:
+                            hc_circuits[hc_id].pop("pad")
 
-            # Disable certain fields if Cooling Mode is disabled
-            cooling_disabled = not device["info"]["cooling"] == "1"
-            if cooling_disabled:
-                device["data"].pop("hp_function")
-                device["data"].pop("control_curve_cooling")
+                        if (
+                            cooling_disabled
+                            and "control_curve_cooling" in hc_circuits[hc_id]
+                        ):
+                            hc_circuits[hc_id].pop("control_curve_cooling")
 
-            # Set if circuits are enabled or not, remove circuts that
-            # are not enabled.
-            hc_enabled_result = self.__hc_enabled(device_id)
-            hc_circuits: dict = self.__devices[device_id]["data"]["heating_circuits"]
-            for hc_id, hc_enabled in hc_enabled_result.items():
-                if not hc_enabled:
-                    hc_circuits.pop(hc_id)
-                else:
-                    hc_circuits[hc_id]["enabled"] = hc_enabled
-                    if not hc_circuits[hc_id]["pad"]["enabled"]:
-                        hc_circuits[hc_id].pop("pad")
+                # Check if the Pool and Solar are enabled
+                if not hc_circuits["solar"]["enabled"]:
+                    hc_circuits.pop("solar")
+                if not hc_circuits["pool"]["enabled"]:
+                    hc_circuits.pop("pool")
 
-                    if (
-                        cooling_disabled
-                        and "control_curve_cooling" in hc_circuits[hc_id]
-                    ):
-                        hc_circuits[hc_id].pop("control_curve_cooling")
-
-            # Check if the Pool and Solar are enabled
-            if not hc_circuits["solar"]["enabled"]:
-                hc_circuits.pop("solar")
-            if not hc_circuits["pool"]["enabled"]:
-                hc_circuits.pop("pool")
-
-            # Remove the Domestic Hot Water if the feature is disabled.
-            if not self.__devices[device_id]["data"]["domestic_hot_water"]["enabled"]:
-                self.__devices[device_id]["data"].pop("domestic_hot_water")
+                # Remove the Domestic Hot Water if the feature is disabled.
+                if not self.__devices[device_id]["data"]["domestic_hot_water"][
+                    "enabled"
+                ]:
+                    self.__devices[device_id]["data"].pop("domestic_hot_water")
 
         return True
 

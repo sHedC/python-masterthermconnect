@@ -278,9 +278,33 @@ DEVICE_READ_MAP = {
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
     "operating_mode": [
-        Special(str, Special.FIXED),
-        "heating",
-    ],  # heating, cooling, pool, dhw, dpc
+        Special(str, Special.FORMULA),
+        [
+            (
+                "'dhw' if {0} else "
+                "'pool' if {1} else "
+                "'aux_heater' if not ({2} or {3}) and ({4} or {5}) else "
+                "'dpc' if {6} else "
+                "'cooling' if {7} else "
+                "'heating' if {8} or {9} or {10} or {11} else "
+                "'idle'"
+            ),
+            [
+                [bool, "D_66"],  # 0 - domestic hot water
+                [bool, "D_43"],  # 1 - pool
+                [bool, "D_20"],  # 2 - some_error
+                [bool, "D_21"],  # 3 - three_errors
+                [bool, "D_6"],  # 4 - aux heater 1
+                [bool, "D_7"],  # 5 - aux heater 2
+                [bool, "D_196"],  # 6 - Dew Point
+                [bool, "D_4"],  # 7 - Cooling Mode
+                [bool, "D_5"],  # 8 - Compressor 1
+                [bool, "D_32"],  # 9 - Compressor 2
+                [bool, "D_10"],  # 10 - Ciculation
+                [bool, "D_8"],  # 11 - Fan
+            ],
+        ],
+    ],
     "season": {
         "mode": [
             Special(str, Special.FORMULA),
@@ -349,8 +373,8 @@ DEVICE_READ_MAP = {
         "aux2_runtime": [int, "I_101"],
     },
     "error_info": {
-        "some_error": [bool, "D_20"],
-        "three_errors": [bool, "D_21"],
+        "some_error": [bool, "D_20"],  # Some Alarm has activated
+        "three_errors": [bool, "D_21"],  # 3 error conditions met, manual reset required
         "reset_3e": [bool, "D_19"],
         "safety_tstat": [bool, "D_77"],
         "alarm_a": [int, "I_20"],

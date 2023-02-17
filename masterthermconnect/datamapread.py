@@ -90,6 +90,7 @@ DEVICE_READ_HCMAP = {
         "loop_type": [int, "I_65"],
         "pad": {
             "enabled": [bool, "D_248"],
+            "state": [bool, "I_6"],
             "current_humidity": [float, "I_220"],
         },
         "control_curve_heating": {
@@ -128,6 +129,7 @@ DEVICE_READ_HCMAP = {
         "loop_type": [int, "I_68"],
         "pad": {
             "enabled": [bool, "D_251"],
+            "state": [int, "I_227"],
             "current_humidity": [float, "I_221"],
         },
         "control_curve_heating": {
@@ -167,6 +169,7 @@ DEVICE_READ_HCMAP = {
         "loop_type": [int, "I_69"],
         "pad": {
             "enabled": [bool, "D_254"],
+            "state": [int, "I_230"],
             "current_humidity": [float, "I_222"],
         },
         "control_curve_heating": {
@@ -205,6 +208,7 @@ DEVICE_READ_HCMAP = {
         "loop_type": [int, "I_285"],
         "pad": {
             "enabled": [bool, "D_257"],
+            "state": [int, "I_239"],
             "current_humidity": [float, "I_223"],
         },
         "control_curve_heating": {
@@ -244,6 +248,7 @@ DEVICE_READ_HCMAP = {
         "loop_type": [int, "I_290"],
         "pad": {
             "enabled": [bool, "D_259"],
+            "state": [int, "I_210"],
             "current_humidity": [float, "I_224"],
         },
         "control_curve_heating": {

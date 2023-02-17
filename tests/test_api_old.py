@@ -1,4 +1,5 @@
 """Test the API Client."""
+import asyncio
 import json
 
 from datetime import datetime, timedelta
@@ -15,6 +16,8 @@ from masterthermconnect import (
     MasterthermConnectionError,
     MasterthermTokenInvalid,
     MasterthermPumpError,
+    MasterthermUnsupportedVersion,
+    MasterthermResponseFormatError,
 )
 from masterthermconnect.api import MasterthermAPI
 from masterthermconnect.const import (
@@ -41,17 +44,22 @@ class APITestCase(AioHTTPTestCase):
 
         async def _connect_response(request: Request):
             """Check the Test Login Credentials and return login connect or failure."""
-            self.data = None
-            self.info = None
-
             data = await request.post()
             password = sha1(VALID_LOGIN["upwd"].encode("utf-8")).hexdigest()
+
+            if self.error_type == "ClientConnectionError":
+                return None
+
             if data["uname"] == VALID_LOGIN["uname"] and data["upwd"] == password:
                 response_text = load_fixture("login_success.json")
             else:
                 response_text = load_fixture("login_invalid.json")
 
-            token_expires = datetime.now() + timedelta(seconds=60)
+            if self.error_type == "token_expire":
+                token_expires = datetime.now() + timedelta(seconds=0)
+            else:
+                token_expires = datetime.now() + timedelta(seconds=60)
+
             response = web.Response(
                 text=response_text,
                 content_type="application/json",
@@ -69,9 +77,14 @@ class APITestCase(AioHTTPTestCase):
             data = await request.post()
             content_type = "application/json"
 
-            if self.error_type == "login":
+            if self.error_type == "ClientConnectionError":
+                return None
+
+            if self.error_type.startswith("login"):
                 response_text = GENERAL_ERROR_RESPONSE
                 content_type = "text/plain"
+                if self.error_type == "login_once":
+                    self.error_type = ""
             elif self.info is None:
                 module_id = data["moduleid"]
                 unit_id = data["unitid"]
@@ -95,9 +108,19 @@ class APITestCase(AioHTTPTestCase):
             unit_id = data["deviceId"]
             last_update_time = data["lastUpdateTime"]
 
-            if self.error_type == "login":
+            if self.error_type == "ClientConnectionError":
+                return None
+
+            if self.error_type == "content_error":
+                response_text = "content error"
+                content_type = "text/plain"
+            elif self.error_type == "json_error":
+                response_text = "json error"
+            elif self.error_type.startswith("login"):
                 response_text = GENERAL_ERROR_RESPONSE
                 content_type = "text/plain"
+                if self.error_type == "login_once":
+                    self.error_type = ""
             elif self.error_type == "unavailable":
                 response_text = load_fixture("pumpdata_unavailable.json")
             elif self.data is None or last_update_time != "0":
@@ -109,7 +132,7 @@ class APITestCase(AioHTTPTestCase):
 
             if response_text is None:
                 response_text = load_fixture("pumpdata_invalid.json")
-            else:
+            elif content_type == "application/json" and self.error_type != "json_error":
                 self.data = json.loads(response_text)
 
             response = web.Response(text=response_text, content_type=content_type)
@@ -124,15 +147,21 @@ class APITestCase(AioHTTPTestCase):
             variable_id = data["variableId"]
             variable_value = data["variableValue"]
 
-            response_text = load_fixture("pumpwrite_success.json")
-            if "varfile_mt1_config1" in self.data["data"]:
-                self.data["data"]["varfile_mt1_config1"][unit_id][
-                    variable_id
-                ] = variable_value
+            if self.error_type.startswith("login"):
+                response_text = GENERAL_ERROR_RESPONSE
+                content_type = "text/plain"
+                if self.error_type == "login_once":
+                    self.error_type = ""
             else:
-                self.data["data"]["varfile_mt1_config2"][unit_id][
-                    variable_id
-                ] = variable_value
+                response_text = load_fixture("pumpwrite_success.json")
+                if "varfile_mt1_config1" in self.data["data"]:
+                    self.data["data"]["varfile_mt1_config1"][unit_id][
+                        variable_id
+                    ] = variable_value
+                else:
+                    self.data["data"]["varfile_mt1_config2"][unit_id][
+                        variable_id
+                    ] = variable_value
 
             response = web.Response(text=response_text, content_type=content_type)
             return response
@@ -174,8 +203,8 @@ class APITestCase(AioHTTPTestCase):
         with pytest.raises(MasterthermAuthenticationError):
             await api.connect()
 
-    async def test_connecterror(self):
-        """Test the Connection Invalid Error."""
+    async def test_connect_unavailabe(self):
+        """Test the Connection unavailable or invalid."""
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
@@ -310,3 +339,79 @@ class APITestCase(AioHTTPTestCase):
         # Re-Read to check the update is correct.
         data = await api.get_device_data("1234", "1")
         assert data["data"]["varData"]["001"]["D_3"] == "0"
+
+    async def test_unsupported_version(self):
+        """Test exception for unsupported version."""
+        with pytest.raises(MasterthermUnsupportedVersion):
+            MasterthermAPI("1234", "1", self.client, api_version="v10")
+
+    async def test_expired_token(self):
+        """Test for an expired token and re-connect."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        self.error_type = "token_expire"
+        assert await api.connect() is not {}
+
+        assert await api.get_device_info("1234", "1")
+        assert await api.get_device_data("1234", "1")
+        assert await api.set_device_data("1234", "1", "D_3", "0")
+
+    async def test_invalid_token(self):
+        """Test for an invalid token and re-try."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect() is not {}
+
+        assert await api.get_device_info("1234", "1")
+
+    async def test_client_connection_error(self):
+        """Test for Client Connection Errors, such as timeout."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect()
+        assert await api.get_device_info("1234", "1")
+
+        self.error_type = "ClientConnectionError"
+        with pytest.raises(MasterthermConnectionError):
+            await api.connect()
+
+        with pytest.raises(MasterthermConnectionError):
+            await api.get_device_info("1234", "1")
+
+        with pytest.raises(MasterthermConnectionError):
+            await api.set_device_data("1234", "1", "D_3", "0")
+
+    async def test_response_errors(self):
+        """Test response format and content errors."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect()
+        assert await api.get_device_info("1234", "1")
+
+        self.error_type = "content_error"
+        with pytest.raises(MasterthermConnectionError):
+            await api.get_device_data("1234", "1")
+
+        self.error_type = "json_error"
+        with pytest.raises(MasterthermResponseFormatError):
+            await api.get_device_data("1234", "1")
+
+    async def test_fail_with_retry(self):
+        """Test token error with a retry."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect()
+
+        self.error_type = "login_once"
+        assert await api.get_device_info("1234", "1")
+
+        self.error_type = "login_once"
+        assert await api.get_device_data("1234", "1")
+
+        self.error_type = "login_once"
+        await api.set_device_data("1234", "1", "D_3", "0")

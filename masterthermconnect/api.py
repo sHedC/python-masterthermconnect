@@ -130,46 +130,11 @@ class MasterthermAPI:
                         "Connection": "close",
                     },
                 )
+
+            response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
-
-        # Version 2 responds with an error and json.
-        # We should only get something other than 200 if the servers are down.
-        if response.status != 200:
-            try:
-                response_json = await response.json()
-            except JSONDecodeError as ex:
-                response_text = await response.text()
-                _LOGGER.error(
-                    "JSON Decode Error: %s:%s",
-                    str(response.status),
-                    response_text,
-                )
-                raise MasterthermConnectionError(
-                    str(response.status), response_text
-                ) from ex
-            except ContentTypeError as ex:
-                response_text = await response.text()
-                _LOGGER.error(
-                    "Mastertherm API Connection Error %s:%s",
-                    str(response.status),
-                    response_text,
-                )
-                raise MasterthermConnectionError(
-                    str(response.status), response_text
-                ) from ex
-
-            # Deal with the v2 error if we have a response
-            if response_json["status"]["id"] == 401:
-                raise MasterthermTokenInvalid(response.status, response_json)
-            else:
-                _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                raise MasterthermResponseFormatError(response.status, response_json)
-
-        # Convert to JSON if possible and return the result
-        try:
-            response_json = await response.json()
         except JSONDecodeError as ex:
             response_text = await response.text()
             _LOGGER.error(
@@ -188,9 +153,17 @@ class MasterthermAPI:
                     response.status,
                     response_text,
                 )
-                raise MasterthermResponseFormatError(
-                    response.status, response_text
-                ) from ex
+                raise MasterthermConnectionError(response.status, response_text) from ex
+
+        # Version 2 responds with an error and json.
+        # We should only get something other than 200 if the servers are down.
+        if response.status != 200:
+            # Deal with the v2 error if we have a response
+            if response_json["status"]["id"] == 401:
+                raise MasterthermTokenInvalid(response.status, response_json)
+            else:
+                _LOGGER.error("Mastertherm API some other error: %s", response_json)
+                raise MasterthermResponseFormatError(response.status, response_json)
 
         return response_json
 
@@ -219,46 +192,11 @@ class MasterthermAPI:
                         "Connection": "close",
                     },
                 )
+
+            response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
-
-        # Version 2 responds with an error and json.
-        # We should only get something other than 200 if the servers are down.
-        if response.status != 200:
-            try:
-                response_json = await response.json()
-            except JSONDecodeError as ex:
-                response_text = await response.text()
-                _LOGGER.error(
-                    "JSON Decode Error: %s:%s",
-                    str(response.status),
-                    response_text,
-                )
-                raise MasterthermConnectionError(
-                    str(response.status), response_text
-                ) from ex
-            except ContentTypeError as ex:
-                response_text = await response.text()
-                _LOGGER.error(
-                    "Mastertherm API Connection Error %s:%s",
-                    str(response.status),
-                    response_text,
-                )
-                raise MasterthermConnectionError(
-                    str(response.status), response_text
-                ) from ex
-
-            # Deal with the v2 error if we have a response
-            if response_json["status"]["id"] == 401:
-                raise MasterthermTokenInvalid(response.status, response_json)
-            else:
-                _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                raise MasterthermResponseFormatError(response.status, response_json)
-
-        # Convert to JSON if possible and return the result
-        try:
-            response_json = await response.json()
         except JSONDecodeError as ex:
             response_text = await response.text()
             _LOGGER.error(
@@ -277,9 +215,16 @@ class MasterthermAPI:
                     response.status,
                     response_text,
                 )
-                raise MasterthermResponseFormatError(
-                    response.status, response_text
-                ) from ex
+                raise MasterthermConnectionError(response.status, response_text) from ex
+
+        # Version 2 responds with an error and json.
+        if response.status != 200:
+            # Deal with the v2 error if we have a response
+            if response_json["status"]["id"] == 401:
+                raise MasterthermTokenInvalid(response.status, response_json)
+            else:
+                _LOGGER.error("Mastertherm API some other error: %s", response_json)
+                raise MasterthermResponseFormatError(response.status, response_json)
 
         return response_json
 

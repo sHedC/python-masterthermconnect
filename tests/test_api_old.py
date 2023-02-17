@@ -393,7 +393,7 @@ class APITestCase(AioHTTPTestCase):
         assert await api.get_device_info("1234", "1")
 
         self.error_type = "content_error"
-        with pytest.raises(MasterthermResponseFormatError):
+        with pytest.raises(MasterthermConnectionError):
             await api.get_device_data("1234", "1")
 
         self.error_type = "json_error"

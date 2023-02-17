@@ -1,4 +1,5 @@
 """Mastertherm API Client Class, handle integration."""
+import asyncio
 import logging
 import time
 
@@ -161,10 +162,10 @@ class MasterthermAPI:
 
             # Deal with the v2 error if we have a response
             if response_json["status"]["id"] == 401:
-                raise MasterthermTokenInvalid("1", response_json)
+                raise MasterthermTokenInvalid(response.status, response_json)
             else:
                 _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                raise MasterthermResponseFormatError("2", response_json)
+                raise MasterthermResponseFormatError(response.status, response_json)
 
         # Convert to JSON if possible and return the result
         try:
@@ -250,10 +251,10 @@ class MasterthermAPI:
 
             # Deal with the v2 error if we have a response
             if response_json["status"]["id"] == 401:
-                raise MasterthermTokenInvalid("1", response_json)
+                raise MasterthermTokenInvalid(response.status, response_json)
             else:
                 _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                raise MasterthermResponseFormatError("2", response_json)
+                raise MasterthermResponseFormatError(response.status, response_json)
 
         # Convert to JSON if possible and return the result
         try:
@@ -403,6 +404,7 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
+            asyncio.sleep(0.1)
             self.__expires = None
             response_json = await self.__get(
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
@@ -447,6 +449,7 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
+            asyncio.sleep(0.1)
             self.__expires = None
             response_json = await self.__get(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
@@ -508,9 +511,12 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
+            asyncio.sleep(0.1)
             self.__expires = None
             response_json = await self.__post(
-                url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
+                url=URL_POSTUPDATE
+                if self.__api_version == "v1"
+                else URL_POSTUPDATE_NEW,
                 params=params,
             )
 

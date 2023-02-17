@@ -336,17 +336,23 @@ class APITestCase(AioHTTPTestCase):
         with pytest.raises(MasterthermUnsupportedVersion):
             MasterthermAPI("1234", "1", self.client, api_version="v10")
 
-    async def test_expired_token(self):
+    async def test_get_info_token_invalid(self):
         """Test for an expired token and re-connect."""
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
         self.error_type = "token_expire"
         assert await api.connect() is not {}
-
         assert await api.get_device_info("1234", "1")
+
+    async def test_get_data_token_invalid(self):
+        """Test for an expired token and re-connect."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        self.error_type = "token_expire"
+        assert await api.connect() is not {}
         assert await api.get_device_data("1234", "1")
-        assert await api.set_device_data("1234", "1", "D_3", "0")
 
     async def test_set_token_invalid(self):
         """Test for an expired token and re-connect in set_data."""

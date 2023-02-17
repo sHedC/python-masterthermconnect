@@ -101,15 +101,12 @@ class MasterthermAPI:
             if self.__expires <= datetime.now():
                 return True
 
-        if self.__expires <= datetime.now():
-            return True
-
         return False
 
     async def __post(self, url: str, params: str) -> dict:
         """Push updates to the API."""
         if await self.__token_expired():
-            await self.connect()
+            await self.__connect_refresh()
 
         try:
             if self.__api_version == "v1":
@@ -135,22 +132,22 @@ class MasterthermAPI:
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
-        except JSONDecodeError as ex:
-            _LOGGER.error("JSON Decode Error: %s", ex)
-            raise MasterthermConnectionError("3", "JSON Decode Error") from ex
 
         # Version 2 responds with an error and json.
         # We should only get something other than 200 if the servers are down.
         if response.status != 200:
             try:
                 response_json = await response.json()
-
-                # Deal with the v2 error if we have a response
-                if response_json["status"]["id"] == 401:
-                    raise MasterthermTokenInvalid("1", response_json)
-                else:
-                    _LOGGER.error("Mastertherm API some other error: %s", response_json)
-                    raise MasterthermResponseFormatError("2", response_json)
+            except JSONDecodeError as ex:
+                response_text = await response.text()
+                _LOGGER.error(
+                    "JSON Decode Error: %s:%s",
+                    str(response.status),
+                    response_text,
+                )
+                raise MasterthermConnectionError(
+                    str(response.status), response_text
+                ) from ex
             except ContentTypeError as ex:
                 response_text = await response.text()
                 _LOGGER.error(
@@ -162,24 +159,44 @@ class MasterthermAPI:
                     str(response.status), response_text
                 ) from ex
 
+            # Deal with the v2 error if we have a response
+            if response_json["status"]["id"] == 401:
+                raise MasterthermTokenInvalid("1", response_json)
+            else:
+                _LOGGER.error("Mastertherm API some other error: %s", response_json)
+                raise MasterthermResponseFormatError("2", response_json)
+
         # Convert to JSON if possible and return the result
         try:
             response_json = await response.json()
-        except ContentTypeError as exc:
+        except JSONDecodeError as ex:
+            response_text = await response.text()
+            _LOGGER.error(
+                "JSON Decode Error: %s:%s",
+                response.status,
+                response_text,
+            )
+            raise MasterthermResponseFormatError(response.status, response_text) from ex
+        except ContentTypeError as ex:
             response_text = await response.text()
             if response_text == "User not logged in":
-
-                raise MasterthermTokenInvalid("1", response_text) from exc
+                raise MasterthermTokenInvalid(response.status, response_text) from ex
             else:
-                _LOGGER.error("Mastertherm API some other error: %s", response_text)
-                raise MasterthermResponseFormatError("2", response_text) from exc
+                _LOGGER.error(
+                    "Mastertherm API some other error: %s:%s",
+                    response.status,
+                    response_text,
+                )
+                raise MasterthermResponseFormatError(
+                    response.status, response_text
+                ) from ex
 
         return response_json
 
     async def __get(self, url: str, params: str) -> dict:
         """Get updates from the API, for old this mostly uses Post."""
         if await self.__token_expired():
-            await self.connect()
+            await self.__connect_refresh()
 
         try:
             if self.__api_version == "v1":
@@ -204,15 +221,22 @@ class MasterthermAPI:
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
-        except JSONDecodeError as ex:
-            _LOGGER.error("JSON Decode Error: %s", ex)
-            raise MasterthermConnectionError("3", "JSON Decode Error") from ex
 
         # Version 2 responds with an error and json.
         # We should only get something other than 200 if the servers are down.
         if response.status != 200:
             try:
                 response_json = await response.json()
+            except JSONDecodeError as ex:
+                response_text = await response.text()
+                _LOGGER.error(
+                    "JSON Decode Error: %s:%s",
+                    str(response.status),
+                    response_text,
+                )
+                raise MasterthermConnectionError(
+                    str(response.status), response_text
+                ) from ex
             except ContentTypeError as ex:
                 response_text = await response.text()
                 _LOGGER.error(
@@ -234,36 +258,32 @@ class MasterthermAPI:
         # Convert to JSON if possible and return the result
         try:
             response_json = await response.json()
-        except ContentTypeError as exc:
+        except JSONDecodeError as ex:
+            response_text = await response.text()
+            _LOGGER.error(
+                "JSON Decode Error: %s:%s",
+                response.status,
+                response_text,
+            )
+            raise MasterthermResponseFormatError(response.status, response_text) from ex
+        except ContentTypeError as ex:
             response_text = await response.text()
             if response_text == "User not logged in":
-                raise MasterthermTokenInvalid("1", response_text) from exc
+                raise MasterthermTokenInvalid(response.status, response_text) from ex
             else:
-                _LOGGER.error("Mastertherm API some other error: %s", response_text)
-                raise MasterthermResponseFormatError("2", response_text) from exc
+                _LOGGER.error(
+                    "Mastertherm API some other error: %s:%s",
+                    response.status,
+                    response_text,
+                )
+                raise MasterthermResponseFormatError(
+                    response.status, response_text
+                ) from ex
 
         return response_json
 
-    def get_url(self) -> str:
-        """Return the API URL Used.
-
-        Returns:
-            URL(str): The API URL for the version."""
-        if self.__api_version == "v1":
-            return URL_BASE
-        else:
-            return URL_BASE_NEW
-
-    async def connect(self) -> dict:
-        """Perform the connection to the Mastertherm API Server:
-
-        Returns:
-             devices (dict): Return the list of devices, modules and units.
-
-        Raises:
-            MasterthermConnectionError - Failed to Connect
-            MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles"""
+    async def __connect_refresh(self) -> dict:
+        """Perform the Connect only or refresh token."""
         # Connect based on requirements
         if self.__api_version == "v1":
             # Clear out cookies, clears the auth token.
@@ -320,6 +340,30 @@ class MasterthermAPI:
                 seconds=response_json["expires_in"]
             )
 
+        return response_json
+
+    def get_url(self) -> str:
+        """Return the API URL Used.
+
+        Returns:
+            URL(str): The API URL for the version."""
+        if self.__api_version == "v1":
+            return URL_BASE
+        else:
+            return URL_BASE_NEW
+
+    async def connect(self) -> dict:
+        """Perform the connection to the Mastertherm API Server:
+
+        Returns:
+             devices (dict): Return the list of devices, modules and units.
+
+        Raises:
+            MasterthermConnectionError - Failed to Connect
+            MasterthermAuthenticationError - Failed to Authenticate
+            MasterthermUnsupportedRole - Role is not in supported roles"""
+        response_json = await self.__connect_refresh()
+        if self.__api_version == "v2":
             # Get the Modules as this now has moved to outside of the auth process
             response_json = await self.__get(url=URL_MODULES_NEW, params=None)
 
@@ -465,7 +509,7 @@ class MasterthermAPI:
             )
         except MasterthermTokenInvalid:
             self.__expires = None
-            response_json = await self.__get(
+            response_json = await self.__post(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
                 params=params,
             )

@@ -351,8 +351,9 @@ DEVICE_READ_MAP = {
         "outside_max": [float, "A_308"],
     },
     "domestic_hot_water": {
-        "heating": [bool, "D_66"],
         "enabled": [bool, "D_275"],
+        "state": [bool, "D_29"],
+        "heating": [bool, "D_66"],
         "current_temp": [float, "A_126"],
         "required_temp": [float, "A_129"],
         "min_temp": [float, "A_296"],

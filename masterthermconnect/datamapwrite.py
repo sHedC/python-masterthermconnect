@@ -190,6 +190,7 @@ DEVICE_WRITE_MAP = {
         "setpoint_b_requested": [float, "A_50"],
     },
     "domestic_hot_water": {
+        "state": [bool, "D_29"],
         "required_temp": [float, "A_129"],  # Range min_temp to max_temp
     },
     "heating_circuits": DEVICE_WRITE_HCMAP,

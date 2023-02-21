@@ -15,6 +15,7 @@ from .datamapread import DEVICE_READ_MAP, DEVICE_READ_HCMAP
 from .datamapwrite import DEVICE_WRITE_MAP
 from .exceptions import MasterthermEntryNotFound, MasterthermPumpError
 from .special import Special
+from .__version__ import __version__
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -326,13 +327,13 @@ class MasterthermController:
 
             # Add some additional details to the info such as URL
             device["info"]["api_url"] = self.__api.get_url()
+            device["info"]["version"] = __version__
 
             if not device["data"]["operating_mode"] == "offline":
                 # Populate Device Data
                 device["data"] = self.__populate_data(
                     DEVICE_READ_MAP, device["api_full_data"]
                 )
-                data = device["data"]
 
                 # Check the Pad Names, if blank get them from the data
                 # Populate all data correctly.
@@ -500,8 +501,6 @@ class MasterthermController:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermEntryNotFound - Entry is not valid."""
-        # TODO: Add some controls on the values that can be set as some should be restricted.
-
         # Split the entry into its components and find the mapping and data type.
         # Check if in both read and write map, if not in both stop.
         write_map = DEVICE_WRITE_MAP

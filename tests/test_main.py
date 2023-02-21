@@ -114,3 +114,82 @@ def test_set_v1(capsys):
     assert return_code == 0
     assert err == ""
     assert out == "Data after Update: heating_circuits.hc1.ambient_requested = 50.1\n"
+
+
+def test_set_power(capsys):
+    """Test the Set devices for power state."""
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        return_code = MasterthermConnect(
+            [
+                "set",
+                "--user",
+                VALID_LOGIN["uname"],
+                "--password",
+                VALID_LOGIN["upwd"],
+                "data",
+                "1234",
+                "1",
+                "hp_power_state",
+                "false",
+            ]
+        )
+
+        out, err = capsys.readouterr()
+
+    assert return_code == 0
+    assert err == ""
+    assert out == "Data after Update: hp_power_state = False\n"
+
+
+def test_set_reg(capsys):
+    """Test the Set device registry."""
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.set_device_data",
+        side_effect=mockconnect.set_device_data,
+    ):
+        return_code = MasterthermConnect(
+            [
+                "set",
+                "--user",
+                VALID_LOGIN["uname"],
+                "--password",
+                VALID_LOGIN["upwd"],
+                "reg",
+                "--force",
+                "1234",
+                "1",
+                "D_3",
+                "1",
+            ]
+        )
+
+        out, err = capsys.readouterr()
+
+    assert return_code == 0
+    assert err == ""
+    assert out == "Registration after Update: D_3 = 1\n"

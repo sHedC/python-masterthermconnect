@@ -12,13 +12,7 @@ from aiohttp import ClientSession
 from masterthermconnect.__version__ import __version__
 from masterthermconnect.api import MasterthermAPI
 from masterthermconnect.controller import MasterthermController
-from masterthermconnect.exceptions import (
-    MasterthermAuthenticationError,
-    MasterthermConnectionError,
-    MasterthermUnsupportedRole,
-    MasterthermEntryNotFound,
-    MasterthermError,
-)
+from masterthermconnect.exceptions import MasterthermError
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
@@ -153,6 +147,7 @@ def get_arguments(argv) -> argparse.Namespace:
         help="Registers for a specific device, e.g. reg 1234 1 D_3 0",
     )
     parser_setreg.set_defaults(subcommand="reg")
+    parser_setreg.add_argument("--force", action="store_true", help="Force Update.")
     parser_setreg.add_argument("module_id", type=str, help="Module ID e.g. 1234")
     parser_setreg.add_argument("unit_id", type=str, help="Unit Id e.g. 1")
     parser_setreg.add_argument("reg", type=str, help="Register to Set")
@@ -197,20 +192,12 @@ async def connect(
         await controller.connect()
         if refresh:
             await controller.refresh()
-
-        return controller
-    except MasterthermConnectionError as mte:
-        _LOGGER.error("Connection Failed %s", mte.message)
-    except MasterthermAuthenticationError as mte:
-        _LOGGER.error("Authentication Failed %s", mte.message)
-    except MasterthermUnsupportedRole as mte:
-        _LOGGER.error("Unsupported Role %s", mte.message)
     except MasterthermError as mte:
-        _LOGGER.error("Other Error %s", mte.message)
+        _LOGGER.error("Error %s", mte.message)
     finally:
         await session.close()
 
-    return None
+    return controller
 
 
 async def set_reg(
@@ -229,26 +216,19 @@ async def set_reg(
     try:
         api = MasterthermAPI(username, password, session, api_version=api_version)
         await api.connect()
+        await api.get_device_data(module_id, unit_id)
 
         success = await api.set_device_data(module_id, unit_id, register, value)
         if success:
             data = await api.get_device_data(module_id, unit_id)
             print(
-                "Registration after Update: %s = %s",
-                register,
-                data["data"]["varData"][unit_id.zfill(3)][register],
+                f"Registration after Update: "
+                f"{register} = {data['data']['varData'][unit_id.zfill(3)][register]}"
             )
         else:
             _LOGGER.error("Failed to Set the Device Registry.")
-
-    except MasterthermConnectionError as mte:
-        _LOGGER.error("Connection Failed %s", mte.message)
-    except MasterthermAuthenticationError as mte:
-        _LOGGER.error("Authentication Failed %s", mte.message)
-    except MasterthermUnsupportedRole as mte:
-        _LOGGER.error("Unsupported Role %s", mte.message)
     except MasterthermError as mte:
-        _LOGGER.error("Other Error %s", mte.message)
+        _LOGGER.error("Error %s", mte.message)
     finally:
         await session.close()
 
@@ -283,17 +263,8 @@ async def set_data(
             print(f"Data after Update: {data} = {updated_item}")
         else:
             _LOGGER.error("Failed to Set the Device Data.")
-
-    except MasterthermConnectionError as mte:
-        _LOGGER.error("Connection Failed %s", mte.message)
-    except MasterthermAuthenticationError as mte:
-        _LOGGER.error("Authentication Failed %s", mte.message)
-    except MasterthermUnsupportedRole as mte:
-        _LOGGER.error("Unsupported Role %s", mte.message)
-    except MasterthermEntryNotFound as mte:
-        _LOGGER.error("Entry not Found, Update Failed %s", mte.message)
     except MasterthermError as mte:
-        _LOGGER.error("Other Error %s", mte.message)
+        _LOGGER.error("Error %s", mte.message)
     finally:
         await session.close()
 
@@ -303,14 +274,18 @@ async def set_data(
 async def set_command(login_user: str, login_pass: str, args) -> int:
     """Set Command to set data/registry."""
     if args.subcommand == "reg":
-        if (
-            input(
-                "Setting untested registry setitngs can break your system. "
-                "Using this feature is entirely at your risk. "
-                "Type Yes to Continue: "
+        force = args.force
+        if not force:
+            force = (
+                input(
+                    "Setting untested registry setitngs can break your system. "
+                    "Using this feature is entirely at your risk. "
+                    "Type Yes to Continue: "
+                )
+                == "Yes"
             )
-            == "Yes"
-        ):
+
+        if force:
             if not await set_reg(
                 login_user,
                 login_pass,

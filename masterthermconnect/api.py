@@ -349,7 +349,7 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
-            asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
             self.__expires = None
             response_json = await self.__get(
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
@@ -394,7 +394,7 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
-            asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
             self.__expires = None
             response_json = await self.__get(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
@@ -456,7 +456,7 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid:
-            asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
             self.__expires = None
             response_json = await self.__post(
                 url=URL_POSTUPDATE

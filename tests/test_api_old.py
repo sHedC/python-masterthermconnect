@@ -1,5 +1,4 @@
 """Test the API Client."""
-import asyncio
 import json
 
 from datetime import datetime, timedelta
@@ -152,6 +151,9 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
                 if self.error_type == "login_once":
                     self.error_type = ""
+            elif self.error_type == "write_error":
+                response_text = load_fixture("pumpwrite_error.json")
+                self.error_type = ""
             else:
                 response_text = load_fixture("pumpwrite_success.json")
                 if "varfile_mt1_config1" in self.data["data"]:
@@ -339,6 +341,25 @@ class APITestCase(AioHTTPTestCase):
         # Re-Read to check the update is correct.
         data = await api.get_device_data("1234", "1")
         assert data["data"]["varData"]["001"]["D_3"] == "0"
+
+    async def test_setdata_fail(self):
+        """Test we can send data to update the API."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect() is not {}
+
+        # Read the Data and issue, Power State
+        data = await api.get_device_data("1234", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "1"
+
+        # Issue an update back to the API
+        self.error_type = "write_error"
+        assert await api.set_device_data("1234", "1", "D_3", "0") is False
+
+        # Re-Read to check the update is correct.
+        data = await api.get_device_data("1234", "1")
+        assert data["data"]["varData"]["001"]["D_3"] == "1"
 
     async def test_unsupported_version(self):
         """Test exception for unsupported version."""

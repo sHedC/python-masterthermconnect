@@ -465,6 +465,15 @@ class MasterthermAPI:
                 params=params,
             )
 
+        # Check the response for any errors:
+        if response_json["error"]["errorId"] != 0:
+            _LOGGER.error(
+                "Client Connection Error: %s, Message: %s",
+                response_json["error"]["errorId"],
+                response_json["error"]["errorMessage"],
+            )
+            return False
+
         # Get the Value that is returned and set.
         if self.__api_version == "v1":
             data_file = ""

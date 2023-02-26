@@ -73,6 +73,7 @@ DEVICE_INFO_MAP = {
     "language": "lang",
     "hp_type": "type",
     "controller": "regulation",
+    "serial_number": "serialnumber",
     "exp": "exp",
     "output": "output",
     "cooling": "reversation",  # 0 - Cooling Disabled, 1 - Cooling Enabled.

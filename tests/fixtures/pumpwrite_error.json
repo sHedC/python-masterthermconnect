@@ -1,0 +1,16 @@
+{
+    "timestamp": 1673635009,
+    "error": {
+        "errorMessage": "Pump Data did not update",
+        "errorId": 1
+    },
+    "messageId": 1,
+    "data": {
+        "varfile_mt1_config2": {
+            "001": {
+                "D_3": "1"
+            }
+        }
+    },
+    "type": "write"
+}

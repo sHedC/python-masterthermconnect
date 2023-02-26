@@ -20,6 +20,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_245"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_15"],  # 0 - Permanently Off, 1 - Scheduled Off, 2 - On
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_101"],
             "setpoint_a_requested": [float, "A_106"],
@@ -42,6 +45,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_248"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_6"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_108"],
             "setpoint_a_requested": [float, "A_84"],
@@ -64,6 +70,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_251"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_227"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_113"],
             "setpoint_a_requested": [float, "A_86"],
@@ -86,6 +95,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_254"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_230"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_122"],
             "setpoint_a_requested": [float, "A_120"],
@@ -108,6 +120,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_257"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_239"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_387"],
             "setpoint_a_requested": [float, "A_388"],
@@ -130,6 +145,9 @@ DEVICE_WRITE_HCMAP = {
                 [[bool, "D_259"]],
             ],
         ],
+        "pad": {
+            "state": [int, "I_210"],
+        },
         "control_curve_heating": {
             "setpoint_a_outside": [float, "A_401"],
             "setpoint_a_requested": [float, "A_402"],
@@ -172,6 +190,7 @@ DEVICE_WRITE_MAP = {
         "setpoint_b_requested": [float, "A_50"],
     },
     "domestic_hot_water": {
+        "state": [bool, "D_29"],
         "required_temp": [float, "A_129"],  # Range min_temp to max_temp
     },
     "heating_circuits": DEVICE_WRITE_HCMAP,

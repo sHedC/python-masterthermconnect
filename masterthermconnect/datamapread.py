@@ -286,6 +286,7 @@ DEVICE_READ_HCMAP = {
 # used moving to main section so they don't get disabled
 # --------------------------------------------------------
 DEVICE_READ_MAP = {
+    "hp_type": [bool, "I_14"],  # 0=A/W, 1=B/W, 2=WW, 3=D/W, 4=A/WR, 5=B/WR, 6=W/WR
     "hp_power_state": [bool, "D_3"],
     "hp_function": [int, "I_51"],  # 0: heating, #1: cooling, #2: auto (Write)
     "operating_mode": [
@@ -362,7 +363,7 @@ DEVICE_READ_MAP = {
     "compressor_running": [bool, "D_5"],
     "compressor2_running": [bool, "D_32"],
     "circulation_pump_running": [bool, "D_10"],
-    "fan_running": [bool, "D_8"],
+    "thermal_pump_running": [bool, "D_8"],
     "defrost_mode": [bool, "D_11"],
     "aux_heater_1": [bool, "D_6"],
     "aux_heater_2": [bool, "D_7"],

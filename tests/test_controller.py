@@ -629,3 +629,74 @@ async def test_pump_offline_update():
         assert await controller.refresh(full_load=True)
 
     assert controller.get_device_data_item("1234", "1", "operating_mode") == "offline"
+
+
+async def test_diagnostics_data():
+    """Test the Diagnostics Data comes back correctly."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        diag_data = controller.get_diagnostics_data()
+        # Verify Sensitive Data:
+
+        # Info Sensitive
+        info = controller.get_device_info("10021", "1")
+        diag_info = diag_data["1112_1"]["info"]
+        assert diag_info["module_id"] != info["module_id"]
+        assert diag_info["module_name"] != info["module_name"]
+        assert diag_info["name"] != info["name"]
+        assert diag_info["surname"] != info["surname"]
+        assert diag_info["latitude"] != info["latitude"]
+        assert diag_info["longitude"] != info["longitude"]
+        assert diag_info["place"] != info["place"]
+        assert diag_info["notes"] != info["notes"]
+
+
+async def test_diagnostics_nohide():
+    """Test the Diagnostics Data comes back correctly."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+        diag_data = controller.get_diagnostics_data(hide_sensitive=False)
+        # Verify Sensitive Data:
+
+        info = controller.get_device_info("1234", "1")
+        diag_info = diag_data["1234_1"]["info"]
+        assert diag_info["module_id"] == info["module_id"]
+        assert diag_info["module_name"] == info["module_name"]
+        assert diag_info["name"] == info["name"]
+        assert diag_info["surname"] == info["surname"]
+        assert diag_info["latitude"] == info["latitude"]
+        assert diag_info["longitude"] == info["longitude"]
+        assert diag_info["place"] == info["place"]
+        assert diag_info["notes"] == info["notes"]

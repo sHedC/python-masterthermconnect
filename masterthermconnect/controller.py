@@ -483,6 +483,64 @@ class MasterthermController:
 
         return data[item]
 
+    def get_diagnostics_data(self, hide_sensitive: bool = True) -> dict:
+        """Get full diagnostics data hiding sensitive information by default.
+        Paramaeters:
+            shide_sensitive (bool): Default True, if False then sensitive information is shown.
+
+        Returns
+            dict: Returns a dict of all the data for all modules."""
+        diagnostics_data = {}
+        new_module_id = 1111
+        old_module_id = ""
+
+        for device_id, device_item in self.__devices.items():
+            module_id = device_item["info"]["module_id"]
+            unit_id = device_item["info"]["unit_id"]
+
+            if module_id != old_module_id:
+                old_module_id = module_id
+                new_module_id = new_module_id + 1
+
+            info = device_item["info"].copy()
+            api_info = device_item["api_info"].copy()
+
+            if hide_sensitive:
+                device_id = f"{str(new_module_id)}_{unit_id}"
+                info["module_id"] = str(new_module_id)
+                info["module_name"] = "REDACTED"
+                info["name"] = "REDACTED"
+                info["surname"] = "REDACTED"
+                info["latitude"] = "REDACTED"
+                info["longitude"] = "REDACTED"
+                info["place"] = "REDACTED"
+                info["notes"] = "REDACTED"
+
+                api_info["moduleid"] = str(new_module_id)
+                api_info["module_name"] = "REDACTED"
+                api_info["givenname"] = "REDACTED"
+                api_info["surname"] = "REDACTED"
+                api_info["password8"] = "REDACTED"
+                api_info["password9"] = "REDACTED"
+                api_info["password10"] = "REDACTED"
+                api_info["city"] = "REDACTED"
+                api_info["notes"] = "REDACTED"
+
+                # Version 2 API Information.
+                if "location" in api_info:
+                    api_info["location"] = "REDACTED"
+                    api_info["latitude"] = "REDACTED"
+                    api_info["longitude"] = "REDACTED"
+
+            diagnostics_data[device_id] = {
+                "info": info,
+                "data": device_item["data"].copy(),
+                "api_info": api_info,
+                "api_data": device_item["api_full_data"].copy(),
+            }
+
+        return diagnostics_data
+
     async def set_device_data_item(
         self, module_id: str, unit_id: str, entry: str, value: any
     ) -> bool:

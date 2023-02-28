@@ -570,6 +570,59 @@ async def test_set_cooling_feature():
         )
 
 
+async def test_ground_source():
+    """Test the HP Types and what type of thermal pump."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    assert controller.get_device_data_item("1234", "1", "hp_type") == 1
+    assert "brine_pump_running" in controller.get_device_data("1234", "1")
+
+
+async def test_air_source():
+    """Test the HP Types and what type of thermal pump."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v1", use_mt=True)
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    data = controller.get_device_data("0001", "1")
+    assert data["hp_type"] == 4
+    assert "fan_running" in data
+
+    data = controller.get_device_data("0524", "1")
+    assert data["hp_type"] == 0
+    assert "fan_running" in data
+
+
 async def test_pump_offline_connect():
     """Test the Pump being offline on initial connect."""
     controller = MasterthermController(

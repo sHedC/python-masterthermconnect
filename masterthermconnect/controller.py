@@ -392,6 +392,15 @@ class MasterthermController:
                 ]:
                     self.__devices[device_id]["data"].pop("domestic_hot_water")
 
+                # Filter the Fan/ Brine and Water Pumps based on HP Type
+                # 0=A/W, 1=B/W, 2=W/W, 3=DX/W, 4=A/W R, 5=B/W R, 6=W/W R
+                data = self.__devices[device_id]["data"]
+                hp_type = data["hp_type"]
+                if not hp_type in [0, 4]:
+                    data.pop("fan_running")
+                if not hp_type in [1, 2, 3, 5, 6]:
+                    data.pop("brine_pump_running")
+
         return True
 
     def get_devices(self) -> dict:

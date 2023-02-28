@@ -44,3 +44,7 @@ class MasterthermPumpError(MasterthermError):
 
     DEVICENOTFOUND = 5
     OFFLINE = 9
+
+
+class MasterthermServerTimeoutError(MasterthermError):
+    """Raised if there is a server timeout error."""

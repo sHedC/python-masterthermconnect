@@ -181,7 +181,8 @@ class MasterthermController:
         Raises
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles"""
+            MasterthermUnsupportedRole - Role is not in supported roles
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
         for device in self.__devices.values():
             module_id = device["info"]["module_id"]
             unit_id = device["info"]["unit_id"]
@@ -249,7 +250,8 @@ class MasterthermController:
         Raises:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsportedRole - Role is not supported by API"""
+            MasterthermUnsportedRole - Role is not supported by API
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
         result = await self.__api.connect()
 
         # Initialize the Dictionary.
@@ -308,7 +310,8 @@ class MasterthermController:
             MasterthermConnectionError - Failed to Connect
             MasterthermNotReady - Failed to complete first full import
             MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles"""
+            MasterthermUnsupportedRole - Role is not in supported roles
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
         if not self.__api_connected:
             return False
 
@@ -558,7 +561,8 @@ class MasterthermController:
         Raises:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermEntryNotFound - Entry is not valid."""
+            MasterthermEntryNotFound - Entry is not valid.
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
         # Split the entry into its components and find the mapping and data type.
         # Check if in both read and write map, if not in both stop.
         write_map = DEVICE_WRITE_MAP

@@ -10,6 +10,7 @@ from masterthermconnect.exceptions import (
     MasterthermUnsupportedVersion,
     MasterthermEntryNotFound,
     MasterthermPumpError,
+    MasterthermServerTimeoutError,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "MasterthermUnsupportedRole",
     "MasterthermUnsupportedVersion",
     "MasterthermPumpError",
+    "MasterthermServerTimeoutError",
 ]

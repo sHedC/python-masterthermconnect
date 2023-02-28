@@ -7,11 +7,25 @@
             "request": "launch",
             "program": "${file}",
             "purpose": [
-              "debug-test"
+                "debug-test"
             ],
             "console": "integratedTerminal",
             "justMyCode": true,
-            "env": {"PYTEST_ADDOPTS": "--no-cov"}
+            "env": {
+                "PYTEST_ADDOPTS": "--no-cov"
+            },
+            "args": [
+                "get",
+                "--user",
+                "demo",
+                "--password",
+                "mt-demo",
+                "--api-ver",
+                "v1",
+                "data",
+                "0",
+                "1"
+            ]
         },
         {
             "name": "Python: Attach using Process Id",

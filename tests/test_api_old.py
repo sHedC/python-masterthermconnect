@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from hashlib import sha1
 from unittest.mock import patch
 
-from aiohttp import web
+from aiohttp import web, ServerTimeoutError
 from aiohttp.test_utils import AioHTTPTestCase, Request
 
 import pytest
@@ -84,6 +84,10 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
                 if self.error_type == "login_once":
                     self.error_type = ""
+            elif self.error_type.startswith("timeout"):
+                if self.error_type == "timeout_once":
+                    self.error_type = ""
+                    raise ServerTimeoutError("Connection timeout.")
             elif self.info is None:
                 module_id = data["moduleid"]
                 unit_id = data["unitid"]
@@ -435,4 +439,20 @@ class APITestCase(AioHTTPTestCase):
         assert await api.get_device_data("1234", "1")
 
         self.error_type = "login_once"
+        await api.set_device_data("1234", "1", "D_3", "0")
+
+    async def test_timeout(self):
+        """Test timeout re-tries on refresh."""
+        api = MasterthermAPI(
+            VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
+        )
+        assert await api.connect()
+
+        self.error_type = "timeout_once"
+        assert await api.get_device_info("1234", "1")
+
+        self.error_type = "timeout_once"
+        assert await api.get_device_data("1234", "1")
+
+        self.error_type = "timeout_once"
         await api.set_device_data("1234", "1", "D_3", "0")

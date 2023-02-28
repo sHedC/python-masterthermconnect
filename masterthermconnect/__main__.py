@@ -7,7 +7,7 @@ import logging
 
 from natsort import natsorted
 
-from aiohttp import ClientSession
+from aiohttp import ClientSession, ClientTimeout
 
 from masterthermconnect.__version__ import __version__
 from masterthermconnect.api import MasterthermAPI
@@ -183,7 +183,7 @@ async def connect(
 ) -> MasterthermController:
     """Setup and Connect to the Mastertherm Server."""
     # Login to the Server.
-    session = ClientSession()
+    session = ClientSession(timeout=ClientTimeout(total=10))
     controller = MasterthermController(
         username, password, session, api_version=api_version
     )
@@ -245,7 +245,7 @@ async def set_data(
     value: any,
 ) -> bool:
     """Setup and Connect to the MasterthermController to set data."""
-    session = ClientSession()
+    session = ClientSession(timeout=ClientTimeout(total=10))
 
     success = False
     try:

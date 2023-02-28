@@ -8,6 +8,8 @@ from hashlib import sha1
 from json.decoder import JSONDecodeError
 from urllib.parse import urljoin, quote_plus
 
+from natsort import natsorted
+
 from aiohttp import ClientSession, ClientConnectionError, ContentTypeError
 
 from .const import (
@@ -36,6 +38,7 @@ from .exceptions import (
     MasterthermTokenInvalid,
     MasterthermResponseFormatError,
     MasterthermPumpError,
+    MasterthermServerTimeoutError,
 )
 
 _LOGGER: logging.Logger = logging.getLogger(__name__)
@@ -206,6 +209,11 @@ class MasterthermAPI:
             )
             raise MasterthermResponseFormatError(response.status, response_text) from ex
         except ContentTypeError as ex:
+            if response.status == 504:
+                raise MasterthermServerTimeoutError(
+                    response.status, response.reason
+                ) from ex
+
             response_text = await response.text()
             if response_text == "User not logged in":
                 raise MasterthermTokenInvalid(response.status, response_text) from ex
@@ -340,7 +348,9 @@ class MasterthermAPI:
         Raises:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
-            MasterthermResponseFormatError - Some other issue, probably temporary"""
+            MasterthermResponseFormatError - Some other issue, probably temporary
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
+        retry = False
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
 
         try:
@@ -348,9 +358,16 @@ class MasterthermAPI:
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
                 params=params,
             )
-        except MasterthermTokenInvalid:
-            await asyncio.sleep(0.2)
+        except MasterthermTokenInvalid as ex:
+            _LOGGER.warning("Token Expired Early Retry: %s:%s", ex.status, ex.message)
+            retry = True
             self.__expires = None
+        except MasterthermServerTimeoutError as ex:
+            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            retry = True
+
+        if retry:
+            await asyncio.sleep(0.5)
             response_json = await self.__get(
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
                 params=params,
@@ -375,7 +392,9 @@ class MasterthermAPI:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
-            MasterthermPumpDisconnected - Pump is unavailable, disconnected or offline."""
+            MasterthermPumpDisconnected - Pump is unavailable, disconnected or offline.
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
+        retry = False
         params = f"moduleId={module_id}&deviceId={unit_id}&application=android&"
         if last_update_time is None:
             params = (
@@ -393,9 +412,18 @@ class MasterthermAPI:
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
                 params=params,
             )
-        except MasterthermTokenInvalid:
-            await asyncio.sleep(0.2)
+        except MasterthermTokenInvalid as ex:
+            _LOGGER.warning(
+                "Token Expired Early Retrying: %s:%s", ex.status, ex.message
+            )
+            retry = True
             self.__expires = None
+        except MasterthermServerTimeoutError as ex:
+            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            retry = True
+
+        if retry:
+            await asyncio.sleep(0.5)
             response_json = await self.__get(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
                 params=params,
@@ -420,6 +448,13 @@ class MasterthermAPI:
             response_json["data"]["varData"] = response_json["data"][data_file]
             del response_json["data"][data_file]
 
+            # Sort the Data
+            sorted_reg = {}
+            device_reg = response_json["data"]["varData"][str(unit_id).zfill(3)]
+            for key in natsorted(device_reg.keys()):
+                sorted_reg[key] = device_reg[key]
+            response_json["data"]["varData"][str(unit_id).zfill(3)] = sorted_reg
+
         return response_json
 
     async def set_device_data(
@@ -441,7 +476,9 @@ class MasterthermAPI:
         Raises:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
-            MasterthermResponseFormatError - Some other issue, probably temporary"""
+            MasterthermResponseFormatError - Some other issue, probably temporary
+            MasterthermServerTimeoutError - Server Timed Out more than once."""
+        retry = False
         params = (
             f"moduleId={module_id}&deviceId={unit_id}&"
             + "configFile=varfile_mt1_config&messageId=1&errorResponse=true&"
@@ -455,15 +492,26 @@ class MasterthermAPI:
                 else URL_POSTUPDATE_NEW,
                 params=params,
             )
-        except MasterthermTokenInvalid:
-            await asyncio.sleep(0.2)
+        except MasterthermTokenInvalid as ex:
+            _LOGGER.warning(
+                "Token Expired Early Retrying: %s:%s", ex.status, ex.message
+            )
+            retry = True
             self.__expires = None
+        except MasterthermServerTimeoutError as ex:
+            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            retry = True
+
+        if retry:
+            await asyncio.sleep(0.5)
             response_json = await self.__post(
                 url=URL_POSTUPDATE
                 if self.__api_version == "v1"
                 else URL_POSTUPDATE_NEW,
                 params=params,
             )
+
+        _LOGGER.debug("Set Response Received: %s", response_json)
 
         # Check the response for any errors:
         if response_json["error"]["errorId"] != 0:

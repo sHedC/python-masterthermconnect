@@ -124,6 +124,10 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
                 if self.error_type == "login_once":
                     self.error_type = ""
+            elif self.error_type.startswith("timeout"):
+                if self.error_type == "timeout_once":
+                    self.error_type = ""
+                    raise ServerTimeoutError("Connection timeout.")
             elif self.error_type == "unavailable":
                 response_text = load_fixture("pumpdata_unavailable.json")
             elif self.data is None or last_update_time != "0":
@@ -155,6 +159,10 @@ class APITestCase(AioHTTPTestCase):
                 content_type = "text/plain"
                 if self.error_type == "login_once":
                     self.error_type = ""
+            elif self.error_type.startswith("timeout"):
+                if self.error_type == "timeout_once":
+                    self.error_type = ""
+                    raise ServerTimeoutError("Connection timeout.")
             elif self.error_type == "write_error":
                 response_text = load_fixture("pumpwrite_error.json")
                 self.error_type = ""

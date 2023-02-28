@@ -147,6 +147,11 @@ class MasterthermAPI:
             )
             raise MasterthermResponseFormatError(response.status, response_text) from ex
         except ContentTypeError as ex:
+            if response.status == 504:
+                raise MasterthermServerTimeoutError(
+                    response.status, response.reason
+                ) from ex
+
             response_text = await response.text()
             if response_text == "User not logged in":
                 raise MasterthermTokenInvalid(response.status, response_text) from ex

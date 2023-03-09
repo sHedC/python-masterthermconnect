@@ -53,6 +53,23 @@ def get_arguments(argv) -> argparse.Namespace:
         version="Mastertherm Connect API Version: " + __version__,
         help="display the Mastertherm Connect API version",
     )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        help="Print debugging statements.",
+        action="store_const",
+        dest="loglevel",
+        const=logging.DEBUG,
+        default=logging.WARNING,
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Print verbose statements.",
+        action="store_const",
+        dest="loglevel",
+        const=logging.INFO,
+    )
 
     # Sub Commands are get and set:
     subparsers = parser.add_subparsers(
@@ -399,6 +416,7 @@ def main(argv=None) -> int:
     # If User/ Pass is not provided then get from the command line.
     login_user = input("User: ") if args.user is None else args.user
     login_pass = getpass.getpass() if args.password is None else args.password
+    logging.basicConfig(level=args.loglevel)
 
     if args.command == "get":
         return asyncio.run(get_command(login_user, login_pass, args))

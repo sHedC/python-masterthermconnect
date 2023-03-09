@@ -110,8 +110,10 @@ class MasterthermAPI:
     async def __post(self, url: str, params: str) -> dict:
         """Push updates to the API."""
         if await self.__token_expired():
+            _LOGGER.info("__post: Token Expired, Refreshing Token.")
             await self.__connect_refresh()
 
+        _LOGGER.debug("__post: data to: %s, params: %s", url, params)
         try:
             if self.__api_version == "v1":
                 # Original uses post, with Cookie Token
@@ -134,6 +136,11 @@ class MasterthermAPI:
                     },
                 )
 
+            _LOGGER.debug(
+                "__post: response status: %s, content: %s",
+                response.status,
+                await response.text(),
+            )
             response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
@@ -178,8 +185,10 @@ class MasterthermAPI:
     async def __get(self, url: str, params: str) -> dict:
         """Get updates from the API, for old this mostly uses Post."""
         if await self.__token_expired():
+            _LOGGER.info("__get: Token Expired, Refreshing Token.")
             await self.__connect_refresh()
 
+        _LOGGER.debug("__get: data from: %s", url)
         try:
             if self.__api_version == "v1":
                 # Original uses post, with Cookie Token
@@ -201,6 +210,11 @@ class MasterthermAPI:
                     },
                 )
 
+            _LOGGER.debug(
+                "__get: response status: %s, content: %s",
+                response.status,
+                await response.text(),
+            )
             response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
@@ -358,17 +372,18 @@ class MasterthermAPI:
         retry = False
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
 
+        _LOGGER.info("Get Device Info %s:%s", module_id, unit_id)
         try:
             response_json = await self.__get(
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
                 params=params,
             )
         except MasterthermTokenInvalid as ex:
-            _LOGGER.warning("Token Expired Early Retry: %s:%s", ex.status, ex.message)
+            _LOGGER.info("Token Expired Early Retry: %s:%s", ex.status, ex.message)
             retry = True
             self.__expires = None
         except MasterthermServerTimeoutError as ex:
-            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            _LOGGER.info("API Timed Out Retry: %s:%s", ex.status, ex.message)
             retry = True
 
         if retry:
@@ -412,19 +427,18 @@ class MasterthermAPI:
                 + f"messageId=2&lastUpdateTime={last_update_time}&errorResponse=true&fullRange=true"
             )
 
+        _LOGGER.info("Get Device Data %s:%s", module_id, unit_id)
         try:
             response_json = await self.__get(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
                 params=params,
             )
         except MasterthermTokenInvalid as ex:
-            _LOGGER.warning(
-                "Token Expired Early Retrying: %s:%s", ex.status, ex.message
-            )
+            _LOGGER.info("Token Expired Early Retrying: %s:%s", ex.status, ex.message)
             retry = True
             self.__expires = None
         except MasterthermServerTimeoutError as ex:
-            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            _LOGGER.info("API Timed Out Retry: %s:%s", ex.status, ex.message)
             retry = True
 
         if retry:
@@ -490,6 +504,7 @@ class MasterthermAPI:
             + f"variableId={register}&variableValue={value}&application=android"
         )
 
+        _LOGGER.info("Set Device Reg %s:%s:%s:%s", module_id, unit_id, register, value)
         try:
             response_json = await self.__post(
                 url=URL_POSTUPDATE
@@ -498,13 +513,11 @@ class MasterthermAPI:
                 params=params,
             )
         except MasterthermTokenInvalid as ex:
-            _LOGGER.warning(
-                "Token Expired Early Retrying: %s:%s", ex.status, ex.message
-            )
+            _LOGGER.info("Token Expired Early Retrying: %s:%s", ex.status, ex.message)
             retry = True
             self.__expires = None
         except MasterthermServerTimeoutError as ex:
-            _LOGGER.warning("API Timed Out Retry: %s:%s", ex.status, ex.message)
+            _LOGGER.info("API Timed Out Retry: %s:%s", ex.status, ex.message)
             retry = True
 
         if retry:
@@ -516,7 +529,7 @@ class MasterthermAPI:
                 params=params,
             )
 
-        _LOGGER.debug("Set Response Received: %s", response_json)
+        _LOGGER.info("Set Device Reg response: %s", response_json)
 
         # Check the response for any errors:
         if response_json["error"]["errorId"] != 0:

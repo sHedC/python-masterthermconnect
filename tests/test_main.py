@@ -13,7 +13,9 @@ def test_help(capsys):
     MasterthermConnect(["--help"])
 
     out, err = capsys.readouterr()
-    assert out.startswith("usage: masterthermconnect [-h] [--version] {get,set}")
+    assert out.startswith(
+        "usage: masterthermconnect [-h] [--version] [-d] [-v] {get,set}"
+    )
     assert err == ""
 
 

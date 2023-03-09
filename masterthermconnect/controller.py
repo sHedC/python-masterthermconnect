@@ -616,6 +616,15 @@ class MasterthermController:
             # If Normal just set it from the Value
             entry_reg = entry_value
 
+        _LOGGER.info(
+            "Set module %s:%s property: %s, register: %s, value: %s",
+            module_id,
+            unit_id,
+            entry,
+            entry_reg,
+            value,
+        )
+
         # Test if the entry_type matches our value type.
         if isinstance(value, entry_type):
             if isinstance(value, bool):

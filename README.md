@@ -43,7 +43,7 @@ This is used as a libary but it can also be run directly for debug purposes and 
 > :warning: **Do Not Run This Too Frequently**: The new API may lock you're IP out for an unknown period of time.  The app and web app refresh every 30 seconds. I don't know how many times in succession would lock you out, probably frequent calls over a period of time such as an hour.
 
 ```
-usage: masterthermconnect [-h] [--version] {get,set} ...
+usage: masterthermconnect [-h] [--version] [-d] [-v] {get,set} ...
 
 Python Mastertherm Connect API Module, used for debug purposes, allows you to get and set registers and other information for testing, use with
 caution!!!
@@ -51,6 +51,8 @@ caution!!!
 options:
   -h, --help        show this help message and exit
   --version         display the Mastertherm Connect API version
+  -d, --debug       display Debug Logging
+  -v, --verbose     display Verbose/ Info logging
 
 commands:
   Valid commands to access the API, use -h to get more help after the command for specific help.

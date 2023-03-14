@@ -290,7 +290,8 @@ class MasterthermController:
 
         Parameters:
             info_refresh_minutes - The refresh rate in minutes default is 30, should be left
-            data_refresh_seconds - Default is 60 seconds but could be reducded with care."""
+            data_refresh_seconds - Default is 60 seconds but could be reducded with care.
+        """
         self.__info_update_minutes = info_refresh_minutes
         self.__data_update_seconds = data_refresh_seconds
 
@@ -596,10 +597,11 @@ class MasterthermController:
         entry_value = write_map[item][1]
         entry_reg = ""
 
+        registers = self.get_device_registers(module_id, unit_id)
+
         if isinstance(entry_type, Special):
             # If Special then find the Registry Entry.
             special_item: Special = entry_type
-            registers = self.get_device_registers(module_id, unit_id)
             if special_item.condition == Special.FORMULA:
                 values = []
                 for item in entry_value[1]:
@@ -634,6 +636,11 @@ class MasterthermController:
         else:
             return False
 
-        return await self.__api.set_device_data(
+        # Set the data
+        set_success = await self.__api.set_device_data(
             module_id, unit_id, entry_reg, entry_value
         )
+        if set_success:
+            registers[entry_reg] = entry_value
+
+        return set_success

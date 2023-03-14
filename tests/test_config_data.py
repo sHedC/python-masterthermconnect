@@ -169,6 +169,10 @@ async def test_set_ambient_requested():
             "1234", "1", "heating_circuits.hc1.ambient_requested", 50.1
         )
 
+        # Verfiy we update internally.
+        registers = controller.get_device_registers("1234", "1")
+        assert registers["A_215"] == "50.1"
+
         await controller.refresh(full_load=True)
         data = controller.get_device_data_item(
             "1234", "1", "heating_circuits.hc1.ambient_requested"

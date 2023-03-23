@@ -303,7 +303,7 @@ async def test_getdata_update():
         side_effect=mockconnect.get_device_data,
     ) as mock_get_device_data:
         assert await controller.connect() is True
-        controller.set_refresh_rate(data_refresh_seconds=0)
+        controller.set_refresh_rate(data_refresh_seconds=0, data_offset_seconds=0)
         assert await controller.refresh() is True
 
         data = controller.get_device_data("1234", "1")

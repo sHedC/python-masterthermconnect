@@ -30,4 +30,48 @@ _If you don't see this notification, open the command palette and select `Remote
 
 ### Step by Step debugging
 
-You can run the Unit Tests or if you open the Main Folder you can use Run->Start Debugging to debug the main folder.
+You can run the Unit Tests or if you open the Main Folder you can use Run->Start Debugging to debug the main folder, but to do this effectively you need to have a launch.json file in your .vscode folder.  this is an example for debuging using the main command line function.
+
+This will also disable coverage reporting in the testing within VS Code.
+
+
+```
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Debug Tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "purpose": [
+                "debug-test"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTEST_ADDOPTS": "--no-cov"
+            },
+            "args": [
+                "get",
+                "--user",
+                "demo",
+                "--password",
+                "mt-demo",
+                "--api-ver",
+                "v1",
+                "data",
+                "0",
+                "1"
+            ]
+        },
+        {
+            "name": "Python: Attach using Process Id",
+            "type": "python",
+            "request": "attach",
+            "processId": "${command:pickProcess}",
+            "justMyCode": true
+        }
+    ]
+}
+

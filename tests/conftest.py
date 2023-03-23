@@ -68,7 +68,7 @@ class ConnectionMock:
             last_update_time = "0"
 
         device_id = module_id + "_" + unit_id
-        if self.__devices[device_id]["data"] is None or last_update_time != "0":
+        if self.__devices[device_id]["data"] is None or last_update_time != 0:
             data = json.loads(
                 load_fixture(
                     f"{self.__subfolder}pumpdata_{module_id}_{unit_id}_{last_update_time}.json"

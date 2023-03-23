@@ -327,6 +327,38 @@ async def test_getdata_update():
     assert data["actual_temp"] == 40.7
 
 
+async def test_periodic_full_load():
+    """Test getting full data on refresh time."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock()
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ) as mock_apiconnect, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ) as mock_get_device_info, patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ) as mock_get_device_data:
+        assert await controller.connect() is True
+        controller.set_refresh_rate(
+            data_refresh_seconds=0, data_offset_seconds=0, full_refresh_minutes=0
+        )
+        assert await controller.refresh() is True
+
+        data = controller.get_device_data("1234", "1")
+        assert data["actual_temp"] == 32.1
+        assert await controller.refresh() is True
+
+    assert len(mock_apiconnect.mock_calls) == 1
+    assert len(mock_get_device_info.mock_calls) == 1
+    assert len(mock_get_device_data.mock_calls) == 2
+
+
 async def test_season_winter():
     """Test the Controller Season."""
     controller = MasterthermController(

@@ -61,6 +61,7 @@ class MasterthermController:
         #   "module_id_unit_id": {
         #       "last_data_update": <datetime>,
         #       "last_info_update": <datetime>,
+        #       "last_full_load": <datetime>,
         #       "last_update_time": "1192282722"
         #       "info": { Various Information },
         #       "data": { Normalized Data Information },
@@ -210,23 +211,28 @@ class MasterthermController:
             # to try and keep frequency of requests down.all(iterable)
             last_data_update = None
             last_update_time = 0
+
+            # Check to see if full data load is required.
+            if "last_full_load" in device:
+                last_full_load = device["last_full_load"]
+
+                if datetime.now() >= last_full_load + timedelta(
+                    minutes=self.__full_refresh_min
+                ):
+                    full_load = True
+            else:
+                full_load = True
+
             if "last_data_update" in device and not full_load:
                 last_data_update = device["last_data_update"]
                 last_update_time = device["last_update_time"]
                 last_update_time = last_update_time - self.__data_offset_sec
+
             if (
                 last_data_update is None
                 or datetime.now()
                 >= last_data_update + timedelta(seconds=self.__data_update_sec)
             ):
-                # Check to see if full data load is required.
-                if (
-                    last_data_update is None
-                    or datetime.now()
-                    >= last_data_update + timedelta(minutes=self.__full_refresh_min)
-                ):
-                    last_update_time = None
-
                 try:
                     # Refresh Device Data.
                     device_data = await self.__api.get_device_data(
@@ -238,6 +244,9 @@ class MasterthermController:
                     # Check that we have data, sometimes nothing is returned.
                     if device_data["data"]:
                         device["last_update_time"] = device_data["timestamp"]
+                        if full_load:
+                            device["last_full_load"] = datetime.now()
+
                         device["api_update_data"] = device_data["data"]["varData"][
                             str(unit_id).zfill(3)
                         ].copy()

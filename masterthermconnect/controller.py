@@ -50,8 +50,11 @@ class MasterthermController:
             username, password, session, api_version=api_version
         )
         self.__api_connected = False
-        self.__info_update_minutes = 30
-        self.__data_update_seconds = 60
+        self.__info_update_min = None
+        self.__data_update_sec = None
+        self.__data_offset_sec = None
+        self.__full_refresh_min = None
+        self.set_refresh_rate()
 
         # The device structure is held as a dictionary with the following format:
         # {
@@ -196,7 +199,7 @@ class MasterthermController:
             if (
                 last_info_update is None
                 or datetime.now()
-                >= last_info_update + timedelta(minutes=self.__info_update_minutes)
+                >= last_info_update + timedelta(minutes=self.__info_update_min)
             ):
                 device_info = await self.__api.get_device_info(module_id, unit_id)
                 if device_info["returncode"] == "0":
@@ -206,16 +209,24 @@ class MasterthermController:
             # Refresh the Device Data, refresh rate of this data is restricted by default
             # to try and keep frequency of requests down.all(iterable)
             last_data_update = None
-            last_update_time = "0"
+            last_update_time = 0
             if "last_data_update" in device and not full_load:
                 last_data_update = device["last_data_update"]
                 last_update_time = device["last_update_time"]
-
+                last_update_time = last_update_time - self.__data_offset_sec
             if (
                 last_data_update is None
                 or datetime.now()
-                >= last_data_update + timedelta(seconds=self.__data_update_seconds)
+                >= last_data_update + timedelta(seconds=self.__data_update_sec)
             ):
+                # Check to see if full data load is required.
+                if (
+                    last_data_update is None
+                    or datetime.now()
+                    >= last_data_update + timedelta(minutes=self.__full_refresh_min)
+                ):
+                    last_update_time = None
+
                 try:
                     # Refresh Device Data.
                     device_data = await self.__api.get_device_data(
@@ -279,7 +290,11 @@ class MasterthermController:
         return self.__api_connected
 
     def set_refresh_rate(
-        self, info_refresh_minutes: int = 30, data_refresh_seconds: int = 60
+        self,
+        info_refresh_minutes: int = -1,
+        data_refresh_seconds: int = -1,
+        data_offset_seconds: int = -1,
+        full_refresh_minutes: int = -1,
     ) -> None:
         """Set the Refresh Rates allowed, caution should be taken as too frequent requests
         could  cause lock-out on the new servers. Additionally the system seems not to update
@@ -289,11 +304,31 @@ class MasterthermController:
         reach out to the servers to update.
 
         Parameters:
-            info_refresh_minutes - The refresh rate in minutes default is 30, should be left
-            data_refresh_seconds - Default is 60 seconds but could be reducded with care.
+            info_refresh_minutes - Default is 30 minutes, delay between refresh of info
+            data_refresh_seconds - Default is 60 seconds, delay between refresh of data
+            data_offset_seconds - Default is 0, offset in the past from last update time
+            full_refresh_minutes - Default is 15, minutes between doing updates and full data refresh.
         """
-        self.__info_update_minutes = info_refresh_minutes
-        self.__data_update_seconds = data_refresh_seconds
+        if info_refresh_minutes < 0:
+            if self.__info_update_min is None:
+                self.__info_update_min = 30
+        else:
+            self.__info_update_min = info_refresh_minutes
+        if data_refresh_seconds < 0:
+            if self.__data_update_sec is None:
+                self.__data_update_sec = 60
+        else:
+            self.__data_update_sec = data_refresh_seconds
+        if data_offset_seconds < 0:
+            if self.__data_offset_sec is None:
+                self.__data_offset_sec = 0
+        else:
+            self.__data_offset_sec = data_offset_seconds
+        if full_refresh_minutes < 0:
+            if self.__full_refresh_min is None:
+                self.__full_refresh_min = 15
+        else:
+            self.__full_refresh_min = full_refresh_minutes
 
     async def refresh(self, full_load: bool = False) -> bool:
         """Refresh data and information for all the devices, info refresh is restricted

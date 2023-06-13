@@ -179,6 +179,31 @@ async def test_operating_mode_idle():
     assert data["operating_mode"] == "idle"
 
 
+async def test_operating_mode_cooling():
+    """Test the Passive Cooling Operating Mode."""
+    controller = MasterthermController(
+        VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
+    )
+    mockconnect = ConnectionMock(api_version="v2")
+
+    with patch(
+        "masterthermconnect.api.MasterthermAPI.connect",
+        return_value=mockconnect.connect(),
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_info",
+        side_effect=mockconnect.get_device_info,
+    ), patch(
+        "masterthermconnect.api.MasterthermAPI.get_device_data",
+        side_effect=mockconnect.get_device_data,
+    ):
+        assert await controller.connect() is True
+        assert await controller.refresh() is True
+
+    data = controller.get_device_data("10021", "2")
+
+    assert data["operating_mode"] == "cooling"
+
+
 async def test_operating_mode_heating():
     """Test the Controller Operating Mode."""
     controller = MasterthermController(

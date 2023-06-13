@@ -345,8 +345,8 @@ DEVICE_READ_MAP = {
     },
     "control_curve_cooling": {
         "setpoint_a_outside": [float, "A_47"],
-        "setpoint_a_requested": [float, "A_48"],
-        "setpoint_b_outside": [float, "A_49"],
+        "setpoint_a_requested": [float, "A_49"],
+        "setpoint_b_outside": [float, "A_48"],
         "setpoint_b_requested": [float, "A_50"],
         "requested_min": [float, "A_305"],
         "requested_max": [float, "A_306"],

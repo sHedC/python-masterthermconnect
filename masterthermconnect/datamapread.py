@@ -296,7 +296,8 @@ DEVICE_READ_MAP = {
                 "'dhw' if {0} else "
                 "'pool' if {1} else "
                 "'aux_heater' if not ({2} or {3}) and ({4} or {5}) else "
-                "'cooling' if {7} or {12} or {13} else"
+                "'cooling_dpc' if {6} and ({7} or {12} or {13}) else "
+                "'cooling' if {7} or {12} or {13} else "
                 "'heating' if {8} or {9} or {10} or {11} else "
                 "'idle'"
             ),
@@ -307,7 +308,7 @@ DEVICE_READ_MAP = {
                 [bool, "D_21"],  # 3 - three_errors
                 [bool, "D_6"],  # 4 - aux heater 1
                 [bool, "D_7"],  # 5 - aux heater 2
-                [bool, "D_196"],  # 6 - Dew Point (Removed makes no sense.)
+                [bool, "D_196"],  # 6 - Dew Point
                 [bool, "D_4"],  # 7 - Cooling Mode
                 [bool, "D_5"],  # 8 - Compressor 1
                 [bool, "D_32"],  # 9 - Compressor 2

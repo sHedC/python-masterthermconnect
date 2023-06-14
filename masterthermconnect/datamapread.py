@@ -296,8 +296,8 @@ DEVICE_READ_MAP = {
                 "'dhw' if {0} else "
                 "'pool' if {1} else "
                 "'aux_heater' if not ({2} or {3}) and ({4} or {5}) else "
-                "'dpc' if {6} else "
-                "'cooling' if {7} or {12} or {13} else"
+                "'cooling_dpc' if {6} and ({7} or {12} or {13}) else "
+                "'cooling' if {7} or {12} or {13} else "
                 "'heating' if {8} or {9} or {10} or {11} else "
                 "'idle'"
             ),

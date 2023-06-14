@@ -371,7 +371,21 @@ DEVICE_READ_MAP = {
     "aux_heater_1": [bool, "D_6"],
     "aux_heater_2": [bool, "D_7"],
     "outside_temp": [float, "A_3"],
-    "requested_temp": [float, "A_5"],
+    "requested_temp_old": [float, "A_5"],
+    "requested_temp": [  # Cooling temp does not show in A_5
+        Special(str, Special.FORMULA),
+        [
+            "{0} if ({2} or {3} or {4} or {5}) else {1}",
+            [
+                [float, "A_5"],  # 0 - Main Requested Temp
+                [float, "A_212"],  # 1 - Heating/Cooling Temp
+                [bool, "D_66"],  # 2 - Hot Water
+                [bool, "D_43"],  # 3 - Pool
+                [bool, "D_6"],  # 4 - Aux Heater 1
+                [bool, "D_7"],  # 5 - Aux Heater 2
+            ],
+        ],
+    ],
     "actual_temp": [float, "A_1"],
     "dewp_control": [bool, "D_196"],
     "high_tariff_control": [

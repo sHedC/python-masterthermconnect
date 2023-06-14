@@ -202,6 +202,7 @@ async def test_operating_mode_cooling():
     data = controller.get_device_data("10021", "2")
 
     assert data["operating_mode"] == "cooling"
+    assert data["requested_temp"] == 15.1
 
 
 async def test_operating_mode_heating():
@@ -231,6 +232,7 @@ async def test_operating_mode_heating():
     data = controller.get_device_data("1234", "1")
 
     assert data["operating_mode"] == "heating"
+    assert data["requested_temp"] == 34.7
 
 
 async def test_operating_mode_dhw():
@@ -260,6 +262,7 @@ async def test_operating_mode_dhw():
     data = controller.get_device_data("0002", "1")
 
     assert data["operating_mode"] == "dhw"
+    assert data["requested_temp"] == 45.0
 
 
 async def test_new_api_get_info_data():

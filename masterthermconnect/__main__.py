@@ -1,4 +1,4 @@
-"""Main Program, for Testing Mainly"""
+"""Main Program, for Testing Mainly."""
 import argparse
 import asyncio
 import getpass
@@ -198,7 +198,7 @@ def get_arguments(argv) -> argparse.Namespace:
 async def connect(
     username: str, password: str, api_version: str, refresh: bool
 ) -> MasterthermController:
-    """Setup and Connect to the Mastertherm Server."""
+    """Connect to the Mastertherm Server."""
     # Login to the Server.
     session = ClientSession(timeout=ClientTimeout(total=10))
     controller = MasterthermController(
@@ -226,7 +226,7 @@ async def set_reg(
     register: str,
     value: str,
 ) -> bool:
-    """Setup and Connect to the MasterthermAPI."""
+    """Connect to the MasterthermAPI."""
     session = ClientSession()
 
     success = False
@@ -261,7 +261,7 @@ async def set_data(
     data: str,
     value: any,
 ) -> bool:
-    """Setup and Connect to the MasterthermController to set data."""
+    """Connect to the MasterthermController to set data."""
     session = ClientSession(timeout=ClientTimeout(total=10))
 
     success = False

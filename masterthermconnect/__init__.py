@@ -22,6 +22,7 @@ __all__ = [
     "MasterthermTokenInvalid",
     "MasterthermUnsupportedRole",
     "MasterthermUnsupportedVersion",
+    "MasterthermEntryNotFound",
     "MasterthermPumpError",
     "MasterthermServerTimeoutError",
 ]

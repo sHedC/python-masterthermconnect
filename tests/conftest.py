@@ -63,7 +63,7 @@ class ConnectionMock:
         return info
 
     def get_device_data(self, module_id, unit_id, last_update_time=None):
-        """Return Device Data from fixtures, fixed for Controller Test"""
+        """Return Device Data from fixtures, fixed for Controller Test."""
         if last_update_time is None:
             last_update_time = "0"
 

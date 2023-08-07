@@ -30,7 +30,7 @@ from .conftest import VALID_LOGIN, load_fixture
 
 @patch("masterthermconnect.api.URL_BASE_NEW", "")
 class APINewTestCase(AioHTTPTestCase):
-    """Test the New API Connection"""
+    """Test the New API Connection."""
 
     error_type = ""
     data: dict = None

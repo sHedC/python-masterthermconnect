@@ -32,20 +32,21 @@ class MasterthermController:
     ) -> None:
         """Initialize the MasterthermController and connection to the web API.
 
-        Parameters:
-            username (str): The mastertherm login username
-            password (str): The mastertherm login password
-            session (ClientSession): An aiohttp Client Session
-            api_version (str): The version of the API, mainly the host
+        Args:
+            username: The mastertherm login username
+            password: The mastertherm login password
+            session: An aiohttp Client Session
+            api_version: The version of the API, mainly the host
                 "v1"  : Original version, data response in varfile_mt1_config1
                 "v1b" : Original version, datalast_info_update response in varfile_mt1_config2
                 "v2"  : New version since 2022 response in varFileData
 
-        Return:
+        Returns:
             The MasterthermController object
 
         Raises:
-            MasterthermUnsupportedVersion: API Version is not supported."""
+            MasterthermUnsupportedVersion: API Version is not supported.
+        """
         self.__api = MasterthermAPI(
             username, password, session, api_version=api_version
         )
@@ -156,8 +157,8 @@ class MasterthermController:
         hc_optional_enabled = False
         for i in range(1, 7):
             hc_name = self.__devices[device_key]["info"][HC_MAP[i]["pad"]]
-            hc_info[HC_MAP[i]["id"]] = "" != hc_name and (
-                version < 11 or "1" == full_data[HC_MAP[i]["register"]]
+            hc_info[HC_MAP[i]["id"]] = hc_name != "" and (
+                version < 11 or full_data[HC_MAP[i]["register"]] == "1"
             )
             hc_optional_enabled = hc_optional_enabled or hc_info[HC_MAP[i]["id"]]
 
@@ -176,17 +177,19 @@ class MasterthermController:
         return hc_info
 
     async def __get_hp_updates(self, full_load: bool = False) -> None:
-        """Refresh data and information for all the devices, apply default restrictions to
-        the number of times a call can be made..
+        """Refresh data and information for all the devices.
 
-        Parameters:
+        apply default restrictions to the number of times a call can be made..
+
+        Args:
             full_load: Optional Force a full load of the data, defaultis false
 
-        Raises
-            MasterthermConnectionError - Failed to Connect
-            MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+        Raises:
+            MasterthermConnectionError: Failed to Connect
+            MasterthermAuthenticationError: Failed to Authenticate
+            MasterthermUnsupportedRole: Role is not in supported roles
+            MasterthermServerTimeoutError: Server Timed Out more than once.
+        """
         for device in self.__devices.values():
             module_id = device["info"]["module_id"]
             unit_id = device["info"]["unit_id"]
@@ -261,17 +264,18 @@ class MasterthermController:
     async def connect(self, reload_modules: bool = False) -> bool:
         """Connect to the API, check the supported roles and update if required.
 
-        Parameters:
-            reload_modules (bool): Optional, default False, True to reload modules.
+        Args:
+            reload_modules: Optional, default False, True to reload modules.
 
         Returns:
             connected (bool): True if connected Raises Error if not
 
         Raises:
-            MasterthermConnectionError - Failed to Connect
-            MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsportedRole - Role is not supported by API
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+            MasterthermConnectionError: Failed to Connect
+            MasterthermAuthenticationError: Failed to Authenticate
+            MasterthermUnsportedRole: Role is not supported by API
+            MasterthermServerTimeoutError: Server Timed Out more than once.
+        """
         result = await self.__api.connect()
 
         # Initialize the Dictionary.
@@ -305,18 +309,19 @@ class MasterthermController:
         data_offset_seconds: int = -1,
         full_refresh_minutes: int = -1,
     ) -> None:
-        """Set the Refresh Rates allowed, caution should be taken as too frequent requests
-        could  cause lock-out on the new servers. Additionally the system seems not to update
-        less than 30s.
+        """Set the Refresh Rates allowed.
+
+        caution should be taken as too frequent requests could  cause lock-out on the new servers.
+        Additionally the system seems not to update less than 30s.
 
         Updating these does not change how much you can call the refresh just how frequently it will
         reach out to the servers to update.
 
-        Parameters:
-            info_refresh_minutes - Default is 30 minutes, delay between refresh of info
-            data_refresh_seconds - Default is 60 seconds, delay between refresh of data
-            data_offset_seconds - Default is 0, offset in the past from last update time
-            full_refresh_minutes - Default is 15, minutes between doing updates and full data refresh.
+        Args:
+            info_refresh_minutes: Default is 30 minutes, delay between refresh of info
+            data_refresh_seconds: Default is 60 seconds, delay between refresh of data
+            data_offset_seconds: Default is 0, offset in the past from last update time
+            full_refresh_minutes: Default is 15, minutes between doing updates and full data refresh.
         """
         if info_refresh_minutes < 0:
             if self.__info_update_min is None:
@@ -340,23 +345,24 @@ class MasterthermController:
             self.__full_refresh_min = full_refresh_minutes
 
     async def refresh(self, full_load: bool = False) -> bool:
-        """Refresh data and information for all the devices, info refresh is restricted
-        to protect against too many calls.
+        """Refresh data and information for all the devices.
 
+        Info refresh is restricted to protect against too many calls.
         Calling this functions should not happen more than every minute, may cause lockout.
 
-        Parameters:
+        Args:
             full_load: Optional Force a full load of the data, defaultis false
 
         Returns:
             success (bool): true if loaded
 
-        Raises
-            MasterthermConnectionError - Failed to Connect
-            MasterthermNotReady - Failed to complete first full import
-            MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+        Raises:
+            MasterthermConnectionError: Failed to Connect
+            MasterthermNotReady: Failed to complete first full import
+            MasterthermAuthenticationError: Failed to Authenticate
+            MasterthermUnsupportedRole: Role is not in supported roles
+            MasterthermServerTimeoutError: Server Timed Out more than once.
+        """
         if not self.__api_connected:
             return False
 
@@ -377,7 +383,7 @@ class MasterthermController:
             device["info"]["api_url"] = self.__api.get_url()
             device["info"]["version"] = __version__
 
-            if not device["data"]["operating_mode"] == "offline":
+            if device["data"]["operating_mode"] != "offline":
                 # Populate Device Data
                 device["data"] = self.__populate_data(
                     DEVICE_READ_MAP, device["api_full_data"]
@@ -400,7 +406,7 @@ class MasterthermController:
                     ]
 
                 # Disable certain fields if Cooling Mode is disabled
-                cooling_disabled = not device["info"]["cooling"] == "1"
+                cooling_disabled = device["info"]["cooling"] != "1"
                 if cooling_disabled:
                     device["data"].pop("hp_function")
                     device["data"].pop("control_curve_cooling")
@@ -441,9 +447,9 @@ class MasterthermController:
                 # 0=A/W, 1=B/W, 2=W/W, 3=DX/W, 4=A/W R, 5=B/W R, 6=W/W R
                 data = self.__devices[device_id]["data"]
                 hp_type = data["hp_type"]
-                if not hp_type in [0, 4]:
+                if hp_type not in [0, 4]:
                     data.pop("fan_running")
-                if not hp_type in [1, 2, 3, 5, 6]:
+                if hp_type not in [1, 2, 3, 5, 6]:
                     data.pop("brine_pump_running")
 
         return True
@@ -452,7 +458,8 @@ class MasterthermController:
         """Return a List of the Devices with plus information.
 
         Returns:
-            devices (dict): All the devices associated with the login"""
+            devices (dict): All the devices associated with the login
+        """
         device_return = {}
         for device_id, device in self.__devices.items():
             device_return[device_id] = device["info"]
@@ -462,12 +469,13 @@ class MasterthermController:
     def get_device_info(self, module_id, unit_id) -> dict:
         """Get the Information for a specific device.
 
-        Parameters:
-            module_id (str): The id of the module
-            unit_id (str): the id fo the unit
+        Args:
+            module_id: The id of the module
+            unit_id: the id fo the unit
 
         Returns:
-            info (dict): Device information."""
+            info (dict): Device information.
+        """
         info = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
@@ -478,13 +486,14 @@ class MasterthermController:
     def get_device_registers(self, module_id, unit_id, last_updated=False) -> dict:
         """Get the Device Register Data, if lastUpdated is True then get the latest update data.
 
-        Parameters:
-            module_id (str): The id of the module
-            unit_id (str): the id fo the unit
-            last_updated (bool): Optional, true to return all data
+        Args:
+            module_id: The id of the module
+            unit_id: the id fo the unit
+            last_updated: Optional, true to return all data
 
         Returns:
-            data (dict): Device Raw Data or Updated Data."""
+            data (dict): Device Raw Data or Updated Data.
+        """
         data = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
@@ -497,12 +506,14 @@ class MasterthermController:
 
     def get_device_data(self, module_id, unit_id) -> dict:
         """Get the Device Data, if lastUpdated is True then get the latest update data.
-        Parameters:
-            module_id (str): The id of the module
-            unit_id (str): the id fo the unit
+
+        Args:
+            module_id: The id of the module
+            unit_id: the id fo the unit
 
         Returns:
-            data (dict): Device Normalised Data."""
+            Device Normalised Data.
+        """
         data = {}
         key = module_id + "_" + unit_id
         if key in self.__devices:
@@ -512,17 +523,19 @@ class MasterthermController:
 
     def get_device_data_item(self, module_id: str, unit_id: str, entry: str) -> any:
         """Get the Device Data Item based on the dot notation.
-        Parameters:
-            module_id (str): The id of the module
-            unit_id (str):   The id of the unit
-            entry (str):     The entry to using dot notation, e.g. hp_power_state
-                             or heating_circuits.hc0.on
+
+        Args:
+            module_id: The id of the module
+            unit_id:   The id of the unit
+            entry:     The entry to using dot notation, e.g. hp_power_state
+                       or heating_circuits.hc0.on
 
         Returns:
             any: Returns the value of the item found
 
         Raises:
-            MasterthermEntryNotFound - Entry is not valid."""
+            MasterthermEntryNotFound - Entry is not valid.
+        """
         data = self.get_device_data(module_id, unit_id)
 
         keys: list[str] = entry.split(".")
@@ -535,18 +548,20 @@ class MasterthermController:
                 )
 
         item = keys[len(keys) - 1]
-        if not item in data:
+        if item not in data:
             raise MasterthermEntryNotFound("401", f"{item} in {entry} not found.")
 
         return data[item]
 
     def get_diagnostics_data(self, hide_sensitive: bool = True) -> dict:
         """Get full diagnostics data hiding sensitive information by default.
-        Paramaeters:
-            shide_sensitive (bool): Default True, if False then sensitive information is shown.
 
-        Returns
-            dict: Returns a dict of all the data for all modules."""
+        Args:
+            hide_sensitive: Default True, if False then sensitive information is shown.
+
+        Returns:
+            dict: Returns a dict of all the data for all modules.
+        """
         diagnostics_data = {}
         new_module_id = 1111
         old_module_id = ""
@@ -602,12 +617,13 @@ class MasterthermController:
         self, module_id: str, unit_id: str, entry: str, value: any
     ) -> bool:
         """Set the Device Data and Update to the Mastertherm Heat Pump.
-        Parameters:
-            module_id (str): The id of the module
-            unit_id (str):   The id of the unit
-            entry (str):     The entry to using dot notation, e.g. hp_power_state
-                             or heating_circuits.hc0.on
-            value:           The value to set should be bool, str, float or int
+
+        Args:
+            module_id: The id of the module
+            unit_id:   The id of the unit
+            entry:     The entry to using dot notation, e.g. hp_power_state
+                       or heating_circuits.hc0.on
+            value:     The value to set should be bool, str, float or int
 
         Returns:
             bool: True if success, False if failure
@@ -616,7 +632,8 @@ class MasterthermController:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermEntryNotFound - Entry is not valid.
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+            MasterthermServerTimeoutError - Server Timed Out more than once.
+        """
         # Split the entry into its components and find the mapping and data type.
         # Check if in both read and write map, if not in both stop.
         write_map = DEVICE_WRITE_MAP
@@ -633,7 +650,7 @@ class MasterthermController:
 
         # Make sure the item is valid the start processing.
         item = keys[len(keys) - 1]
-        if not item in write_map or not item in device_data:
+        if item not in write_map or item not in device_data:
             raise MasterthermEntryNotFound("401", f"{item} in {entry} not found.")
 
         # Get the Registry to set and prepare the value.

@@ -51,9 +51,8 @@ async def test_connect_failure():
         side_effect=MasterthermAuthenticationError(
             "1", "Invalid user name or password"
         ),
-    ) as mock_apiconnect:
-        with pytest.raises(MasterthermAuthenticationError):
-            await controller.connect()
+    ) as mock_apiconnect, pytest.raises(MasterthermAuthenticationError):
+        await controller.connect()
 
     assert len(mock_apiconnect.mock_calls) > 0
 
@@ -67,9 +66,8 @@ async def test_connect_error():
     with patch(
         "masterthermconnect.api.MasterthermAPI.connect",
         side_effect=MasterthermConnectionError("500", "Some Other Error"),
-    ) as mock_apiconnect:
-        with pytest.raises(MasterthermConnectionError):
-            await controller.connect()
+    ) as mock_apiconnect, pytest.raises(MasterthermConnectionError):
+        await controller.connect()
 
     assert len(mock_apiconnect.mock_calls) > 0
 
@@ -111,9 +109,9 @@ async def test_get_info_data():
     assert data["actual_temp"] == 32.1
     assert data["heating_circuits"]["hc1"]["name"] == "HW-ANN"
     assert data["heating_circuits"]["hc1"]["on"] is False
-    assert not "hc3" in data["heating_circuits"]
-    assert not "pool" in data["heating_circuits"]
-    assert not "solar" in data["heating_circuits"]
+    assert "hc3" not in data["heating_circuits"]
+    assert "pool" not in data["heating_circuits"]
+    assert "solar" not in data["heating_circuits"]
 
 
 async def test_pool_solar():
@@ -303,7 +301,7 @@ async def test_new_api_get_info_data():
     assert data["outside_temp"] == 6.4
     assert data["actual_temp"] == 30.5
 
-    assert not "hc0" in data["heating_circuits"]
+    assert "hc0" not in data["heating_circuits"]
 
     assert data["heating_circuits"]["hc1"]["name"] == "Living room"
     assert data["heating_circuits"]["hc1"]["on"] is True
@@ -314,7 +312,9 @@ async def test_new_api_get_info_data():
 
 async def test_getdata_update():
     """Test getting the data and getting an update.
-    Test the Controller Connects and setup devices."""
+
+    Test the Controller Connects and setup devices.
+    """
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
@@ -558,7 +558,7 @@ async def test_set_not_valid():
 
 
 async def test_cooling_feature():
-    """Test the Controller Correctly disables Cooling Mode"""
+    """Test the Controller Correctly disables Cooling Mode."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )

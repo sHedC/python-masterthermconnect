@@ -1,6 +1,7 @@
 # Mastertherm Connect Module
 [![License][license-shield]](LICENSE)
 [![GitHub Activity][commits-shield]][commits]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
 Main -
 [![workflow-main][workflow-main-shield]][workflow-main-link]
@@ -16,9 +17,6 @@ Stable -
 [![workflow-stable][workflow-stable-shield]][workflow-stable-link]
 
 ## About
-If you feel like donating to a charity, I would love you to sponsor my wife and the Salvation Army here: <a href="https://www.justgiving.com/fundraising/jackie-holmes1933" target="_blank"><img src="https://github.com/sHedC/python-masterthermconnect/blob/main/salvationarmy.jpg?raw=true" alt="Charity Link" style="width:125px;height:20px;"></a>
-
-
 This module provides the connection and conversion for the two Mastertherm Heat Pump APIs. It is being developed as a best effort to support an integration plugin for Home Assistant.
 
 There are two entry points for the Mastertherm Heat Pumps:
@@ -319,6 +317,9 @@ Additionally hc0 the control curves are the same as the main cuves so not shown 
 [commits]: https://github.com/shedc/python-masterthermconnect/commits/main
 [license-shield]: https://img.shields.io/github/license/shedc/python-masterthermconnect?style=for-the-badge
 [maintenance-shield]: https://img.shields.io/badge/maintainer-Richard%20Holmes%20%40shedc-blue.svg?style=for-the-badge
+
+[buymecoffee]: https://www.buymeacoffee.com/sHedC
+[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
 
 [codecov-shield]: https://codecov.io/gh/sHedC/python-masterthermconnect/branch/main/graph/badge.svg?token=747WODRAGO
 [codecov-link]: https://codecov.io/gh/sHedC/python-masterthermconnect

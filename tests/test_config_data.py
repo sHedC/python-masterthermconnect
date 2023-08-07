@@ -61,7 +61,7 @@ async def test_hc0():
 
 
 async def test_hc1_no_thermostat():
-    """Test no thermostat installed in HC1"""
+    """Test no thermostat installed in HC1."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
@@ -89,7 +89,7 @@ async def test_hc1_no_thermostat():
 
 
 async def test_hcx_thermostat():
-    """Test Thermostat installed in HC?"""
+    """Test Thermostat installed in HC."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
@@ -116,7 +116,7 @@ async def test_hcx_thermostat():
 
 
 async def test_hcx_loop_type():
-    """Test HCx Loop Type?"""
+    """Test HCx Loop Type."""
     controller = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )

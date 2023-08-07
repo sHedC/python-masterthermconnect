@@ -19,8 +19,9 @@ The easiest way to get started with custom integration development is to use Vis
 
 1. Fork the repository.
 2. Clone the repository to your computer.
-3. Copy the devcontainer-linux-podman.json or devcontainer-windows-docker.json to devcontainer.json
-3. Open the repository using Visual Studio code.
+3. Copy the devcontainer-template.json to .devcontainer.json in the root directory
+4. Edit the .devcontainer.json depending on podman or docker
+5. Re-Open the repository using Visual Studio code.
 
 NOTE: Podman requires additional setup to tell VS Code that you are using Podman and not Docker.
 

@@ -1,7 +1,7 @@
 """Special Class for use with the Mapping Files."""
 
 
-class Special(object):
+class Special:
     """A Special Class Type for use in mappings."""
 
     FIXED = "fixed"

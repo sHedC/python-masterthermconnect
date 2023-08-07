@@ -1,0 +1,40 @@
+/*
+  Copy this file to .devcontainer.json
+  if using PODMAN, instead of DOCKER, uncomment the runArgs section
+*/
+{
+    "name": "sHedC/python-masterthermconnect",
+    "image": "mcr.microsoft.com/devcontainers/python:0-3.11-bullseye",
+	"postCreateCommand": "pip3 install --user -r requirements.txt && python3 -m pip install -e .",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.defaultInterpreterPath": "/usr/local/bin/python",
+				"python.testing.unittestEnabled": false,
+				"python.testing.pytestEnabled": true,
+				"editor.defaultFormatter": "ms-python.black-formatter",
+				"editor.formatOnPaste": false,
+				"editor.formatOnSave": true,
+				"editor.formatOnType": true,
+				"extensions.ignoreRecommendations": true,
+				"files.trimTrailingWhitespace": true
+			},
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.black-formatter",
+				"charliermarsh.ruff",
+				"github.vscode-pull-request-github",
+				"mikestead.dotenv",
+				"ryanluker.vscode-coverage-gutters",
+				"tamasfe.even-better-toml"
+			]
+		}
+	},
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    //"runArgs": [
+    //    "--userns=keep-id"
+    //],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,Z"
+}

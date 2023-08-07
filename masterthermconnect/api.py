@@ -56,19 +56,20 @@ class MasterthermAPI:
     ) -> None:
         """Initialise the Mastertherm API Client.
 
-        Parameters:
-            username (str): The Login Username
-            password (str): The Login Password
-            session (ClientSession): an aiohttp client session
-            api_version (str): The version of the API, mainly the host
+        Args:
+            username: The Login Username
+            password: The Login Password
+            session: an aiohttp client session
+            api_version: The version of the API, mainly the host
                 "v1"  : Original version, data response in varfile_mt1_config1 or 2
                 "v2"  : New version since 2022 response in varFileData
 
-        Return:
+        Returns:
             The MasterthermAPI object
 
         Raises:
-            MasterthermUnsupportedVersion: API Version is not supported."""
+            MasterthermUnsupportedVersion: API Version is not supported.
+        """
         if api_version not in SUPPORTED_API_VERSIONS:
             raise MasterthermUnsupportedVersion(
                 "-1", f"Unsupported Version {api_version}"
@@ -319,14 +320,15 @@ class MasterthermAPI:
         """Return the API URL Used.
 
         Returns:
-            URL(str): The API URL for the version."""
+            URL(str): The API URL for the version.
+        """
         if self.__api_version == "v1":
             return URL_BASE
         else:
             return URL_BASE_NEW
 
     async def connect(self) -> dict:
-        """Perform the connection to the Mastertherm API Server:
+        """Perform the connection to the Mastertherm API Server.
 
         Returns:
              devices (dict): Return the list of devices, modules and units.
@@ -334,7 +336,8 @@ class MasterthermAPI:
         Raises:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
-            MasterthermUnsupportedRole - Role is not in supported roles"""
+            MasterthermUnsupportedRole - Role is not in supported roles
+        """
         response_json = await self.__connect_refresh()
         if self.__api_version == "v2":
             # Get the Modules as this now has moved to outside of the auth process
@@ -347,7 +350,7 @@ class MasterthermAPI:
             )
 
         # Check if role is supported
-        if not response_json["role"] in SUPPORTED_ROLES:
+        if response_json["role"] not in SUPPORTED_ROLES:
             raise MasterthermUnsupportedRole(
                 "2", "Unsupported Role " + response_json["role"]
             )
@@ -357,9 +360,9 @@ class MasterthermAPI:
     async def get_device_info(self, module_id: str, unit_id: str) -> dict:
         """Get the Device information.
 
-        Parameters:
-            module_id (str): This is the module_id for the unit
-            unit_id (str): This is the unit id for the unit
+        Args:
+            module_id: This is the module_id for the unit
+            unit_id: This is the unit id for the unit
 
         Return:
             device_info (dict): Information for a specific device.
@@ -368,7 +371,8 @@ class MasterthermAPI:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+            MasterthermServerTimeoutError - Server Timed Out more than once.
+        """
         retry = False
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
 
@@ -400,10 +404,10 @@ class MasterthermAPI:
     ) -> dict:
         """Get the Device lastest data.
 
-        Parameters:
-            module_id (str): This is the module_id for the unit
-            unit_id (str): This is the unit id for the unit
-            last_update_time (str): Optional last update date in number format
+        Args:
+            module_id: This is the module_id for the unit
+            unit_id: This is the unit id for the unit
+            last_update_time: Optional last update date in number format
 
         Return:
             device_data (dict): data or updated data for a specific device.
@@ -413,7 +417,8 @@ class MasterthermAPI:
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
             MasterthermPumpDisconnected - Pump is unavailable, disconnected or offline.
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+            MasterthermServerTimeoutError - Server Timed Out more than once.
+        """
         retry = False
         params = f"moduleId={module_id}&deviceId={unit_id}&application=android&"
         if last_update_time is None:
@@ -479,15 +484,16 @@ class MasterthermAPI:
     async def set_device_data(
         self, module_id: str, unit_id: str, register: str, value: any
     ) -> bool:
-        """Set device data a specific register to a specific value,
-        updating any registry setting can cause the system to stop working
+        """Set device data a specific register to a specific value.
+
+        Updating any registry setting can cause the system to stop working
         the controller only allows tested updates this API has no protection.
 
-        Parameters:
-            module_id (str): This is the module_id for the unit
-            unit_id (str): This is the unit id for the unit
-            register (str): The Register to update
-            value (str|float): The value to set.
+        Args:
+            module_id: This is the module_id for the unit
+            unit_id: This is the unit id for the unit
+            register: The Register to update
+            value: The value to set.
 
         Return:
            success (bool): return true if succes and false if not.
@@ -496,7 +502,8 @@ class MasterthermAPI:
             MasterthermConnectionError - General Connection Issue
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
-            MasterthermServerTimeoutError - Server Timed Out more than once."""
+            MasterthermServerTimeoutError - Server Timed Out more than once.
+        """
         retry = False
         params = (
             f"moduleId={module_id}&deviceId={unit_id}&"

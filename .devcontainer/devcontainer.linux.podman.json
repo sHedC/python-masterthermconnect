@@ -18,6 +18,7 @@
 				"editor.formatOnPaste": false,
 				"editor.formatOnSave": true,
 				"editor.formatOnType": true,
+				"extensions.ignoreRecommendations": true,
 				"files.trimTrailingWhitespace": true
 			},
 			"extensions": [

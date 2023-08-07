@@ -1,13 +1,11 @@
+/*
+  Copy this file to .devcontainer.json
+  if using PODMAN, instead of DOCKER, uncomment the runArgs section
+*/
 {
-	"name": "Python 3",
-	"build": {
-		"dockerfile": "Dockerfile",
-		"context": "..",
-		"args": {
-			"VARIANT": "3.11-bullseye",
-			"NODE_VERSION": "lts/*"
-		}
-	},
+    "name": "sHedC/python-masterthermconnect",
+    "image": "mcr.microsoft.com/devcontainers/python:0-3.11-bullseye",
+	"postCreateCommand": "pip3 install --user -r requirements.txt && python3 -m pip install -e .",
 	"customizations": {
 		"vscode": {
 			"settings": {
@@ -33,8 +31,10 @@
 			]
 		}
 	},
-	"postCreateCommand": "pip3 install --user -r requirements.txt && python3 -m pip install -e .",
-	"remoteUser": "vscode",
-	"containerUser": "vscode",
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind"
+    "remoteUser": "vscode",
+    "containerUser": "vscode",
+    //"runArgs": [
+    //    "--userns=keep-id"
+    //],
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/${localWorkspaceFolderBasename},type=bind,Z"
 }

@@ -1,5 +1,5 @@
 # Ignore local files
-.devcontainer/devcontainer.json
+.devcontainer.json
 .vscode
 
 # Byte-compiled / optimized / DLL files

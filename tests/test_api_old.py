@@ -38,7 +38,7 @@ class APITestCase(AioHTTPTestCase):
     data: dict = None
     info: dict = None
 
-    async def get_application(self):
+    async def get_application(self):  # noqa: C901
         """Start and Return a mock application."""
 
         async def _connect_response(request: Request):

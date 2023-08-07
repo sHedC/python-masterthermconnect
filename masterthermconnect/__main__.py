@@ -217,6 +217,7 @@ async def connect(
     return controller
 
 
+# ruff: noqa: T201
 async def set_reg(
     username: str,
     password: str,

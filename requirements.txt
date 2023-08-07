@@ -9,3 +9,4 @@ pytest-cov>=3.0.0
 scapy>=2.5.0
 twine>=4.0.2
 tox>=4.6.0
+ruff>=0.0.272

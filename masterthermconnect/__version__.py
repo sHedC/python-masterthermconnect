@@ -1,3 +1,3 @@
 """Python API wrapper for Mastertherm Connect."""
 
-__version__ = "2.2.6b4"
+__version__ = "2.2.6b5"

@@ -296,9 +296,9 @@ DEVICE_READ_MAP = {
                 "'dhw' if {0} else "
                 "'pool' if {1} else "
                 "'aux_heater' if not ({2} or {3}) and ({4} or {5}) else "
-                "'cooling_dpc' if {6} and ({7} or {12} or {13}) else "
-                "'cooling' if {7} or {12} or {13} else "
-                "'heating' if {8} or {9} or {10} or {11} else "
+                "'heating' if {13} and ({8} or {9} or {10} or {11}) else "
+                "'cooling_dpc' if {6} and ({7} or {12} or {8} or {9} or {10} or {11}) else "
+                "'cooling' if {7} or {12} or {8} or {9} or {10} or {11} else "
                 "'idle'"
             ),
             [
@@ -315,7 +315,7 @@ DEVICE_READ_MAP = {
                 [bool, "D_10"],  # 10 - Ciculation
                 [bool, "D_8"],  # 11 - Fan
                 [bool, "D_277"],  # 12 - Cooling Pump On
-                [bool, "D_193"],  # 13 - Requested Mode
+                [bool, "D_24"],  # 13 - Operation Mode 1=Winter, 0=Summer
             ],
         ],
     ],

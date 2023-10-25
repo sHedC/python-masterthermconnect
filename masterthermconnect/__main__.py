@@ -414,6 +414,14 @@ def main(argv=None) -> int:
     except SystemExit as ex:
         return ex.code
 
+    # Check we have any arguments
+    try:
+        if not args.command:
+            return -1
+    except Exception:
+        print("usage: masterthermconnect -h")
+        return 0
+
     # If User/ Pass is not provided then get from the command line.
     login_user = input("User: ") if args.user is None else args.user
     login_pass = getpass.getpass() if args.password is None else args.password

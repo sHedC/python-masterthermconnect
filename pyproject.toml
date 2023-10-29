@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masterthermconnect"
-version = "2.2.6"
+version = "2.2.7"
 description = "Python 3 API wrapper for Mastertherm API"
 readme = "README.md"
 authors = [{ name = "Richard Holmes", email = "richard@shedc.uk" }]
@@ -28,7 +28,7 @@ Homepage = "https://github.com/sHedC/python-masterthermconnect"
 masterthermconnect = "masterthermconnect.__main__:main"
 
 [tool.bumpver]
-current_version = "2.2.6"
+current_version = "2.2.7"
 version_pattern = "MAJOR.MINOR.PATCH[-PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

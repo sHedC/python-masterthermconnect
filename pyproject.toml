@@ -16,7 +16,7 @@ classifiers = [
 ]
 keywords = ["Mastertherm heatpump", "api", "client"]
 dependencies = [
-    "aiohttp>=3.9.1",
+    "aiohttp>=3.9.3",
     "natsort>=8.3.1"
 ]
 requires-python = ">=3.9,<=3.12"

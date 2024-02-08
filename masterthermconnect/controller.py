@@ -1,4 +1,5 @@
 """Mastertherm Controller, for handling Mastertherm Data."""
+
 import logging
 
 from datetime import datetime, timedelta
@@ -46,6 +47,7 @@ class MasterthermController:
 
         Raises:
             MasterthermUnsupportedVersion: API Version is not supported.
+
         """
         self.__api = MasterthermAPI(
             username, password, session, api_version=api_version
@@ -189,6 +191,7 @@ class MasterthermController:
             MasterthermAuthenticationError: Failed to Authenticate
             MasterthermUnsupportedRole: Role is not in supported roles
             MasterthermServerTimeoutError: Server Timed Out more than once.
+
         """
         for device in self.__devices.values():
             module_id = device["info"]["module_id"]
@@ -275,6 +278,7 @@ class MasterthermController:
             MasterthermAuthenticationError: Failed to Authenticate
             MasterthermUnsportedRole: Role is not supported by API
             MasterthermServerTimeoutError: Server Timed Out more than once.
+
         """
         result = await self.__api.connect()
 
@@ -322,6 +326,7 @@ class MasterthermController:
             data_refresh_seconds: Default is 60 seconds, delay between refresh of data
             data_offset_seconds: Default is 0, offset in the past from last update time
             full_refresh_minutes: Default is 15, minutes between doing updates and full data refresh.
+
         """
         if info_refresh_minutes < 0:
             if self.__info_update_min is None:
@@ -362,6 +367,7 @@ class MasterthermController:
             MasterthermAuthenticationError: Failed to Authenticate
             MasterthermUnsupportedRole: Role is not in supported roles
             MasterthermServerTimeoutError: Server Timed Out more than once.
+
         """
         if not self.__api_connected:
             return False
@@ -459,6 +465,7 @@ class MasterthermController:
 
         Returns:
             devices (dict): All the devices associated with the login
+
         """
         device_return = {}
         for device_id, device in self.__devices.items():
@@ -475,6 +482,7 @@ class MasterthermController:
 
         Returns:
             info (dict): Device information.
+
         """
         info = {}
         key = module_id + "_" + unit_id
@@ -493,6 +501,7 @@ class MasterthermController:
 
         Returns:
             data (dict): Device Raw Data or Updated Data.
+
         """
         data = {}
         key = module_id + "_" + unit_id
@@ -513,6 +522,7 @@ class MasterthermController:
 
         Returns:
             Device Normalised Data.
+
         """
         data = {}
         key = module_id + "_" + unit_id
@@ -535,6 +545,7 @@ class MasterthermController:
 
         Raises:
             MasterthermEntryNotFound - Entry is not valid.
+
         """
         data = self.get_device_data(module_id, unit_id)
 
@@ -561,6 +572,7 @@ class MasterthermController:
 
         Returns:
             dict: Returns a dict of all the data for all modules.
+
         """
         diagnostics_data = {}
         new_module_id = 1111
@@ -633,6 +645,7 @@ class MasterthermController:
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermEntryNotFound - Entry is not valid.
             MasterthermServerTimeoutError - Server Timed Out more than once.
+
         """
         # Split the entry into its components and find the mapping and data type.
         # Check if in both read and write map, if not in both stop.

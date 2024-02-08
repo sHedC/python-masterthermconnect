@@ -1,4 +1,5 @@
 """Mastertherm API Client Class, handle integration."""
+
 import asyncio
 import logging
 import time
@@ -69,6 +70,7 @@ class MasterthermAPI:
 
         Raises:
             MasterthermUnsupportedVersion: API Version is not supported.
+
         """
         if api_version not in SUPPORTED_API_VERSIONS:
             raise MasterthermUnsupportedVersion(
@@ -321,6 +323,7 @@ class MasterthermAPI:
 
         Returns:
             URL(str): The API URL for the version.
+
         """
         if self.__api_version == "v1":
             return URL_BASE
@@ -337,6 +340,7 @@ class MasterthermAPI:
             MasterthermConnectionError - Failed to Connect
             MasterthermAuthenticationError - Failed to Authenticate
             MasterthermUnsupportedRole - Role is not in supported roles
+
         """
         response_json = await self.__connect_refresh()
         if self.__api_version == "v2":
@@ -372,6 +376,7 @@ class MasterthermAPI:
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
             MasterthermServerTimeoutError - Server Timed Out more than once.
+
         """
         retry = False
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
@@ -418,6 +423,7 @@ class MasterthermAPI:
             MasterthermResponseFormatError - Some other issue, probably temporary
             MasterthermPumpDisconnected - Pump is unavailable, disconnected or offline.
             MasterthermServerTimeoutError - Server Timed Out more than once.
+
         """
         retry = False
         params = f"moduleId={module_id}&deviceId={unit_id}&application=android&"
@@ -503,6 +509,7 @@ class MasterthermAPI:
             MasterthermTokenInvalid - Token has expired or is invalid
             MasterthermResponseFormatError - Some other issue, probably temporary
             MasterthermServerTimeoutError - Server Timed Out more than once.
+
         """
         retry = False
         params = (
@@ -514,9 +521,9 @@ class MasterthermAPI:
         _LOGGER.info("Set Device Reg %s:%s:%s:%s", module_id, unit_id, register, value)
         try:
             response_json = await self.__post(
-                url=URL_POSTUPDATE
-                if self.__api_version == "v1"
-                else URL_POSTUPDATE_NEW,
+                url=(
+                    URL_POSTUPDATE if self.__api_version == "v1" else URL_POSTUPDATE_NEW
+                ),
                 params=params,
             )
         except MasterthermTokenInvalid as ex:
@@ -530,9 +537,9 @@ class MasterthermAPI:
         if retry:
             await asyncio.sleep(0.5)
             response_json = await self.__post(
-                url=URL_POSTUPDATE
-                if self.__api_version == "v1"
-                else URL_POSTUPDATE_NEW,
+                url=(
+                    URL_POSTUPDATE if self.__api_version == "v1" else URL_POSTUPDATE_NEW
+                ),
                 params=params,
             )
 

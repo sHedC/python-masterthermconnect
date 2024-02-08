@@ -4,8 +4,8 @@
 */
 {
     "name": "sHedC/python-masterthermconnect",
-    "image": "mcr.microsoft.com/devcontainers/python:0-3.11-bullseye",
-	"postCreateCommand": "pip3 install --user -r requirements.txt && python3 -m pip install -e .",
+    "image": "mcr.microsoft.com/devcontainers/python:1-3.13",
+	"postCreateCommand": "pip install --upgrade pip && pip install --user -r requirements.txt && python3 -m pip install -e .",
 	"customizations": {
 		"vscode": {
 			"settings": {

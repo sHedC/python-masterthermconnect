@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "masterthermconnect"
-version = "2.2.11"
+version = "2.3.0a0"
 description = "Python 3 API wrapper for Mastertherm API"
 readme = "README.md"
 authors = [{ name = "Richard Holmes", email = "richard@shedc.uk" }]
@@ -19,7 +19,7 @@ dependencies = [
     "aiohttp>=3.9.1",
     "natsort>=8.3.1"
 ]
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9,<3.14"
 
 [project.optional-dependencies]
 dev = ["black", "bumpver", "isort", "pip-tools", "pytest"]
@@ -31,7 +31,7 @@ Homepage = "https://github.com/sHedC/python-masterthermconnect"
 masterthermconnect = "masterthermconnect.__main__:main"
 
 [tool.bumpver]
-current_version = "2.2.11"
+current_version = "2.3.0-a0"
 version_pattern = "MAJOR.MINOR.PATCH[-PYTAGNUM]"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

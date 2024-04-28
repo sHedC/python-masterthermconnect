@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from aiohttp import ClientSession
 
 from .api import MasterthermAPI
+from .modbus import MasterthermModbus
+
 from .const import (
     CHAR_MAP,
     DEVICE_INFO_MAP,
@@ -177,6 +179,28 @@ class MasterthermController:
                 hc_info[HC_MAP[0]["id"]] = not hc_optional_enabled
 
         return hc_info
+
+    async def __get_hp_mb_data(self, device: dict[str, any]) -> bool:
+        """Refresh data from modbus for device and unit."""
+
+        module_addr = device["info"]["module_addr"]
+        unit_id = device["info"]["unit_id"]
+
+        modbus = MasterthermModbus(module_addr)
+        if not await modbus.connect():
+            return False
+
+        device_data = await modbus.get_registers(int(unit_id))
+        device["last_data_update"] = datetime.now()
+        device["last_full_load"] = datetime.now()
+
+        device["data"]["operating_mode"] = "online"
+        device["api_update_data"] = device_data
+        device["api_full_data"].update(device["api_update_data"])
+
+        await modbus.close()
+
+        return True
 
     async def __get_hp_updates(self, full_load: bool = False) -> None:
         """Refresh data and information for all the devices.

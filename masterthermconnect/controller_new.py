@@ -31,6 +31,8 @@ class MasterthermController:
         username: str,
         password: str,
         session: ClientSession,
+        enable_api: bool = True,
+        enable_modbus: bool = False,
         api_version: str = "v1",
         device_list: dict[str, any] | None = None,
     ) -> None:
@@ -40,6 +42,8 @@ class MasterthermController:
             username: The mastertherm login username
             password: The mastertherm login password
             session: An aiohttp Client Session
+            enable_api: If the Online API Is enabled, true by default
+            enable_modbus: if the ModBux interface is enabled, false by default
             api_version: The version of the API, mainly the host
                 "v1"  : Original version, data response in varfile_mt1_config1
                 "v1b" : Original version, datalast_info_update response in varfile_mt1_config2

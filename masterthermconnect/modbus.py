@@ -35,6 +35,13 @@ class MasterthermModbus:
 
     async def connect(self) -> bool:
         """Connect to the Modbus Client."""
+        client = AsyncModbusTcpClient(self._addr)
+        try:
+            await client.connect()
+        except Exception as e:
+            _LOGGER.error(f"Error connecting to Modbus: {e}")
+            return False
+
         return True
 
     async def close(self) -> None:

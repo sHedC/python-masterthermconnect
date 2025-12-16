@@ -94,7 +94,7 @@ class MasterthermController:
                 values = []
                 for item in item_value[1]:
                     # Bool needs to converted as an int not string
-                    if item[0] == bool:
+                    if item[0] is bool:
                         values.append(item[0](int(registers[item[1]])))
                     else:
                         values.append(item[0](registers[item[1]]))
@@ -103,7 +103,7 @@ class MasterthermController:
         else:
             # Convert Simple Types
             # Bool needs to converted as an int not string
-            if item_type == bool:
+            if item_type is bool:
                 return_value = item_type(int(registers[item_value]))
             else:
                 return_value = item_type(registers[item_value])
@@ -136,7 +136,7 @@ class MasterthermController:
             hc_empty = hc_empty + "-"
 
         # Empty Names return "0"
-        if hc_name == hc_empty:
+        if hc_name is hc_empty:
             hc_name = ""
 
         return hc_name
@@ -679,7 +679,7 @@ class MasterthermController:
             if special_item.condition == Special.FORMULA:
                 values = []
                 for item in entry_value[1]:
-                    if item[0] == bool:
+                    if item[0] is bool:
                         values.append(item[0](int(registers[item[1]])))
                     else:
                         values.append(item[0](registers[item[1]]))

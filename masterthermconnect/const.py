@@ -51,6 +51,16 @@ CHAR_MAP = [
     "X",
     "Y",
     "Z",
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
 ]
 
 # HC0 is the main heating cooling circuit which is enabled if HC1 to HC6 are not used.

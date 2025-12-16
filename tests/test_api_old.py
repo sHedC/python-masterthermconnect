@@ -246,7 +246,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         self.error_type = "login"
         with pytest.raises(MasterthermTokenInvalid):
@@ -257,7 +257,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
         info = await api.get_device_info("1234", "2")
 
         assert info["returncode"] != 0
@@ -267,7 +267,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         data = await api.get_device_data("1234", "1")
 
@@ -281,7 +281,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         data = await api.get_device_data("1234", "1")
         assert data != {}
@@ -300,7 +300,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         try:
             await api.get_device_data("1234", "2")
@@ -312,7 +312,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         self.error_type = "unavailable"
         try:
@@ -325,7 +325,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         data = await api.get_device_data("1234", "1")
         assert data != {}
@@ -341,7 +341,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         # Read the Data and issue, Power State
         data = await api.get_device_data("1234", "1")
@@ -359,7 +359,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         # Read the Data and issue, Power State
         data = await api.get_device_data("1234", "1")
@@ -384,7 +384,7 @@ class APITestCase(AioHTTPTestCase):
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
         self.error_type = "token_expire"
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         assert await api.get_device_info("1234", "1")
         assert await api.get_device_data("1234", "1")
@@ -395,7 +395,7 @@ class APITestCase(AioHTTPTestCase):
         api = MasterthermAPI(
             VALID_LOGIN["uname"], VALID_LOGIN["upwd"], self.client, api_version="v1"
         )
-        assert await api.connect() is not {}
+        assert await api.connect() != {}
 
         assert await api.get_device_info("1234", "1")
 

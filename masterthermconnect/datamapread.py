@@ -364,6 +364,21 @@ DEVICE_READ_MAP = {
     },
     "compressor_running": [bool, "D_5"],
     "compressor2_running": [bool, "D_32"],
+    "drive_rps": [float, "A_475"],
+    "drive_voltage": [float, "I_295"],
+    "drive_current": [float, "A_476"],
+    "drive_power": [ # HP stores only with single digit precision
+        Special(float, Special.FORMULA),
+        [
+            "{0} * {1}",
+            [
+                [float, "I_295"], # drive_voltage
+                [float, "A_476"] # drive_current
+            ]
+        ]
+    ],
+    "condensing_temp": [float, "A_33"],
+    "evaporating_temp": [float, "A_80"],
     "circulation_pump_running": [bool, "D_10"],
     "fan_running": [bool, "D_8"],  # Filtered by HP Type
     "brine_pump_running": [bool, "D_8"],  # Filtered by HP Type,

@@ -403,7 +403,7 @@ DEVICE_READ_MAP = {
     ],
     "runtime_info": {
         "compressor_run_time": [int, "I_11"],
-        "compressor_start_counter": [int, "I_12"],
+        "compressor_start_counter": [int, "I_12"], #actual number of starts is x10
         "pump_runtime": [int, "I_13"],
         "aux1_runtime": [int, "I_100"],
         "aux2_runtime": [int, "I_101"],

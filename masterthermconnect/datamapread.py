@@ -367,16 +367,7 @@ DEVICE_READ_MAP = {
     "drive_rps": [float, "A_475"],
     "drive_voltage": [float, "I_295"],
     "drive_current": [float, "A_476"],
-    "drive_power": [ # HP stores only with single digit precision
-        Special(float, Special.FORMULA),
-        [
-            "{0} * {1}",
-            [
-                [float, "I_295"], # drive_voltage
-                [float, "A_476"] # drive_current
-            ]
-        ]
-    ],
+    "drive_power": [ float, "A_477"], # in kW
     "condensing_temp": [float, "A_33"],
     "evaporating_temp": [float, "A_80"],
     "circulation_pump_running": [bool, "D_10"],

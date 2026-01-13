@@ -364,6 +364,12 @@ DEVICE_READ_MAP = {
     },
     "compressor_running": [bool, "D_5"],
     "compressor2_running": [bool, "D_32"],
+    "drive_rps": [float, "A_475"],
+    "drive_voltage": [float, "I_295"],
+    "drive_current": [float, "A_476"],
+    "drive_power": [ float, "A_477"], # in kW
+    "condensing_temp": [float, "A_33"],
+    "evaporating_temp": [float, "A_80"],
     "circulation_pump_running": [bool, "D_10"],
     "fan_running": [bool, "D_8"],  # Filtered by HP Type
     "brine_pump_running": [bool, "D_8"],  # Filtered by HP Type,
@@ -397,7 +403,7 @@ DEVICE_READ_MAP = {
     ],
     "runtime_info": {
         "compressor_run_time": [int, "I_11"],
-        "compressor_start_counter": [int, "I_12"],
+        "compressor_start_counter": [int, "I_12"], #actual number of starts is x10
         "pump_runtime": [int, "I_13"],
         "aux1_runtime": [int, "I_100"],
         "aux2_runtime": [int, "I_101"],

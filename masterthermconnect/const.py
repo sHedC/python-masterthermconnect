@@ -1,6 +1,6 @@
 """Constants used by the module."""
 DATE_FORMAT = "%a, %d-%b-%Y %H:%M:%S %Z"
-SUPPORTED_ROLES = ["400"]
+SUPPORTED_ROLES = ["400", "300"]
 SUPPORTED_API_VERSIONS = ["v1", "v2"]
 
 # Old Mastertherm Devices Pre 2022

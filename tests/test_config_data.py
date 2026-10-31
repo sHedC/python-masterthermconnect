@@ -9,7 +9,7 @@ from .conftest import VALID_LOGIN, ConnectionMock
 
 async def test_setup():
     """Test the Setup."""
-    controller = MasterthermController(
+    controller: MasterthermController = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
     mockconnect = ConnectionMock()

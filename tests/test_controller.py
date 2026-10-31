@@ -74,7 +74,7 @@ async def test_connect_error():
 
 async def test_get_info_data():
     """Test the Controller Connects and setup devices."""
-    controller = MasterthermController(
+    controller: MasterthermController = MasterthermController(
         VALID_LOGIN["uname"], VALID_LOGIN["upwd"], ClientSession()
     )
     mockconnect = ConnectionMock()

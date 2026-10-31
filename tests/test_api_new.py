@@ -4,7 +4,8 @@ import json
 from unittest.mock import patch
 
 from aiohttp import web
-from aiohttp.test_utils import AioHTTPTestCase, Request
+from aiohttp.test_utils import AioHTTPTestCase
+from aiohttp.web_request import Request
 
 import pytest
 
@@ -33,8 +34,8 @@ class APINewTestCase(AioHTTPTestCase):
     """Test the New API Connection."""
 
     error_type = ""
-    data: dict = None
-    info: dict = None
+    data: dict | None = None
+    info: dict | None = None
 
     async def get_application(self):
         """Start and Return a mock application."""
@@ -78,7 +79,7 @@ class APINewTestCase(AioHTTPTestCase):
             else:
                 response_text = load_fixture("newapi/modules.json")
 
-            if response_text is None:
+            if response_text == "":
                 response_text = load_fixture("newapi/error_unavailable.json")
                 response_status = 500
 
@@ -109,7 +110,7 @@ class APINewTestCase(AioHTTPTestCase):
             else:
                 response_text = json.dumps(self.info)
 
-            if response_text is None:
+            if response_text == "":
                 response_text = load_fixture("newapi/error_unavailable.json")
                 response_status = 500
             else:
@@ -144,7 +145,7 @@ class APINewTestCase(AioHTTPTestCase):
             else:
                 response_text = json.dumps(self.data)
 
-            if response_text is None:
+            if response_text == "":
                 response_text = load_fixture("newapi/error_unavailable.json")
                 response_status = 500
             else:

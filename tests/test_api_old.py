@@ -6,7 +6,8 @@ from hashlib import sha1
 from unittest.mock import patch
 
 from aiohttp import web, ServerTimeoutError
-from aiohttp.test_utils import AioHTTPTestCase, Request
+from aiohttp.test_utils import AioHTTPTestCase
+from aiohttp.web_request import Request
 
 import pytest
 
@@ -35,8 +36,8 @@ class APITestCase(AioHTTPTestCase):
     """Test the Original API Connection."""
 
     error_type = ""
-    data: dict = None
-    info: dict = None
+    data: dict = {}
+    info: dict | None = None
 
     async def get_application(self):  # noqa: C901
         """Start and Return a mock application."""
@@ -79,6 +80,7 @@ class APITestCase(AioHTTPTestCase):
             if self.error_type == "ClientConnectionError":
                 return None
 
+            response_text = ""
             if self.error_type.startswith("login"):
                 response_text = GENERAL_ERROR_RESPONSE
                 content_type = "text/plain"
@@ -92,12 +94,12 @@ class APITestCase(AioHTTPTestCase):
                 module_id = data["moduleid"]
                 unit_id = data["unitid"]
                 response_text = load_fixture(f"pumpinfo_{module_id}_{unit_id}.json")
-                if response_text is not None:
+                if response_text != "":
                     self.info = json.loads(response_text)
             else:
                 response_text = json.dumps(self.info)
 
-            if response_text is None:
+            if response_text == "":
                 response_text = load_fixture("pumpinfo_invalid.json")
 
             response = web.Response(text=response_text, content_type=content_type)
@@ -114,6 +116,7 @@ class APITestCase(AioHTTPTestCase):
             if self.error_type == "ClientConnectionError":
                 return None
 
+            response_text = ""
             if self.error_type == "content_error":
                 response_text = "content error"
                 content_type = "text/plain"
@@ -130,14 +133,14 @@ class APITestCase(AioHTTPTestCase):
                     raise ServerTimeoutError("Connection timeout.")
             elif self.error_type == "unavailable":
                 response_text = load_fixture("pumpdata_unavailable.json")
-            elif self.data is None or last_update_time != "0":
+            elif self.data == {} or last_update_time != "0":
                 response_text = load_fixture(
                     f"pumpdata_{module_id}_{unit_id}_{last_update_time}.json"
                 )
             else:
                 response_text = json.dumps(self.data)
 
-            if response_text is None:
+            if response_text == "":
                 response_text = load_fixture("pumpdata_invalid.json")
             elif content_type == "application/json" and self.error_type != "json_error":
                 self.data = json.loads(response_text)
@@ -154,6 +157,7 @@ class APITestCase(AioHTTPTestCase):
             variable_id = data["variableId"]
             variable_value = data["variableValue"]
 
+            response_text = ""
             if self.error_type.startswith("login"):
                 response_text = GENERAL_ERROR_RESPONSE
                 content_type = "text/plain"

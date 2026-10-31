@@ -11,14 +11,14 @@ VALID_LOGIN = {
 GENERAL_ERROR_RESPONSE = "User not logged in"
 
 
-def load_fixture(filename):
+def load_fixture(filename: str) -> str:
     """Load a JSON fixture for testing."""
     try:
-        path = os.path.join(os.path.dirname(__file__), "fixtures", filename)
+        path = os.path.join(os.path.dirname(__file__), "fixtures", f"{filename}")
         with open(path, encoding="utf-8") as fptr:
             return fptr.read()
     except OSError:
-        return None
+        return ""
 
 
 class ConnectionMock:

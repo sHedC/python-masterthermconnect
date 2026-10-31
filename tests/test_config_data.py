@@ -205,9 +205,8 @@ async def test_season_set():
 
         # Test Winter Set
         assert await controller.set_device_data_item(
-            "1234", "1", "season.manual_set", True
+            "1234", "1", "season.mode_set", 1
         )
-        assert await controller.set_device_data_item("1234", "1", "season.winter", True)
 
         assert await controller.refresh(full_load=True)
         season = controller.get_device_data_item("1234", "1", "season.mode")
@@ -215,22 +214,18 @@ async def test_season_set():
 
         # Test Summer Set
         assert await controller.set_device_data_item(
-            "1234", "1", "season.manual_set", True
-        )
-        assert await controller.set_device_data_item(
-            "1234", "1", "season.winter", False
+            "1234", "1", "season.mode_set", 2
         )
 
         assert await controller.refresh(full_load=True)
         season = controller.get_device_data_item("1234", "1", "season.mode")
         assert season == "summer"
 
-        # Test Auto Winter Set
+        # Test Auto Set
         assert await controller.set_device_data_item(
-            "1234", "1", "season.manual_set", False
+            "1234", "1", "season.mode_set", 0
         )
-        assert await controller.set_device_data_item("1234", "1", "season.winter", True)
 
         assert await controller.refresh(full_load=True)
-        season = controller.get_device_data_item("1234", "1", "season.mode")
-        assert season == "auto-winter"
+        season : str = controller.get_device_data_item("1234", "1", "season.mode")
+        assert season.startswith("auto-")

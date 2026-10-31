@@ -323,11 +323,11 @@ DEVICE_READ_MAP = {
         "mode": [
             Special(str, Special.FORMULA),
             [
-                "('' if {0} else 'auto-') + ('winter' if {1} else 'summer')",
-                [[bool, "I_50"], [bool, "D_24"]],
+                "('winter' if {0} == 1 else 'summer' if {0} == 2 else 'auto-winter' if {1} else 'auto-summer')",
+                [[int, "I_50"], [bool, "D_24"]],
             ],
         ],
-        "manual_set": [bool, "I_50"],
+        "mode_set": [int, "I_50"],
         "winter": [bool, "D_24"],
         "winter_temp": [float, "A_82"],
         "summer_temp": [float, "A_83"],
@@ -367,7 +367,7 @@ DEVICE_READ_MAP = {
     "drive_rps": [float, "A_475"],
     "drive_voltage": [float, "I_295"],
     "drive_current": [float, "A_476"],
-    "drive_power": [ float, "A_477"], # in kW
+    "drive_power": [float, "A_477"],  # in kW
     "condensing_temp": [float, "A_33"],
     "evaporating_temp": [float, "A_80"],
     "circulation_pump_running": [bool, "D_10"],
@@ -403,7 +403,7 @@ DEVICE_READ_MAP = {
     ],
     "runtime_info": {
         "compressor_run_time": [int, "I_11"],
-        "compressor_start_counter": [int, "I_12"], #actual number of starts is x10
+        "compressor_start_counter": [int, "I_12"],  # actual number of starts is x10
         "pump_runtime": [int, "I_13"],
         "aux1_runtime": [int, "I_100"],
         "aux2_runtime": [int, "I_101"],

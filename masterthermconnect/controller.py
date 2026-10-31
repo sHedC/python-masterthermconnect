@@ -5,6 +5,7 @@ import logging
 from datetime import datetime, timedelta
 
 from aiohttp import ClientSession
+from typing import Any
 
 from .api import MasterthermAPI
 from .const import (
@@ -53,10 +54,10 @@ class MasterthermController:
             username, password, session, api_version=api_version
         )
         self.__api_connected = False
-        self.__info_update_min = None
-        self.__data_update_sec = None
-        self.__data_offset_sec = None
-        self.__full_refresh_min = None
+        self.__info_update_min: int | None = None
+        self.__data_update_sec: int | None = None
+        self.__data_offset_sec: int | None = None
+        self.__full_refresh_min: int | None = None
         self.set_refresh_rate()
 
         # The device structure is held as a dictionary with the following format:
@@ -75,9 +76,9 @@ class MasterthermController:
         # }
         self.__devices = {}
 
-    def __convert_data(self, item_type, item_value, registers) -> any:
+    def __convert_data(self, item_type, item_value, registers) -> Any:
         """Convert the data for use with Populate Data."""
-        return_value: any = None
+        return_value: Any = None
 
         if isinstance(item_type, Special):
             # Handle Special Types
@@ -206,7 +207,7 @@ class MasterthermController:
             if (
                 last_info_update is None
                 or datetime.now()
-                >= last_info_update + timedelta(minutes=self.__info_update_min)
+                >= last_info_update + timedelta(minutes=self.__info_update_min if self.__info_update_min is not None else 0)
             ):
                 device_info = await self.__api.get_device_info(module_id, unit_id)
                 if device_info["returncode"] == "0":
@@ -223,7 +224,7 @@ class MasterthermController:
                 last_full_load = device["last_full_load"]
 
                 if datetime.now() >= last_full_load + timedelta(
-                    minutes=self.__full_refresh_min
+                    minutes=self.__full_refresh_min if self.__full_refresh_min is not None else 0
                 ):
                     full_load = True
             else:
@@ -237,12 +238,12 @@ class MasterthermController:
             if (
                 last_data_update is None
                 or datetime.now()
-                >= last_data_update + timedelta(seconds=self.__data_update_sec)
+                >= last_data_update + timedelta(seconds=self.__data_update_sec if self.__data_update_sec is not None else 0)
             ):
                 try:
                     # Refresh Device Data.
                     device_data = await self.__api.get_device_data(
-                        module_id, unit_id, last_update_time=last_update_time
+                        module_id, unit_id, last_update_time=last_update_time if last_update_time is not None else 0
                     )
                     device["last_data_update"] = datetime.now()
                     device["data"]["operating_mode"] = "online"
@@ -531,7 +532,7 @@ class MasterthermController:
 
         return data
 
-    def get_device_data_item(self, module_id: str, unit_id: str, entry: str) -> any:
+    def get_device_data_item(self, module_id: str, unit_id: str, entry: str) -> Any:
         """Get the Device Data Item based on the dot notation.
 
         Args:
@@ -626,7 +627,7 @@ class MasterthermController:
         return diagnostics_data
 
     async def set_device_data_item(
-        self, module_id: str, unit_id: str, entry: str, value: any
+        self, module_id: str, unit_id: str, entry: str, value: Any
     ) -> bool:
         """Set the Device Data and Update to the Mastertherm Heat Pump.
 

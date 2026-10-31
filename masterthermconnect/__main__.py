@@ -8,6 +8,7 @@ import logging
 from natsort import natsorted
 
 from aiohttp import ClientSession, ClientTimeout
+from typing import Any
 
 from masterthermconnect.__version__ import __version__
 from masterthermconnect.api import MasterthermAPI
@@ -17,7 +18,7 @@ from masterthermconnect.exceptions import MasterthermError
 _LOGGER: logging.Logger = logging.getLogger(__name__)
 
 
-def guess_type(value: str) -> any:
+def guess_type(value: str) -> Any:
     """Convert an Augument Type to a best guess format."""
     try:
         return int(value)
@@ -260,7 +261,7 @@ async def set_data(
     module_id: str,
     unit_id: str,
     data: str,
-    value: any,
+    value: Any,
 ) -> bool:
     """Connect to the MasterthermController to set data."""
     session = ClientSession(timeout=ClientTimeout(total=10))
@@ -412,7 +413,9 @@ def main(argv=None) -> int:
     try:
         args: argparse.Namespace = get_arguments(argv)
     except SystemExit as ex:
-        return ex.code
+        if ex.code is None:
+            return 0
+        return ex.code if type(ex.code) is int else 1
 
     # Check we have any arguments
     try:

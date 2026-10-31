@@ -7,6 +7,7 @@ import time
 from datetime import datetime, timedelta
 from hashlib import sha1
 from json.decoder import JSONDecodeError
+from typing import Any
 from urllib.parse import urljoin, quote_plus
 
 from natsort import natsorted
@@ -124,7 +125,7 @@ class MasterthermAPI:
                     urljoin(URL_BASE, url),
                     data=params,
                     headers={"Content-Type": "application/x-www-form-urlencoded"},
-                    cookies={"PHPSESSID": self.__token, "$version": "1"},
+                    cookies={"PHPSESSID": f"{self.__token}", "$version": "1"},
                 )
             else:
                 # New uses get, with Authorization Bearer
@@ -144,10 +145,12 @@ class MasterthermAPI:
                 response.status,
                 await response.text(),
             )
-            response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
+
+        try:
+            response_json = await response.json()
         except JSONDecodeError as ex:
             response_text = await response.text()
             _LOGGER.error(
@@ -185,7 +188,7 @@ class MasterthermAPI:
 
         return response_json
 
-    async def __get(self, url: str, params: str) -> dict:
+    async def __get(self, url: str, params: str | None) -> dict:
         """Get updates from the API, for old this mostly uses Post."""
         if await self.__token_expired():
             _LOGGER.info("__get: Token Expired, Refreshing Token.")
@@ -199,7 +202,7 @@ class MasterthermAPI:
                     urljoin(URL_BASE, url),
                     data=params,
                     headers={"content-type": "application/x-www-form-urlencoded"},
-                    cookies={"PHPSESSID": self.__token, "$version": "1"},
+                    cookies={"PHPSESSID": f"{self.__token}", "$version": "1"},
                 )
             else:
                 # New uses get, with Authorization Bearer
@@ -218,10 +221,12 @@ class MasterthermAPI:
                 response.status,
                 await response.text(),
             )
-            response_json = await response.json()
         except ClientConnectionError as ex:
             _LOGGER.error("Client Connection Error: %s", ex)
             raise MasterthermConnectionError("3", "Client Connection Error") from ex
+
+        try:
+            response_json = await response.json()
         except JSONDecodeError as ex:
             response_text = await response.text()
             _LOGGER.error(
@@ -382,6 +387,7 @@ class MasterthermAPI:
         params = f"moduleid={module_id}&unitid={unit_id}&application=android"
 
         _LOGGER.info("Get Device Info %s:%s", module_id, unit_id)
+        response_json = {}
         try:
             response_json = await self.__get(
                 url=URL_PUMPINFO if self.__api_version == "v1" else URL_PUMPINFO_NEW,
@@ -405,7 +411,7 @@ class MasterthermAPI:
         return response_json
 
     async def get_device_data(
-        self, module_id: str, unit_id: str, last_update_time: str = None
+        self, module_id: str, unit_id: str, last_update_time: str | float | None = None
     ) -> dict:
         """Get the Device lastest data.
 
@@ -439,6 +445,7 @@ class MasterthermAPI:
             )
 
         _LOGGER.info("Get Device Data %s:%s", module_id, unit_id)
+        response_json = {}
         try:
             response_json = await self.__get(
                 url=URL_PUMPDATA if self.__api_version == "v1" else URL_PUMPDATA_NEW,
@@ -488,7 +495,7 @@ class MasterthermAPI:
         return response_json
 
     async def set_device_data(
-        self, module_id: str, unit_id: str, register: str, value: any
+        self, module_id: str, unit_id: str, register: str, value: Any
     ) -> bool:
         """Set device data a specific register to a specific value.
 
@@ -519,6 +526,7 @@ class MasterthermAPI:
         )
 
         _LOGGER.info("Set Device Reg %s:%s:%s:%s", module_id, unit_id, register, value)
+        response_json = {}
         try:
             response_json = await self.__post(
                 url=(
